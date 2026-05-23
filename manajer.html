@@ -3,78 +3,93 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Login - Sistem Procurement ITK</title>
+  <title>Dashboard Manajer</title>
   <script src="https://cdn.tailwindcss.com"></script>
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 </head>
-<body class="bg-gradient-to-br from-blue-700 to-blue-900 min-h-screen flex items-center justify-center">
-  <div class="bg-white rounded-2xl shadow-2xl p-10 w-full max-w-md">
-    <div class="text-center mb-8">
-      <img src="https://upload.wikimedia.org/wikipedia/commons/thumb/6/6e/ITK_Logo.png/200px-ITK_Logo.png" 
-           class="w-20 mx-auto mb-3">
-      <h1 class="text-2xl font-bold text-blue-700">Sistem Procurement</h1>
-      <p class="text-gray-500 text-sm">Institut Teknologi Kalimantan</p>
+<body class="bg-gray-100 min-h-screen">
+  <nav class="bg-green-700 text-white px-6 py-4 flex justify-between items-center shadow">
+    <h1 class="font-bold text-lg">Dashboard Manajer</h1>
+    <button onclick="logout()" class="bg-white text-green-700 px-4 py-1 rounded-lg text-sm font-semibold">Logout</button>
+  </nav>
+  <div class="max-w-4xl mx-auto mt-8 px-4">
+    <div class="grid grid-cols-3 gap-4 mb-6">
+      <div class="bg-yellow-100 rounded-xl p-4 text-center">
+        <p class="text-2xl font-bold text-yellow-700" id="jmlMenunggu">-</p>
+        <p class="text-sm text-yellow-600">Menunggu</p>
+      </div>
+      <div class="bg-green-100 rounded-xl p-4 text-center">
+        <p class="text-2xl font-bold text-green-700" id="jmlDisetujui">-</p>
+        <p class="text-sm text-green-600">Disetujui</p>
+      </div>
+      <div class="bg-red-100 rounded-xl p-4 text-center">
+        <p class="text-2xl font-bold text-red-700" id="jmlDitolak">-</p>
+        <p class="text-sm text-red-600">Ditolak</p>
+      </div>
     </div>
-    <div class="mb-4">
-      <label class="block text-sm font-medium text-gray-700 mb-1">Email</label>
-      <input id="email" type="email" placeholder="email@itk.ac.id"
-        class="w-full border border-gray-300 rounded-lg px-4 py-2 focus:outline-none focus:ring-2 focus:ring-blue-400">
+    <div class="bg-white rounded-xl shadow p-6">
+      <h2 class="text-xl font-bold text-gray-700 mb-4">Purchase Request Menunggu Persetujuan</h2>
+      <div id="listPR"><p class="text-gray-400 text-sm">Memuat data...</p></div>
     </div>
-    <div class="mb-6">
-      <label class="block text-sm font-medium text-gray-700 mb-1">Password</label>
-      <input id="password" type="password" placeholder="••••••••"
-        class="w-full border border-gray-300 rounded-lg px-4 py-2 focus:outline-none focus:ring-2 focus:ring-blue-400">
-    </div>
-    <button onclick="login()"
-      class="w-full bg-blue-600 hover:bg-blue-700 text-white font-semibold py-3 rounded-lg transition">
-      Login
-    </button>
-    <p id="pesan" class="text-red-500 text-sm text-center mt-4"></p>
   </div>
-
   <script>
     const { createClient } = supabase
     const sb = createClient(
       'https://bgtgeltkbanlnvymalum.supabase.co',
       'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImJndGdlbHRrYmFubG52eW1hbHVtIiwicm9sZSI6ImFub24iLCJpYXQiOjE3Nzk1MTAwNDksImV4cCI6MjA5NTA4NjA0OX0.-JlapeQpug44SjkEKgb1wyoX2_ftdGGcAnTHJhdzvwE'
     )
-
-    async function login() {
-      const email = document.getElementById('email').value
-      const pass = document.getElementById('password').value
-      const pesan = document.getElementById('pesan')
-
-      if (!email || !pass) {
-        pesan.textContent = 'Email dan password wajib diisi!'
-        return
-      }
-
-      pesan.textContent = 'Memproses...'
-      pesan.className = 'text-blue-500 text-sm text-center mt-4'
-
-      const { data, error } = await sb.auth.signInWithPassword({
-        email: email,
-        password: pass
-      })
-
-      if (error) {
-        pesan.textContent = 'Login gagal! ' + error.message
-        pesan.className = 'text-red-500 text-sm text-center mt-4'
-        return
-      }
-
-      const { data: profile } = await sb
-        .from('profiles')
-        .select('role')
-        .eq('id', data.user.id)
-        .single()
-
-      const role = profile.role
-      if (role === 'manajer') location.href = 'manajer.html'
-      else if (role === 'staf_pengadaan') location.href = 'staf-pengadaan.html'
-      else if (role === 'staf_keuangan') location.href = 'staf-keuangan.html'
-      else location.href = 'user.html'
+    async function cekLogin() {
+      const { data } = await sb.auth.getSession()
+      if (!data.session) { window.location.href = 'index.html'; return }
+      muatSemua()
     }
+    async function muatSemua() {
+      const { data: semua } = await sb.from('purchase_request').select('*')
+      if (semua) {
+        document.getElementById('jmlMenunggu').textContent = semua.filter(x => x.status === 'menunggu').length
+        document.getElementById('jmlDisetujui').textContent = semua.filter(x => x.status === 'disetujui').length
+        document.getElementById('jmlDitolak').textContent = semua.filter(x => x.status === 'ditolak').length
+      }
+      const { data } = await sb.from('purchase_request').select('*')
+        .eq('status', 'menunggu').order('created_at', { ascending: false })
+      const container = document.getElementById('listPR')
+      if (!data || data.length === 0) {
+        container.innerHTML = '<p class="text-gray-400 text-sm">Tidak ada PR yang menunggu.</p>'
+        return
+      }
+      container.innerHTML = data.map(pr => `
+        <div class="border rounded-lg p-4 mb-4">
+          <div class="flex justify-between items-start mb-3">
+            <div>
+              <p class="font-semibold text-gray-700 text-lg">${pr.nama_barang}</p>
+              <p class="text-sm text-gray-500">Jumlah: ${pr.jumlah} unit</p>
+              <p class="text-sm text-gray-500">Spesifikasi: ${pr.spesifikasi}</p>
+              <p class="text-xs text-gray-400 mt-1">${new Date(pr.created_at).toLocaleDateString('id-ID')}</p>
+            </div>
+            <span class="text-xs font-bold px-3 py-1 rounded-full bg-yellow-100 text-yellow-700">MENUNGGU</span>
+          </div>
+          <div class="flex gap-3">
+            <button onclick="ubahStatus('${pr.id}', 'disetujui')"
+              class="bg-green-500 hover:bg-green-600 text-white px-5 py-2 rounded-lg text-sm font-semibold">
+              ✅ Setujui
+            </button>
+            <button onclick="ubahStatus('${pr.id}', 'ditolak')"
+              class="bg-red-500 hover:bg-red-600 text-white px-5 py-2 rounded-lg text-sm font-semibold">
+              ❌ Tolak
+            </button>
+          </div>
+        </div>
+      `).join('')
+    }
+    async function ubahStatus(id, status) {
+      await sb.from('purchase_request').update({ status }).eq('id', id)
+      muatSemua()
+    }
+    async function logout() {
+      await sb.auth.signOut()
+      window.location.href = 'index.html'
+    }
+    cekLogin()
   </script>
 </body>
 </html>
