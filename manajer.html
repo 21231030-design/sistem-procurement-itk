@@ -1,0 +1,104 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Dashboard Manajer</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+</head>
+<body class="bg-gray-100 min-h-screen">
+
+  <nav class="bg-green-700 text-white px-6 py-4 flex justify-between items-center shadow">
+    <h1 class="font-bold text-lg">Dashboard Manajer</h1>
+    <button onclick="logout()" class="bg-white text-green-700 px-4 py-1 rounded-lg text-sm font-semibold">Logout</button>
+  </nav>
+
+  <div class="max-w-4xl mx-auto mt-8 px-4">
+    <div class="grid grid-cols-3 gap-4 mb-6">
+      <div class="bg-yellow-100 rounded-xl p-4 text-center">
+        <p class="text-2xl font-bold text-yellow-700" id="jmlMenunggu">-</p>
+        <p class="text-sm text-yellow-600">Menunggu</p>
+      </div>
+      <div class="bg-green-100 rounded-xl p-4 text-center">
+        <p class="text-2xl font-bold text-green-700" id="jmlDisetujui">-</p>
+        <p class="text-sm text-green-600">Disetujui</p>
+      </div>
+      <div class="bg-red-100 rounded-xl p-4 text-center">
+        <p class="text-2xl font-bold text-red-700" id="jmlDitolak">-</p>
+        <p class="text-sm text-red-600">Ditolak</p>
+      </div>
+    </div>
+
+    <div class="bg-white rounded-xl shadow p-6">
+      <h2 class="text-xl font-bold text-gray-700 mb-4">Purchase Request Menunggu Persetujuan</h2>
+      <div id="listPR"><p class="text-gray-400 text-sm">Memuat data...</p></div>
+    </div>
+  </div>
+
+  <script>
+    const { createClient } = supabase
+    const sb = createClient('GANTI_URL_SUPABASE', 'GANTI_ANON_KEY')
+
+    async function cekLogin() {
+      const { data } = await sb.auth.getSession()
+      if (!data.session) { window.location.href = 'index.html'; return }
+      muatSemua()
+    }
+
+    async function muatSemua() {
+      const { data: semua } = await sb.from('purchase_request').select('*')
+      if (semua) {
+        document.getElementById('jmlMenunggu').textContent = semua.filter(x => x.status === 'menunggu').length
+        document.getElementById('jmlDisetujui').textContent = semua.filter(x => x.status === 'disetujui').length
+        document.getElementById('jmlDitolak').textContent = semua.filter(x => x.status === 'ditolak').length
+      }
+
+      const { data } = await sb.from('purchase_request').select('*')
+        .eq('status', 'menunggu').order('created_at', { ascending: false })
+
+      const container = document.getElementById('listPR')
+      if (!data || data.length === 0) {
+        container.innerHTML = '<p class="text-gray-400 text-sm">Tidak ada PR yang menunggu persetujuan.</p>'
+        return
+      }
+
+      container.innerHTML = data.map(pr => `
+        <div class="border rounded-lg p-4 mb-4">
+          <div class="flex justify-between items-start mb-3">
+            <div>
+              <p class="font-semibold text-gray-700 text-lg">${pr.nama_barang}</p>
+              <p class="text-sm text-gray-500">Jumlah: ${pr.jumlah} unit</p>
+              <p class="text-sm text-gray-500">Spesifikasi: ${pr.spesifikasi}</p>
+              <p class="text-xs text-gray-400 mt-1">${new Date(pr.created_at).toLocaleDateString('id-ID')}</p>
+            </div>
+            <span class="text-xs font-bold px-3 py-1 rounded-full bg-yellow-100 text-yellow-700">MENUNGGU</span>
+          </div>
+          <div class="flex gap-3">
+            <button onclick="ubahStatus('${pr.id}', 'disetujui')"
+              class="bg-green-500 hover:bg-green-600 text-white px-5 py-2 rounded-lg text-sm font-semibold">
+              ✅ Setujui
+            </button>
+            <button onclick="ubahStatus('${pr.id}', 'ditolak')"
+              class="bg-red-500 hover:bg-red-600 text-white px-5 py-2 rounded-lg text-sm font-semibold">
+              ❌ Tolak
+            </button>
+          </div>
+        </div>
+      `).join('')
+    }
+
+    async function ubahStatus(id, status) {
+      const { error } = await sb.from('purchase_request').update({ status }).eq('id', id)
+      if (!error) muatSemua()
+    }
+
+    async function logout() {
+      await sb.auth.signOut()
+      window.location.href = 'index.html'
+    }
+
+    cekLogin()
+  </script>
+</body>
+</html>
