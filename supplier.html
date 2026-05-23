@@ -1,0 +1,95 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Dashboard Supplier</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+</head>
+<body class="bg-pink-50 min-h-screen">
+  <nav class="bg-pink-600 text-white px-6 py-4 flex justify-between items-center shadow">
+    <h1 class="font-bold text-lg">Dashboard Supplier</h1>
+    <button onclick="logout()" class="bg-white text-pink-600 px-4 py-1 rounded-lg text-sm font-semibold">Logout</button>
+  </nav>
+
+  <div class="max-w-4xl mx-auto mt-8 px-4">
+    <div class="grid grid-cols-2 gap-4 mb-6">
+      <div class="bg-pink-100 rounded-xl p-4 text-center">
+        <p class="text-2xl font-bold text-pink-700" id="jmlPO">-</p>
+        <p class="text-sm text-pink-600">Total PO Masuk</p>
+      </div>
+      <div class="bg-rose-100 rounded-xl p-4 text-center">
+        <p class="text-2xl font-bold text-rose-700" id="jmlKonfirmasi">-</p>
+        <p class="text-sm text-rose-600">PO Dikonfirmasi</p>
+      </div>
+    </div>
+
+    <div class="bg-white rounded-xl shadow p-6 mb-6">
+      <h2 class="text-xl font-bold text-gray-700 mb-4">Purchase Order Masuk</h2>
+      <div id="listPO"><p class="text-gray-400 text-sm">Memuat data...</p></div>
+    </div>
+  </div>
+
+  <script>
+    const { createClient } = supabase
+    const sb = createClient(
+      'https://bgtgeltkbanlnvymalum.supabase.co',
+      'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImJndGdlbHRrYmFubG52eW1hbHVtIiwicm9sZSI6ImFub24iLCJpYXQiOjE3Nzk1MTAwNDksImV4cCI6MjA5NTA4NjA0OX0.-JlapeQpug44SjkEKgb1wyoX2_ftdGGcAnTHJhdzvwE'
+    )
+
+    async function cekLogin() {
+      const { data } = await sb.auth.getSession()
+      if (!data.session) { window.location.href = 'index.html'; return }
+      muatPO()
+    }
+
+    async function muatPO() {
+      const { data: sessionData } = await sb.auth.getSession()
+      const email = sessionData.session.user.email
+
+      const { data } = await sb.from('purchase_order')
+        .select('*')
+        .eq('email_supplier', email)
+        .order('created_at', { ascending: false })
+
+      document.getElementById('jmlPO').textContent = data ? data.length : 0
+      document.getElementById('jmlKonfirmasi').textContent = data
+        ? data.filter(x => x.status_po === 'dikonfirmasi').length : 0
+
+      const container = document.getElementById('listPO')
+      if (!data || data.length === 0) {
+        container.innerHTML = '<p class="text-gray-400 text-sm">Belum ada PO yang ditujukan ke Anda.</p>'
+        return
+      }
+
+      container.innerHTML = data.map(po => `
+        <div class="border border-pink-200 rounded-lg p-4 mb-3">
+          <div class="flex justify-between items-start">
+            <div>
+              <p class="font-semibold text-gray-700">${po.nama_supplier || '-'}</p>
+              <p class="text-sm text-gray-500">Total: Rp ${parseInt(po.total_harga || 0).toLocaleString('id-ID')}</p>
+              <p class="text-sm text-gray-500">Tgl Kirim: ${po.tgl_kirim || '-'}</p>
+              <p class="text-xs text-gray-400 mt-1">${new Date(po.created_at).toLocaleDateString('id-ID')}</p>
+            </div>
+            <span class="text-xs font-bold px-3 py-1 rounded-full ${
+              po.status_po === 'dikonfirmasi' ? 'bg-green-100 text-green-700' :
+              po.status_po === 'diproses' ? 'bg-blue-100 text-blue-700' :
+              'bg-yellow-100 text-yellow-700'
+            }">
+              ${(po.status_po || 'menunggu').toUpperCase()}
+            </span>
+          </div>
+        </div>
+      `).join('')
+    }
+
+    async function logout() {
+      await sb.auth.signOut()
+      window.location.href = 'index.html'
+    }
+
+    cekLogin()
+  </script>
+</body>
+</html>
