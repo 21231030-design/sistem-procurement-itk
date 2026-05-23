@@ -1,0 +1,171 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Dashboard Staf Pengadaan</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+</head>
+<body class="bg-gray-100 min-h-screen">
+
+  <nav class="bg-purple-700 text-white px-6 py-4 flex justify-between items-center shadow">
+    <h1 class="font-bold text-lg">Dashboard Staf Pengadaan</h1>
+    <button onclick="logout()" class="bg-white text-purple-700 px-4 py-1 rounded-lg text-sm font-semibold">Logout</button>
+  </nav>
+
+  <div class="max-w-4xl mx-auto mt-8 px-4">
+
+    <!-- PR Disetujui -->
+    <div class="bg-white rounded-xl shadow p-6 mb-6">
+      <h2 class="text-xl font-bold text-gray-700 mb-4">PR Disetujui — Buat Purchase Order</h2>
+      <div id="listPR"><p class="text-gray-400 text-sm">Memuat data...</p></div>
+    </div>
+
+    <!-- Form Buat PO -->
+    <div class="bg-white rounded-xl shadow p-6 mb-6" id="formPO" style="display:none">
+      <h2 class="text-xl font-bold text-gray-700 mb-4">Buat Purchase Order</h2>
+      <input type="hidden" id="selectedPR">
+      <div class="mb-3">
+        <label class="block text-sm font-medium text-gray-600 mb-1">Nama Supplier</label>
+        <input id="nama_supplier" type="text" placeholder="contoh: PT Sumber Jaya"
+          class="w-full border rounded-lg px-3 py-2 focus:outline-none focus:ring-2 focus:ring-purple-400">
+      </div>
+      <div class="mb-3">
+        <label class="block text-sm font-medium text-gray-600 mb-1">Total Harga (Rp)</label>
+        <input id="total_harga" type="number" placeholder="contoh: 50000000"
+          class="w-full border rounded-lg px-3 py-2 focus:outline-none focus:ring-2 focus:ring-purple-400">
+      </div>
+      <div class="mb-4">
+        <label class="block text-sm font-medium text-gray-600 mb-1">Tanggal Pengiriman</label>
+        <input id="tgl_kirim" type="date"
+          class="w-full border rounded-lg px-3 py-2 focus:outline-none focus:ring-2 focus:ring-purple-400">
+      </div>
+      <div class="flex gap-3">
+        <button onclick="buatPO()"
+          class="bg-purple-600 text-white px-6 py-2 rounded-lg hover:bg-purple-700 font-semibold">
+          Buat PO
+        </button>
+        <button onclick="tutupForm()"
+          class="bg-gray-300 text-gray-700 px-6 py-2 rounded-lg hover:bg-gray-400 font-semibold">
+          Batal
+        </button>
+      </div>
+      <p id="pesanPO" class="text-sm mt-2"></p>
+    </div>
+
+    <!-- Daftar PO -->
+    <div class="bg-white rounded-xl shadow p-6">
+      <h2 class="text-xl font-bold text-gray-700 mb-4">Riwayat Purchase Order</h2>
+      <div id="listPO"><p class="text-gray-400 text-sm">Memuat data...</p></div>
+    </div>
+  </div>
+
+  <script>
+    const { createClient } = supabase
+    const sb = createClient('GANTI_URL_SUPABASE', 'GANTI_ANON_KEY')
+
+    async function cekLogin() {
+      const { data } = await sb.auth.getSession()
+      if (!data.session) { window.location.href = 'index.html'; return }
+      muatPR()
+      muatPO()
+    }
+
+    async function muatPR() {
+      const { data } = await sb.from('purchase_request').select('*')
+        .eq('status', 'disetujui').order('created_at', { ascending: false })
+
+      const container = document.getElementById('listPR')
+      if (!data || data.length === 0) {
+        container.innerHTML = '<p class="text-gray-400 text-sm">Tidak ada PR yang sudah disetujui.</p>'
+        return
+      }
+
+      container.innerHTML = data.map(pr => `
+        <div class="border rounded-lg p-4 mb-3 flex justify-between items-center">
+          <div>
+            <p class="font-semibold text-gray-700">${pr.nama_barang}</p>
+            <p class="text-sm text-gray-500">Jumlah: ${pr.jumlah} | ${pr.spesifikasi}</p>
+          </div>
+          <button onclick="bukaForm('${pr.id}', '${pr.nama_barang}')"
+            class="bg-purple-600 text-white px-4 py-2 rounded-lg text-sm hover:bg-purple-700 font-semibold">
+            Buat PO
+          </button>
+        </div>
+      `).join('')
+    }
+
+    async function muatPO() {
+      const { data } = await sb.from('purchase_order').select('*')
+        .order('created_at', { ascending: false })
+
+      const container = document.getElementById('listPO')
+      if (!data || data.length === 0) {
+        container.innerHTML = '<p class="text-gray-400 text-sm">Belum ada PO dibuat.</p>'
+        return
+      }
+
+      const warna = { draft: 'gray', diajukan: 'blue', disetujui: 'green', selesai: 'green' }
+      container.innerHTML = data.map(po => `
+        <div class="border rounded-lg p-4 mb-3 flex justify-between items-center">
+          <div>
+            <p class="font-semibold text-gray-700">${po.nama_supplier}</p>
+            <p class="text-sm text-gray-500">Total: Rp ${parseInt(po.total_harga).toLocaleString('id-ID')}</p>
+            <p class="text-sm text-gray-500">Tgl Kirim: ${po.tgl_kirim}</p>
+          </div>
+          <span class="text-xs font-bold px-3 py-1 rounded-full bg-${warna[po.status] || 'gray'}-100 text-${warna[po.status] || 'gray'}-700">
+            ${po.status.toUpperCase()}
+          </span>
+        </div>
+      `).join('')
+    }
+
+    function bukaForm(prId, namaPR) {
+      document.getElementById('selectedPR').value = prId
+      document.getElementById('formPO').style.display = 'block'
+      document.getElementById('formPO').scrollIntoView({ behavior: 'smooth' })
+    }
+
+    function tutupForm() {
+      document.getElementById('formPO').style.display = 'none'
+    }
+
+    async function buatPO() {
+      const prId = document.getElementById('selectedPR').value
+      const supplier = document.getElementById('nama_supplier').value
+      const harga = document.getElementById('total_harga').value
+      const tgl = document.getElementById('tgl_kirim').value
+      const pesan = document.getElementById('pesanPO')
+
+      if (!supplier || !harga || !tgl) {
+        pesan.textContent = 'Semua kolom wajib diisi!'
+        pesan.className = 'text-red-500 text-sm mt-2'
+        return
+      }
+
+      const { error } = await sb.from('purchase_order').insert({
+        pr_id: prId, nama_supplier: supplier,
+        total_harga: parseFloat(harga), tgl_kirim: tgl, status: 'diajukan'
+      })
+
+      if (error) {
+        pesan.textContent = 'Gagal membuat PO! ' + error.message
+        pesan.className = 'text-red-500 text-sm mt-2'
+      } else {
+        pesan.textContent = '✅ PO berhasil dibuat!'
+        pesan.className = 'text-green-600 text-sm mt-2'
+        tutupForm()
+        muatPO()
+      }
+    }
+
+    async function logout() {
+      await sb.auth.signOut()
+      window.location.href = 'index.html'
+    }
+
+    cekLogin()
+  </script>
+</body>
+</html>
