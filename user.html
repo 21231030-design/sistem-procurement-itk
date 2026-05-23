@@ -8,12 +8,10 @@
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 </head>
 <body class="bg-gray-100 min-h-screen">
-
   <nav class="bg-blue-700 text-white px-6 py-4 flex justify-between items-center shadow">
     <h1 class="font-bold text-lg">Dashboard User</h1>
     <button onclick="logout()" class="bg-white text-blue-700 px-4 py-1 rounded-lg text-sm font-semibold">Logout</button>
   </nav>
-
   <div class="max-w-3xl mx-auto mt-8 px-4">
     <div class="bg-white rounded-xl shadow p-6 mb-6">
       <h2 class="text-xl font-bold text-gray-700 mb-4">Ajukan Purchase Request</h2>
@@ -38,23 +36,22 @@
       </button>
       <p id="pesanPR" class="text-sm mt-2"></p>
     </div>
-
     <div class="bg-white rounded-xl shadow p-6">
       <h2 class="text-xl font-bold text-gray-700 mb-4">Riwayat Pengajuan Saya</h2>
       <div id="listPR"><p class="text-gray-400 text-sm">Memuat data...</p></div>
     </div>
   </div>
-
   <script>
     const { createClient } = supabase
-    const sb = createClient('https://bgtgeltkbanlnvymalum.supabase.co', 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImJndGdlbHRrYmFubG52eW1hbHVtIiwicm9sZSI6ImFub24iLCJpYXQiOjE3Nzk1MTAwNDksImV4cCI6MjA5NTA4NjA0OX0.-JlapeQpug44SjkEKgb1wyoX2_ftdGGcAnTHJhdzvwE')
-
+    const sb = createClient(
+      'https://bgtgeltkbanlnvymalum.supabase.co',
+      'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImJndGdlbHRrYmFubG52eW1hbHVtIiwicm9sZSI6ImFub24iLCJpYXQiOjE3Nzk1MTAwNDksImV4cCI6MjA5NTA4NjA0OX0.-JlapeQpug44SjkEKgb1wyoX2_ftdGGcAnTHJhdzvwE'
+    )
     async function cekLogin() {
       const { data } = await sb.auth.getSession()
       if (!data.session) { window.location.href = 'index.html'; return }
       muatPR()
     }
-
     async function ajukanPR() {
       const { data: sessionData } = await sb.auth.getSession()
       const userId = sessionData.session.user.id
@@ -62,18 +59,15 @@
       const jumlah = document.getElementById('jumlah').value
       const spesifikasi = document.getElementById('spesifikasi').value
       const pesan = document.getElementById('pesanPR')
-
       if (!nama || !jumlah || !spesifikasi) {
         pesan.textContent = 'Semua kolom wajib diisi!'
         pesan.className = 'text-red-500 text-sm mt-2'
         return
       }
-
       const { error } = await sb.from('purchase_request').insert({
         user_id: userId, nama_barang: nama,
         jumlah: parseInt(jumlah), spesifikasi: spesifikasi, status: 'menunggu'
       })
-
       if (error) {
         pesan.textContent = 'Gagal mengirim! ' + error.message
         pesan.className = 'text-red-500 text-sm mt-2'
@@ -86,19 +80,16 @@
         muatPR()
       }
     }
-
     async function muatPR() {
       const { data: sessionData } = await sb.auth.getSession()
       const userId = sessionData.session.user.id
       const { data } = await sb.from('purchase_request').select('*')
         .eq('user_id', userId).order('created_at', { ascending: false })
-
       const container = document.getElementById('listPR')
       if (!data || data.length === 0) {
         container.innerHTML = '<p class="text-gray-400 text-sm">Belum ada pengajuan.</p>'
         return
       }
-
       const warna = { menunggu: 'yellow', disetujui: 'green', ditolak: 'red' }
       container.innerHTML = data.map(pr => `
         <div class="border rounded-lg p-4 mb-3">
@@ -115,12 +106,10 @@
         </div>
       `).join('')
     }
-
     async function logout() {
       await sb.auth.signOut()
       window.location.href = 'index.html'
     }
-
     cekLogin()
   </script>
 </body>
