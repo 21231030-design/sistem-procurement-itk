@@ -8,15 +8,11 @@
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 </head>
 <body class="bg-gray-100 min-h-screen">
-
   <nav class="bg-orange-600 text-white px-6 py-4 flex justify-between items-center shadow">
     <h1 class="font-bold text-lg">Dashboard Staf Keuangan</h1>
     <button onclick="logout()" class="bg-white text-orange-600 px-4 py-1 rounded-lg text-sm font-semibold">Logout</button>
   </nav>
-
   <div class="max-w-4xl mx-auto mt-8 px-4">
-
-    <!-- Ringkasan -->
     <div class="grid grid-cols-2 gap-4 mb-6">
       <div class="bg-blue-100 rounded-xl p-4 text-center">
         <p class="text-2xl font-bold text-blue-700" id="jmlPO">-</p>
@@ -27,43 +23,35 @@
         <p class="text-sm text-green-600">Invoice Lunas</p>
       </div>
     </div>
-
-    <!-- Daftar PO untuk diverifikasi -->
     <div class="bg-white rounded-xl shadow p-6 mb-6">
-      <h2 class="text-xl font-bold text-gray-700 mb-4">Purchase Order — Verifikasi Pembayaran</h2>
+      <h2 class="text-xl font-bold text-gray-700 mb-4">Purchase Order — Buat Invoice</h2>
       <div id="listPO"><p class="text-gray-400 text-sm">Memuat data...</p></div>
     </div>
-
-    <!-- Riwayat Invoice -->
     <div class="bg-white rounded-xl shadow p-6">
       <h2 class="text-xl font-bold text-gray-700 mb-4">Riwayat Invoice</h2>
       <div id="listInvoice"><p class="text-gray-400 text-sm">Memuat data...</p></div>
     </div>
   </div>
-
   <script>
     const { createClient } = supabase
-    const sb = createClient('https://bgtgeltkbanlnvymalum.supabase.co', 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImJndGdlbHRrYmFubG52eW1hbHVtIiwicm9sZSI6ImFub24iLCJpYXQiOjE3Nzk1MTAwNDksImV4cCI6MjA5NTA4NjA0OX0.-JlapeQpug44SjkEKgb1wyoX2_ftdGGcAnTHJhdzvwE')
-
+    const sb = createClient(
+      'https://bgtgeltkbanlnvymalum.supabase.co',
+      'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImJndGdlbHRrYmFubG52eW1hbHVtIiwicm9sZSI6ImFub24iLCJpYXQiOjE3Nzk1MTAwNDksImV4cCI6MjA5NTA4NjA0OX0.-JlapeQpug44SjkEKgb1wyoX2_ftdGGcAnTHJhdzvwE'
+    )
     async function cekLogin() {
       const { data } = await sb.auth.getSession()
       if (!data.session) { window.location.href = 'index.html'; return }
-      muatPO()
-      muatInvoice()
+      muatPO(); muatInvoice()
     }
-
     async function muatPO() {
       const { data } = await sb.from('purchase_order').select('*')
         .order('created_at', { ascending: false })
-
       document.getElementById('jmlPO').textContent = data ? data.length : 0
-
       const container = document.getElementById('listPO')
       if (!data || data.length === 0) {
         container.innerHTML = '<p class="text-gray-400 text-sm">Belum ada PO.</p>'
         return
       }
-
       container.innerHTML = data.map(po => `
         <div class="border rounded-lg p-4 mb-3">
           <div class="flex justify-between items-start mb-2">
@@ -71,7 +59,6 @@
               <p class="font-semibold text-gray-700">${po.nama_supplier}</p>
               <p class="text-sm text-gray-500">Total: Rp ${parseInt(po.total_harga).toLocaleString('id-ID')}</p>
               <p class="text-sm text-gray-500">Tgl Kirim: ${po.tgl_kirim}</p>
-              <p class="text-xs text-gray-400">Status PO: ${po.status.toUpperCase()}</p>
             </div>
           </div>
           <button onclick="buatInvoice('${po.id}', ${po.total_harga}, '${po.nama_supplier}')"
@@ -81,20 +68,16 @@
         </div>
       `).join('')
     }
-
     async function muatInvoice() {
       const { data } = await sb.from('invoice').select('*')
         .order('created_at', { ascending: false })
-
       document.getElementById('jmlLunas').textContent = data
         ? data.filter(x => x.status_bayar === 'lunas').length : 0
-
       const container = document.getElementById('listInvoice')
       if (!data || data.length === 0) {
         container.innerHTML = '<p class="text-gray-400 text-sm">Belum ada invoice.</p>'
         return
       }
-
       container.innerHTML = data.map(inv => `
         <div class="border rounded-lg p-4 mb-3 flex justify-between items-center">
           <div>
@@ -115,28 +98,21 @@
         </div>
       `).join('')
     }
-
     async function buatInvoice(poId, totalHarga, namaSupplier) {
       const { error } = await sb.from('invoice').insert({
         po_id: poId, jumlah_tagihan: totalHarga,
         nama_supplier: namaSupplier, status_bayar: 'belum_lunas'
       })
-      if (!error) {
-        alert('Invoice berhasil dibuat!')
-        muatInvoice()
-      }
+      if (!error) { alert('Invoice berhasil dibuat!'); muatInvoice() }
     }
-
     async function bayarInvoice(id) {
-      const { error } = await sb.from('invoice').update({ status_bayar: 'lunas' }).eq('id', id)
-      if (!error) muatInvoice()
+      await sb.from('invoice').update({ status_bayar: 'lunas' }).eq('id', id)
+      muatInvoice()
     }
-
     async function logout() {
       await sb.auth.signOut()
       window.location.href = 'index.html'
     }
-
     cekLogin()
   </script>
 </body>
