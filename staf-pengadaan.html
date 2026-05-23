@@ -26,13 +26,13 @@
           class="w-full border rounded-lg px-3 py-2 focus:outline-none focus:ring-2 focus:ring-purple-400">
       </div>
       <div class="mb-3">
-        <label class="block text-sm font-medium text-gray-600 mb-1">Total Harga (Rp)</label>
-        <input id="total_harga" type="number" placeholder="contoh: 50000000"
+        <label class="block text-sm font-medium text-gray-600 mb-1">Email Supplier</label>
+        <input id="email_supplier" type="email" placeholder="contoh: supplier@example.com"
           class="w-full border rounded-lg px-3 py-2 focus:outline-none focus:ring-2 focus:ring-purple-400">
       </div>
       <div class="mb-3">
-        <label class="block text-sm font-medium text-gray-600 mb-1">Email Supplier</label>
-        <input id="email_supplier" type="email" placeholder="contoh: supplier@example.com"
+        <label class="block text-sm font-medium text-gray-600 mb-1">Total Harga (Rp)</label>
+        <input id="total_harga" type="number" placeholder="contoh: 50000000"
           class="w-full border rounded-lg px-3 py-2 focus:outline-none focus:ring-2 focus:ring-purple-400">
       </div>
       <div class="mb-4">
@@ -97,6 +97,7 @@
         <div class="border rounded-lg p-4 mb-3 flex justify-between items-center">
           <div>
             <p class="font-semibold text-gray-700">${po.nama_supplier}</p>
+            <p class="text-sm text-gray-500">Email: ${po.email_supplier || '-'}</p>
             <p class="text-sm text-gray-500">Total: Rp ${parseInt(po.total_harga).toLocaleString('id-ID')}</p>
             <p class="text-sm text-gray-500">Tgl Kirim: ${po.tgl_kirim}</p>
           </div>
@@ -117,19 +118,19 @@
     async function buatPO() {
       const prId = document.getElementById('selectedPR').value
       const supplier = document.getElementById('nama_supplier').value
+      const emailSupplier = document.getElementById('email_supplier').value
       const harga = document.getElementById('total_harga').value
       const tgl = document.getElementById('tgl_kirim').value
       const pesan = document.getElementById('pesanPO')
-      if (!supplier || !harga || !tgl) {
+      if (!supplier || !emailSupplier || !harga || !tgl) {
         pesan.textContent = 'Semua kolom wajib diisi!'
         pesan.className = 'text-red-500 text-sm mt-2'
         return
       }
-      const emailSupplier = document.getElementById('email_supplier').value
       const { error } = await sb.from('purchase_order').insert({
         pr_id: prId, nama_supplier: supplier,
-        total_harga: parseFloat(harga), tgl_kirim: tgl, 
-        status: 'diajukan', email_supplier: emailSupplier
+        email_supplier: emailSupplier,
+        total_harga: parseFloat(harga), tgl_kirim: tgl, status: 'diajukan'
       })
       if (error) {
         pesan.textContent = 'Gagal membuat PO! ' + error.message
