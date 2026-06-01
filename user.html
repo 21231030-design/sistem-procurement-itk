@@ -3,397 +3,146 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Dashboard Pengadaan — User</title>
+  <title>Dashboard User — Sistem Pengadaan</title>
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
   <link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@300;400;500;600&family=DM+Mono:wght@400;500&display=swap" rel="stylesheet">
   <style>
     *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
-
     :root {
-      --navy: #0f2847;
-      --navy-mid: #1a3a63;
-      --navy-light: #2a5298;
-      --accent: #3b82f6;
-      --accent-soft: #dbeafe;
-      --gold: #f59e0b;
-      --gold-soft: #fef3c7;
-      --success: #10b981;
-      --success-soft: #d1fae5;
-      --danger: #ef4444;
-      --danger-soft: #fee2e2;
-      --warn: #f59e0b;
-      --warn-soft: #fef3c7;
-      --surface: #ffffff;
-      --bg: #f0f4f8;
-      --border: #e2e8f0;
-      --text: #1e293b;
-      --muted: #64748b;
-      --radius: 12px;
-      --radius-sm: 8px;
+      --navy: #0f2847; --navy-mid: #1a3a63; --navy-light: #2a5298;
+      --accent: #3b82f6; --accent-soft: #dbeafe;
+      --success: #10b981; --success-soft: #d1fae5;
+      --danger: #ef4444; --danger-soft: #fee2e2;
+      --warn: #f59e0b; --warn-soft: #fef3c7;
+      --purple: #7c3aed; --purple-soft: #ede9fe;
+      --teal: #0d9488; --teal-soft: #ccfbf1;
+      --surface: #ffffff; --bg: #f0f4f8;
+      --border: #e2e8f0; --text: #1e293b; --muted: #64748b;
+      --radius: 12px; --radius-sm: 8px;
     }
-
-    body {
-      font-family: 'DM Sans', sans-serif;
-      background: var(--bg);
-      color: var(--text);
-      min-height: 100vh;
-    }
+    body { font-family: 'DM Sans', sans-serif; background: var(--bg); color: var(--text); min-height: 100vh; }
 
     /* NAV */
     nav {
       background: linear-gradient(135deg, var(--navy) 0%, var(--navy-mid) 100%);
-      padding: 0 2rem;
-      height: 64px;
-      display: flex;
-      align-items: center;
-      justify-content: space-between;
+      padding: 0 2rem; height: 64px;
+      display: flex; align-items: center; justify-content: space-between;
       box-shadow: 0 2px 16px rgba(15,40,71,0.18);
-      position: sticky;
-      top: 0;
-      z-index: 100;
+      position: sticky; top: 0; z-index: 100;
     }
-
-    .nav-brand {
-      display: flex;
-      align-items: center;
-      gap: 12px;
-    }
-
-    .nav-logo {
-      width: 36px;
-      height: 36px;
-      background: rgba(255,255,255,0.12);
-      border-radius: 10px;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-    }
-
+    .nav-brand { display: flex; align-items: center; gap: 12px; }
+    .nav-logo { width: 36px; height: 36px; background: rgba(255,255,255,0.12); border-radius: 10px; display: flex; align-items: center; justify-content: center; }
     .nav-logo svg { width: 20px; height: 20px; stroke: #fff; fill: none; stroke-width: 2; }
-
-    .nav-title {
-      font-size: 15px;
-      font-weight: 600;
-      color: #ffffff;
-      letter-spacing: 0.01em;
-    }
-
-    .nav-sub {
-      font-size: 12px;
-      color: rgba(255,255,255,0.55);
-      font-weight: 400;
-    }
-
-    .nav-right { display: flex; align-items: center; gap: 12px; }
-
-    .user-chip {
-      display: flex;
-      align-items: center;
-      gap: 8px;
-      background: rgba(255,255,255,0.1);
-      border: 1px solid rgba(255,255,255,0.15);
-      border-radius: 40px;
-      padding: 6px 14px 6px 8px;
-      color: rgba(255,255,255,0.85);
-      font-size: 13px;
-    }
-
-    .avatar-sm {
-      width: 26px;
-      height: 26px;
-      border-radius: 50%;
-      background: var(--accent);
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      font-size: 11px;
-      font-weight: 600;
-      color: #fff;
-    }
-
-    .btn-logout {
-      background: rgba(255,255,255,0.12);
-      border: 1px solid rgba(255,255,255,0.2);
-      color: #fff;
-      padding: 7px 16px;
-      border-radius: 8px;
-      font-size: 13px;
-      font-family: 'DM Sans', sans-serif;
-      cursor: pointer;
-      transition: background 0.2s;
-      font-weight: 500;
-    }
+    .nav-title { font-size: 15px; font-weight: 600; color: #fff; }
+    .nav-sub { font-size: 12px; color: rgba(255,255,255,0.5); }
+    .nav-right { display: flex; align-items: center; gap: 10px; }
+    .user-chip { display: flex; align-items: center; gap: 8px; background: rgba(255,255,255,0.1); border: 1px solid rgba(255,255,255,0.15); border-radius: 40px; padding: 5px 12px 5px 6px; color: rgba(255,255,255,0.85); font-size: 13px; }
+    .avatar-sm { width: 26px; height: 26px; border-radius: 50%; background: var(--accent); display: flex; align-items: center; justify-content: center; font-size: 11px; font-weight: 600; color: #fff; }
+    .btn-logout { background: rgba(255,255,255,0.12); border: 1px solid rgba(255,255,255,0.2); color: #fff; padding: 7px 14px; border-radius: 8px; font-size: 13px; font-family: 'DM Sans', sans-serif; cursor: pointer; font-weight: 500; }
     .btn-logout:hover { background: rgba(255,255,255,0.22); }
 
     /* LAYOUT */
-    .container {
-      max-width: 1000px;
-      margin: 0 auto;
-      padding: 2rem 1.5rem;
-    }
+    .container { max-width: 1040px; margin: 0 auto; padding: 1.75rem 1.5rem; }
 
     /* ALUR BANNER */
-    .flow-banner {
-      background: var(--navy);
-      border-radius: var(--radius);
-      padding: 1.25rem 1.5rem;
-      margin-bottom: 1.5rem;
-      display: flex;
-      align-items: center;
-      gap: 0;
-      overflow-x: auto;
-    }
-
-    .flow-step {
-      display: flex;
-      align-items: center;
-      gap: 8px;
-      flex-shrink: 0;
-    }
-
-    .flow-dot {
-      width: 28px;
-      height: 28px;
-      border-radius: 50%;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      font-size: 12px;
-      font-weight: 600;
-      flex-shrink: 0;
-    }
-
+    .flow-banner { background: var(--navy); border-radius: var(--radius); padding: 1rem 1.5rem; margin-bottom: 1.5rem; display: flex; align-items: center; gap: 0; overflow-x: auto; }
+    .flow-step { display: flex; align-items: center; gap: 7px; flex-shrink: 0; }
+    .flow-dot { width: 26px; height: 26px; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 11px; font-weight: 600; flex-shrink: 0; }
     .flow-dot.active { background: var(--accent); color: #fff; }
-    .flow-dot.inactive { background: rgba(255,255,255,0.12); color: rgba(255,255,255,0.45); }
-
-    .flow-label { font-size: 12px; font-weight: 500; color: rgba(255,255,255,0.75); }
+    .flow-dot.inactive { background: rgba(255,255,255,0.1); color: rgba(255,255,255,0.4); }
+    .flow-label { font-size: 12px; font-weight: 500; color: rgba(255,255,255,0.6); white-space: nowrap; }
     .flow-label.active { color: #fff; }
+    .flow-arrow { width: 24px; height: 1px; background: rgba(255,255,255,0.18); margin: 0 6px; flex-shrink: 0; position: relative; }
+    .flow-arrow::after { content: ''; position: absolute; right: 0; top: -3px; border-left: 5px solid rgba(255,255,255,0.2); border-top: 3px solid transparent; border-bottom: 3px solid transparent; }
 
-    .flow-arrow {
-      width: 28px;
-      height: 1px;
-      background: rgba(255,255,255,0.2);
-      margin: 0 8px;
-      flex-shrink: 0;
-      position: relative;
-    }
-    .flow-arrow::after {
-      content: '';
-      position: absolute;
-      right: 0;
-      top: -3px;
-      width: 0;
-      height: 0;
-      border-left: 5px solid rgba(255,255,255,0.25);
-      border-top: 3px solid transparent;
-      border-bottom: 3px solid transparent;
-    }
-
-    .flow-note {
-      margin-left: auto;
-      font-size: 11px;
-      color: rgba(255,255,255,0.4);
-      flex-shrink: 0;
-      padding-left: 1rem;
-    }
+    /* STATS */
+    .stat-row { display: grid; grid-template-columns: repeat(4, 1fr); gap: 10px; margin-bottom: 1.5rem; }
+    .stat-card { background: var(--surface); border: 1px solid var(--border); border-radius: var(--radius-sm); padding: 1rem; text-align: center; }
+    .stat-num { font-size: 22px; font-weight: 600; font-family: 'DM Mono', monospace; }
+    .stat-label { font-size: 11px; color: var(--muted); margin-top: 2px; }
 
     /* GRID */
-    .grid-2 {
-      display: grid;
-      grid-template-columns: 1fr 1.4fr;
-      gap: 1.5rem;
-      align-items: start;
-    }
-
-    @media (max-width: 720px) {
-      .grid-2 { grid-template-columns: 1fr; }
-      .flow-note { display: none; }
-    }
+    .grid-2 { display: grid; grid-template-columns: 1fr 1.5fr; gap: 1.25rem; align-items: start; }
+    @media (max-width: 720px) { .grid-2 { grid-template-columns: 1fr; } .stat-row { grid-template-columns: repeat(2,1fr); } }
 
     /* CARD */
-    .card {
-      background: var(--surface);
-      border-radius: var(--radius);
-      border: 1px solid var(--border);
-      overflow: hidden;
-    }
-
-    .card-header {
-      padding: 1.25rem 1.5rem;
-      border-bottom: 1px solid var(--border);
-      display: flex;
-      align-items: center;
-      gap: 10px;
-    }
-
-    .card-icon {
-      width: 36px;
-      height: 36px;
-      border-radius: 9px;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      flex-shrink: 0;
-    }
-
-    .card-icon svg { width: 18px; height: 18px; stroke-width: 1.8; fill: none; }
-
-    .card-icon.blue { background: var(--accent-soft); }
-    .card-icon.blue svg { stroke: var(--accent); }
-    .card-icon.navy { background: rgba(15,40,71,0.08); }
-    .card-icon.navy svg { stroke: var(--navy); }
-
-    .card-title { font-size: 15px; font-weight: 600; color: var(--text); }
+    .card { background: var(--surface); border-radius: var(--radius); border: 1px solid var(--border); overflow: hidden; }
+    .card-header { padding: 1.1rem 1.25rem; border-bottom: 1px solid var(--border); display: flex; align-items: center; gap: 10px; }
+    .card-icon { width: 34px; height: 34px; border-radius: 8px; display: flex; align-items: center; justify-content: center; flex-shrink: 0; }
+    .card-icon svg { width: 17px; height: 17px; stroke-width: 1.8; fill: none; }
+    .card-icon.blue { background: var(--accent-soft); } .card-icon.blue svg { stroke: var(--accent); }
+    .card-icon.navy { background: rgba(15,40,71,0.07); } .card-icon.navy svg { stroke: var(--navy); }
+    .card-title { font-size: 14px; font-weight: 600; }
     .card-subtitle { font-size: 12px; color: var(--muted); margin-top: 1px; }
-
-    .card-body { padding: 1.5rem; }
+    .card-body { padding: 1.25rem; }
 
     /* FORM */
-    .field { margin-bottom: 1.1rem; }
-
-    .field label {
-      display: block;
-      font-size: 12px;
-      font-weight: 500;
-      color: var(--muted);
-      text-transform: uppercase;
-      letter-spacing: 0.05em;
-      margin-bottom: 6px;
-    }
-
-    .field input,
-    .field textarea,
-    .field select {
-      width: 100%;
-      border: 1.5px solid var(--border);
-      border-radius: var(--radius-sm);
-      padding: 9px 12px;
-      font-size: 14px;
-      font-family: 'DM Sans', sans-serif;
-      color: var(--text);
-      background: var(--bg);
-      transition: border-color 0.2s, box-shadow 0.2s;
-      outline: none;
-    }
-
-    .field input:focus,
-    .field textarea:focus {
-      border-color: var(--accent);
-      box-shadow: 0 0 0 3px rgba(59,130,246,0.1);
-      background: #fff;
-    }
-
-    .field textarea { height: 90px; resize: vertical; }
-
-    .btn-submit {
-      width: 100%;
-      background: var(--navy);
-      color: #fff;
-      border: none;
-      border-radius: var(--radius-sm);
-      padding: 11px;
-      font-size: 14px;
-      font-weight: 600;
-      font-family: 'DM Sans', sans-serif;
-      cursor: pointer;
-      transition: background 0.2s, transform 0.1s;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      gap: 8px;
-      margin-top: 0.25rem;
-    }
+    .field { margin-bottom: 1rem; }
+    .field label { display: block; font-size: 11px; font-weight: 500; color: var(--muted); text-transform: uppercase; letter-spacing: 0.05em; margin-bottom: 5px; }
+    .field input, .field textarea { width: 100%; border: 1.5px solid var(--border); border-radius: var(--radius-sm); padding: 8px 11px; font-size: 14px; font-family: 'DM Sans', sans-serif; color: var(--text); background: var(--bg); outline: none; transition: border-color 0.2s, box-shadow 0.2s; }
+    .field input:focus, .field textarea:focus { border-color: var(--accent); box-shadow: 0 0 0 3px rgba(59,130,246,0.1); background: #fff; }
+    .field textarea { height: 80px; resize: vertical; }
+    .btn-submit { width: 100%; background: var(--navy); color: #fff; border: none; border-radius: var(--radius-sm); padding: 10px; font-size: 14px; font-weight: 600; font-family: 'DM Sans', sans-serif; cursor: pointer; display: flex; align-items: center; justify-content: center; gap: 7px; margin-top: 4px; }
     .btn-submit:hover { background: var(--navy-light); }
-    .btn-submit:active { transform: scale(0.99); }
-    .btn-submit svg { width: 16px; height: 16px; stroke: #fff; fill: none; stroke-width: 2; }
-
-    .alert {
-      padding: 9px 12px;
-      border-radius: var(--radius-sm);
-      font-size: 13px;
-      margin-top: 10px;
-      display: none;
-    }
+    .btn-submit svg { width: 15px; height: 15px; stroke: #fff; fill: none; stroke-width: 2; }
+    .alert { padding: 8px 11px; border-radius: var(--radius-sm); font-size: 13px; margin-top: 9px; display: none; }
     .alert.show { display: block; }
     .alert.success { background: var(--success-soft); color: #065f46; }
     .alert.error { background: var(--danger-soft); color: #991b1b; }
 
-    /* LIST */
-    .pr-item {
-      border: 1px solid var(--border);
-      border-radius: var(--radius-sm);
-      padding: 1rem 1.1rem;
-      margin-bottom: 0.75rem;
-      transition: box-shadow 0.2s;
-    }
+    /* PR ITEM */
+    .pr-item { border: 1px solid var(--border); border-radius: var(--radius-sm); padding: 1rem 1.1rem; margin-bottom: 0.65rem; transition: box-shadow 0.15s; }
     .pr-item:last-child { margin-bottom: 0; }
     .pr-item:hover { box-shadow: 0 2px 10px rgba(0,0,0,0.06); }
-
-    .pr-row { display: flex; align-items: flex-start; justify-content: space-between; gap: 12px; }
-
-    .pr-name { font-size: 14px; font-weight: 600; color: var(--text); margin-bottom: 3px; }
+    .pr-row { display: flex; align-items: flex-start; justify-content: space-between; gap: 10px; }
+    .pr-name { font-size: 14px; font-weight: 600; margin-bottom: 3px; }
     .pr-meta { font-size: 12px; color: var(--muted); line-height: 1.5; }
+    .pr-date { font-size: 11px; color: var(--muted); margin-top: 5px; font-family: 'DM Mono', monospace; }
 
-    .badge {
-      display: inline-flex;
-      align-items: center;
-      gap: 4px;
-      font-size: 11px;
-      font-weight: 600;
-      padding: 4px 10px;
-      border-radius: 40px;
-      white-space: nowrap;
-      flex-shrink: 0;
-    }
-
+    /* BADGES */
+    .badge { display: inline-flex; align-items: center; gap: 4px; font-size: 11px; font-weight: 600; padding: 3px 9px; border-radius: 40px; white-space: nowrap; flex-shrink: 0; }
+    .badge-dot { width: 5px; height: 5px; border-radius: 50%; }
     .badge.menunggu { background: var(--warn-soft); color: #92400e; }
+    .badge.menunggu .badge-dot { background: var(--warn); }
+    .badge.diverifikasi { background: var(--teal-soft); color: #134e4a; }
+    .badge.diverifikasi .badge-dot { background: var(--teal); }
     .badge.disetujui { background: var(--success-soft); color: #065f46; }
+    .badge.disetujui .badge-dot { background: var(--success); }
     .badge.ditolak { background: var(--danger-soft); color: #991b1b; }
+    .badge.ditolak .badge-dot { background: var(--danger); }
+    .badge.diproses { background: var(--accent-soft); color: #1e40af; }
+    .badge.diproses .badge-dot { background: var(--accent); }
+    .badge.dikirim { background: var(--purple-soft); color: #5b21b6; }
+    .badge.dikirim .badge-dot { background: var(--purple); }
+    .badge.diterima { background: var(--success-soft); color: #065f46; }
+    .badge.diterima .badge-dot { background: var(--success); }
+    .badge.selesai { background: #f1f5f9; color: #475569; }
+    .badge.selesai .badge-dot { background: #94a3b8; }
 
-    .badge-dot {
-      width: 6px;
-      height: 6px;
-      border-radius: 50%;
-    }
-    .menunggu .badge-dot { background: var(--warn); }
-    .disetujui .badge-dot { background: var(--success); }
-    .ditolak .badge-dot { background: var(--danger); }
+    /* KONFIRMASI SECTION */
+    .konfirmasi-box { margin-top: 10px; background: var(--purple-soft); border: 1px solid #c4b5fd; border-radius: var(--radius-sm); padding: 10px 12px; }
+    .konfirmasi-box p { font-size: 12px; color: #5b21b6; margin-bottom: 8px; font-weight: 500; }
+    .konfirmasi-row { display: flex; gap: 8px; align-items: flex-start; }
+    .konfirmasi-input { flex: 1; border: 1px solid #c4b5fd; border-radius: 6px; padding: 6px 10px; font-size: 12px; font-family: 'DM Sans', sans-serif; background: #fff; outline: none; color: var(--text); }
+    .konfirmasi-input:focus { border-color: var(--purple); }
+    .btn-konfirmasi { background: var(--purple); color: #fff; border: none; border-radius: 6px; padding: 7px 14px; font-size: 12px; font-weight: 600; font-family: 'DM Sans', sans-serif; cursor: pointer; white-space: nowrap; }
+    .btn-konfirmasi:hover { background: #6d28d9; }
 
-    .pr-date {
-      font-size: 11px;
-      color: var(--muted);
-      margin-top: 6px;
-      font-family: 'DM Mono', monospace;
-    }
+    /* ALUR STEP INDICATOR */
+    .step-track { display: flex; align-items: center; gap: 0; margin-top: 8px; }
+    .step-dot { width: 8px; height: 8px; border-radius: 50%; flex-shrink: 0; }
+    .step-line { flex: 1; height: 1.5px; }
+    .step-done { background: var(--success); }
+    .step-done-line { background: var(--success); }
+    .step-active { background: var(--accent); box-shadow: 0 0 0 2px rgba(59,130,246,0.25); }
+    .step-active-line { background: var(--border); }
+    .step-pending { background: var(--border); }
+    .step-pending-line { background: var(--border); }
 
-    .empty-state {
-      text-align: center;
-      padding: 2.5rem 1rem;
-      color: var(--muted);
-    }
-    .empty-state svg { width: 40px; height: 40px; stroke: #cbd5e1; fill: none; stroke-width: 1.5; margin-bottom: 10px; }
+    .empty-state { text-align: center; padding: 2rem 1rem; color: var(--muted); }
+    .empty-state svg { width: 36px; height: 36px; stroke: #cbd5e1; fill: none; stroke-width: 1.5; margin-bottom: 8px; }
     .empty-state p { font-size: 13px; }
-
     .loading { font-size: 13px; color: var(--muted); padding: 1rem 0; text-align: center; }
-
-    /* STAT ROW */
-    .stat-row {
-      display: grid;
-      grid-template-columns: repeat(3, 1fr);
-      gap: 10px;
-      margin-bottom: 1.5rem;
-    }
-
-    .stat-card {
-      background: var(--surface);
-      border: 1px solid var(--border);
-      border-radius: var(--radius-sm);
-      padding: 1rem;
-      text-align: center;
-    }
-
-    .stat-num { font-size: 22px; font-weight: 600; color: var(--text); font-family: 'DM Mono', monospace; }
-    .stat-label { font-size: 11px; color: var(--muted); margin-top: 2px; }
   </style>
 </head>
 <body>
@@ -405,7 +154,7 @@
     </div>
     <div>
       <div class="nav-title">Sistem Pengadaan</div>
-      <div class="nav-sub">Purchase Request Portal</div>
+      <div class="nav-sub">Dashboard User</div>
     </div>
   </div>
   <div class="nav-right">
@@ -419,48 +168,61 @@
 
 <div class="container">
 
-  <!-- ALUR PENGADAAN -->
+  <!-- ALUR BANNER -->
   <div class="flow-banner">
     <div class="flow-step">
       <div class="flow-dot active">1</div>
-      <div class="flow-label active">Purchase Request</div>
+      <div class="flow-label active">Buat PR</div>
     </div>
     <div class="flow-arrow"></div>
     <div class="flow-step">
       <div class="flow-dot inactive">2</div>
-      <div class="flow-label">Review Atasan</div>
+      <div class="flow-label">Cek Pengadaan</div>
     </div>
     <div class="flow-arrow"></div>
     <div class="flow-step">
       <div class="flow-dot inactive">3</div>
-      <div class="flow-label">Minta Quotation</div>
+      <div class="flow-label">Approve Manajer</div>
     </div>
     <div class="flow-arrow"></div>
     <div class="flow-step">
       <div class="flow-dot inactive">4</div>
-      <div class="flow-label">Evaluasi Supplier</div>
+      <div class="flow-label">Quotation</div>
     </div>
     <div class="flow-arrow"></div>
     <div class="flow-step">
       <div class="flow-dot inactive">5</div>
-      <div class="flow-label">PO (Final)</div>
+      <div class="flow-label">PO Final</div>
     </div>
-    <div class="flow-note">Anda di tahap: Pengajuan PR</div>
+    <div class="flow-arrow"></div>
+    <div class="flow-step">
+      <div class="flow-dot inactive">6</div>
+      <div class="flow-label">Konfirmasi Terima</div>
+    </div>
+    <div class="flow-arrow"></div>
+    <div class="flow-step">
+      <div class="flow-dot inactive">7</div>
+      <div class="flow-label">Selesai</div>
+    </div>
   </div>
 
   <!-- STATS -->
   <div class="stat-row">
     <div class="stat-card">
-      <div class="stat-num" id="statTotal">—</div>
-      <div class="stat-label">Total Pengajuan</div>
+      <div class="stat-num" id="statTotal" style="color:var(--text)">—</div>
+      <div class="stat-label">Total PR</div>
     </div>
     <div class="stat-card">
-      <div class="stat-num" id="statMenunggu" style="color: #92400e;">—</div>
-      <div class="stat-label">Menunggu Review</div>
+      <div class="stat-num" id="statMenunggu" style="color:#92400e">—</div>
+      <div class="stat-label">Menunggu</div>
     </div>
     <div class="stat-card">
-      <div class="stat-num" id="statDisetujui" style="color: #065f46;">—</div>
-      <div class="stat-label">Disetujui</div>
+      <div class="stat-num" id="statDikirim" style="color:#5b21b6">—</div>
+      <div class="stat-label">Perlu Konfirmasi</div>
+    </div>
+    <div class="stat-card">
+      <div class="stat-num" id="statSelesai" style="color:#065f46">—</div>
+      <div class="stat-label">Selesai</div>
     </div>
   </div>
 
@@ -473,7 +235,7 @@
         </div>
         <div>
           <div class="card-title">Buat Purchase Request</div>
-          <div class="card-subtitle">Isi detail kebutuhan barang</div>
+          <div class="card-subtitle">Isi kebutuhan barang kamu</div>
         </div>
       </div>
       <div class="card-body">
@@ -486,8 +248,8 @@
           <input id="jumlah" type="number" min="1" placeholder="contoh: 3">
         </div>
         <div class="field">
-          <label>Spesifikasi & Alasan *</label>
-          <textarea id="spesifikasi" placeholder="Tuliskan spesifikasi teknis dan alasan kebutuhan barang..."></textarea>
+          <label>Spesifikasi & Keperluan *</label>
+          <textarea id="spesifikasi" placeholder="Jelaskan spesifikasi dan untuk keperluan apa..."></textarea>
         </div>
         <button class="btn-submit" onclick="ajukanPR()">
           <svg viewBox="0 0 24 24"><path d="M22 2L11 13M22 2l-7 20-4-9-9-4 20-7z"/></svg>
@@ -508,7 +270,7 @@
           <div class="card-subtitle">Semua PR yang pernah kamu ajukan</div>
         </div>
       </div>
-      <div class="card-body" style="padding: 1.25rem;">
+      <div class="card-body" style="padding:1rem; max-height: 520px; overflow-y: auto;">
         <div id="listPR"><div class="loading">Memuat data...</div></div>
       </div>
     </div>
@@ -523,6 +285,24 @@
     'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImJndGdlbHRrYmFubG52eW1hbHVtIiwicm9sZSI6ImFub24iLCJpYXQiOjE3Nzk1MTAwNDksImV4cCI6MjA5NTA4NjA0OX0.-JlapeQpug44SjkEKgb1wyoX2_ftdGGcAnTHJhdzvwE'
   )
 
+  const STATUS_LABEL = {
+    menunggu:     'Menunggu Cek',
+    diverifikasi: 'Diverifikasi',
+    disetujui:    'Disetujui Manajer',
+    ditolak:      'Ditolak',
+    diproses:     'Diproses Pengadaan',
+    dikirim:      'Barang Dikirim',
+    diterima:     'Barang Diterima',
+    selesai:      'Selesai'
+  }
+
+  // step index untuk progress track (0-based)
+  const STATUS_STEP = {
+    menunggu: 0, diverifikasi: 1, disetujui: 2,
+    diproses: 3, dikirim: 4, diterima: 5, selesai: 6, ditolak: -1
+  }
+  const TOTAL_STEPS = 7
+
   async function cekLogin() {
     const { data } = await sb.auth.getSession()
     if (!data.session) { window.location.href = 'index.html'; return }
@@ -533,87 +313,131 @@
   }
 
   async function ajukanPR() {
-    const { data: sessionData } = await sb.auth.getSession()
-    const userId = sessionData.session.user.id
+    const { data: s } = await sb.auth.getSession()
+    const userId = s.session.user.id
     const nama = document.getElementById('nama_barang').value.trim()
     const jumlah = document.getElementById('jumlah').value
     const spesifikasi = document.getElementById('spesifikasi').value.trim()
-    const alert = document.getElementById('alertPR')
+    const alertEl = document.getElementById('alertPR')
 
     if (!nama || !jumlah || !spesifikasi) {
-      alert.textContent = 'Semua kolom wajib diisi!'
-      alert.className = 'alert show error'
-      return
+      alertEl.textContent = 'Semua kolom wajib diisi!'
+      alertEl.className = 'alert show error'; return
     }
 
     const btn = document.querySelector('.btn-submit')
-    btn.textContent = 'Mengirim...'
-    btn.disabled = true
+    btn.textContent = 'Mengirim...'; btn.disabled = true
 
     const { error } = await sb.from('purchase_request').insert({
-      user_id: userId,
-      nama_barang: nama,
-      jumlah: parseInt(jumlah),
-      spesifikasi: spesifikasi,
-      status: 'menunggu'
+      user_id: userId, nama_barang: nama,
+      jumlah: parseInt(jumlah), spesifikasi, status: 'menunggu'
     })
 
-    btn.innerHTML = `<svg viewBox="0 0 24 24" style="width:16px;height:16px;stroke:#fff;fill:none;stroke-width:2"><path d="M22 2L11 13M22 2l-7 20-4-9-9-4 20-7z"/></svg> Kirim Pengajuan`
+    btn.innerHTML = '<svg viewBox="0 0 24 24" style="width:15px;height:15px;stroke:#fff;fill:none;stroke-width:2"><path d="M22 2L11 13M22 2l-7 20-4-9-9-4 20-7z"/></svg> Kirim Pengajuan'
     btn.disabled = false
 
     if (error) {
-      alert.textContent = 'Gagal mengirim: ' + error.message
-      alert.className = 'alert show error'
+      alertEl.textContent = 'Gagal: ' + error.message
+      alertEl.className = 'alert show error'
     } else {
-      alert.textContent = '✓ Pengajuan berhasil dikirim! Tim pengadaan akan segera memproses.'
-      alert.className = 'alert show success'
+      alertEl.textContent = '✓ PR berhasil dikirim! Menunggu pengecekan staf pengadaan.'
+      alertEl.className = 'alert show success'
       document.getElementById('nama_barang').value = ''
       document.getElementById('jumlah').value = ''
       document.getElementById('spesifikasi').value = ''
       muatPR()
-      setTimeout(() => { alert.className = 'alert' }, 4000)
+      setTimeout(() => { alertEl.className = 'alert' }, 5000)
     }
   }
 
+  async function konfirmasiTerima(prId) {
+    const catatan = document.getElementById('catatan_' + prId).value.trim()
+    if (!catatan) {
+      alert('Isi catatan penerimaan barang dulu ya!')
+      return
+    }
+    const { error } = await sb.from('purchase_request').update({
+      status: 'diterima',
+      catatan_penerimaan: catatan
+    }).eq('id', prId)
+
+    if (!error) { muatPR() }
+    else { alert('Gagal konfirmasi: ' + error.message) }
+  }
+
+  function buatStepTrack(status) {
+    const step = STATUS_STEP[status]
+    if (step === -1) return `<div style="font-size:11px;color:#991b1b;margin-top:6px;">❌ Ditolak</div>`
+    let html = '<div class="step-track">'
+    for (let i = 0; i < TOTAL_STEPS; i++) {
+      if (i < step) {
+        html += `<div class="step-dot step-done"></div>`
+      } else if (i === step) {
+        html += `<div class="step-dot step-active"></div>`
+      } else {
+        html += `<div class="step-dot step-pending"></div>`
+      }
+      if (i < TOTAL_STEPS - 1) {
+        const lineClass = i < step ? 'step-done-line' : 'step-pending-line'
+        html += `<div class="step-line ${lineClass}"></div>`
+      }
+    }
+    html += '</div>'
+    return html
+  }
+
   async function muatPR() {
-    const { data: sessionData } = await sb.auth.getSession()
-    const userId = sessionData.session.user.id
+    const { data: s } = await sb.auth.getSession()
+    const userId = s.session.user.id
     const { data } = await sb.from('purchase_request').select('*')
       .eq('user_id', userId).order('created_at', { ascending: false })
-    const container = document.getElementById('listPR')
 
+    const container = document.getElementById('listPR')
     if (!data || data.length === 0) {
-      container.innerHTML = `
-        <div class="empty-state">
-          <svg viewBox="0 0 24 24"><path d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2"/><rect x="9" y="3" width="6" height="4" rx="1"/></svg>
-          <p>Belum ada pengajuan yang dibuat.</p>
-        </div>`
-      document.getElementById('statTotal').textContent = '0'
-      document.getElementById('statMenunggu').textContent = '0'
-      document.getElementById('statDisetujui').textContent = '0'
+      container.innerHTML = `<div class="empty-state"><svg viewBox="0 0 24 24"><path d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2"/><rect x="9" y="3" width="6" height="4" rx="1"/></svg><p>Belum ada pengajuan.</p></div>`
+      ;['statTotal','statMenunggu','statDikirim','statSelesai'].forEach(id => document.getElementById(id).textContent = '0')
       return
     }
 
     document.getElementById('statTotal').textContent = data.length
-    document.getElementById('statMenunggu').textContent = data.filter(d => d.status === 'menunggu').length
-    document.getElementById('statDisetujui').textContent = data.filter(d => d.status === 'disetujui').length
-
-    const labelStatus = { menunggu: 'Menunggu', disetujui: 'Disetujui', ditolak: 'Ditolak' }
+    document.getElementById('statMenunggu').textContent = data.filter(d => ['menunggu','diverifikasi','disetujui','diproses'].includes(d.status)).length
+    document.getElementById('statDikirim').textContent = data.filter(d => d.status === 'dikirim').length
+    document.getElementById('statSelesai').textContent = data.filter(d => d.status === 'selesai').length
 
     container.innerHTML = data.map(pr => {
-      const tgl = new Date(pr.created_at).toLocaleDateString('id-ID', { day: '2-digit', month: 'short', year: 'numeric', hour: '2-digit', minute: '2-digit' })
+      const tgl = new Date(pr.created_at).toLocaleDateString('id-ID', { day:'2-digit', month:'short', year:'numeric', hour:'2-digit', minute:'2-digit' })
+      const labelStatus = STATUS_LABEL[pr.status] || pr.status
+      const badgeClass = pr.status || 'menunggu'
+      const stepTrack = buatStepTrack(pr.status)
+
+      const konfirmasiSection = pr.status === 'dikirim' ? `
+        <div class="konfirmasi-box">
+          <p>📦 Barang sudah sampai? Konfirmasi penerimaan di bawah ini:</p>
+          <div class="konfirmasi-row">
+            <input class="konfirmasi-input" id="catatan_${pr.id}" placeholder="Catatan kondisi barang (contoh: barang lengkap, kondisi baik)">
+            <button class="btn-konfirmasi" onclick="konfirmasiTerima('${pr.id}')">Konfirmasi Terima</button>
+          </div>
+        </div>` : ''
+
+      const catatanTerima = pr.status === 'diterima' && pr.catatan_penerimaan ? `
+        <div style="margin-top:8px;font-size:12px;color:#065f46;background:var(--success-soft);padding:6px 10px;border-radius:6px;">
+          ✓ Diterima — ${pr.catatan_penerimaan}
+        </div>` : ''
+
       return `
         <div class="pr-item">
           <div class="pr-row">
-            <div>
+            <div style="flex:1;min-width:0">
               <div class="pr-name">${pr.nama_barang}</div>
-              <div class="pr-meta">Jumlah: ${pr.jumlah} unit<br>${pr.spesifikasi}</div>
+              <div class="pr-meta">Jumlah: ${pr.jumlah} unit &nbsp;·&nbsp; ${pr.spesifikasi}</div>
             </div>
-            <span class="badge ${pr.status}">
-              <span class="badge-dot"></span>
-              ${labelStatus[pr.status] || pr.status}
+            <span class="badge ${badgeClass}">
+              <span class="badge-dot"></span>${labelStatus}
             </span>
           </div>
+          ${stepTrack}
+          ${konfirmasiSection}
+          ${catatanTerima}
           <div class="pr-date">${tgl}</div>
         </div>`
     }).join('')
