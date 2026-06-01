@@ -158,7 +158,7 @@
     </div>
 
     <script>
-        // Inisialisasi Supabase menggunakan kredensial proyekmu yang sudah ada
+        // Inisialisasi Supabase menggunakan kredensial proyekmu yang sudah DIKUNCI PASTI
         const _supabase = supabase.createClient(
             "https://eexbshvunbbybshwccas.supabase.co", 
             "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImVleGJzaHZ1bmJieWJzaHdjY2FzIiwicm9sZSI6ImFub24iLCJpYXQiOjE3MTY4ODg3NzcsImV4cCI6MjAzMjQ2NDc3N30.8MhO86iPl2hX2Z7S9W4YvCj3qUuxVlR40oO82S4jJz8"
@@ -168,7 +168,6 @@
         let tabAktif = 'selesai'; 
         let dataTerpilihUntukPDF = null;
 
-        // Tarik data dinamis TANPA MENGUNCI nama barang tertentu (.select('*'))
         async function muatDataSupabase() {
             try {
                 const { data, error } = await _supabase
@@ -191,7 +190,6 @@
         }
 
         function hitungStatistik() {
-            // Filter longgar agar status kiriman user baru langsung masuk antrean keuangan
             const matching = semuaDataPR.filter(item => ['perlu_matching', 'Perlu Matching', 'Barang Dikirim', 'barang_dikirim', 'verifikasi_sj'].includes(item.status)).length;
             const voucher = semuaDataPR.filter(item => ['terbitkan_voucher', 'Voucher Pembayaran', 'menunggu_po'].includes(item.status)).length;
             const bayar = semuaDataPR.filter(item => ['proses_bayar', 'Proses Bayar'].includes(item.status)).length;
@@ -238,7 +236,6 @@
             }
 
             dataFilter.forEach(item => {
-                // Fleksibel mengambil nama kolom harga (baik harga maupun total_harga)
                 const hargaNominal = item.harga || item.total_harga || 0;
                 const formatRupiah = new Intl.NumberFormat('id-ID', { style: 'currency', currency: 'IDR', maximumFractionDigits: 0 }).format(hargaNominal);
                 const formatTgl = item.created_at ? new Date(item.created_at).toLocaleDateString('id-ID', { day: '2-digit', month: 'short', year: 'numeric' }) : '02 Jun 2026';
@@ -337,7 +334,6 @@
             const formatTgl = dataItem.created_at ? new Date(dataItem.created_at).toLocaleDateString('id-ID', { day: '2-digit', month: 'long', year: 'numeric' }) : '02 Juni 2026';
             const nomorInvoice = dataItem.invoice_number || dataItem.no_invoice || `INV/2026/012`;
 
-            // Mengganti konten modal PDF secara dinamis mengikuti data barang yang dipilih
             document.getElementById('modal-invoice-num').innerText = `#${nomorInvoice}`;
             document.getElementById('modal-tanggal').innerText = formatTgl;
             document.getElementById('modal-nama-barang').innerText = dataItem.nama_barang;
