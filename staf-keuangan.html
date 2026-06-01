@@ -7,8 +7,8 @@
     <title>Sistem Pengadaan - Dashboard Staf Keuangan</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.10.1/html2pdf.bundle.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
     <style>
-        /* Menggunakan display murni untuk menghindari bug pointer-events Tailwind v4 */
         .modal-overlay {
             position: fixed;
             top: 0;
@@ -16,7 +16,7 @@
             width: 100%;
             height: 100%;
             background-color: rgba(0, 0, 0, 0.6);
-            display: none; /* Default tersembunyi */
+            display: none;
             justify-content: center;
             align-items: center;
             z-index: 99999;
@@ -43,78 +43,63 @@
 
     <div class="max-w-[1100px] mx-auto my-10 px-5">
         <div class="grid grid-cols-4 gap-4 text-center">
-            <div class="p-5 bg-white border border-gray-200 rounded-2xl shadow-sm">
-                <span class="text-3xl font-black text-gray-400 block">0</span>
+            <div onclick="gantiTab('matching')" class="p-5 bg-white border border-gray-200 rounded-2xl shadow-sm cursor-pointer transition hover:bg-gray-50">
+                <span id="count-stat-matching" class="text-3xl font-black text-gray-400 block">0</span>
                 <span class="text-xs text-gray-500 font-bold mt-1 block">Perlu Matching</span>
             </div>
-            <div class="p-5 bg-white border border-gray-200 rounded-2xl shadow-sm">
-                <span class="text-3xl font-black text-gray-400 block">0</span>
+            <div onclick="gantiTab('voucher')" class="p-5 bg-white border border-gray-200 rounded-2xl shadow-sm cursor-pointer transition hover:bg-gray-50">
+                <span id="count-stat-voucher" class="text-3xl font-black text-gray-400 block">0</span>
                 <span class="text-xs text-gray-500 font-bold mt-1 block">Terbitkan Voucher</span>
             </div>
-            <div class="p-5 bg-white border border-gray-200 rounded-2xl shadow-sm">
-                <span class="text-3xl font-black text-gray-400 block">0</span>
+            <div onclick="gantiTab('bayar')" class="p-5 bg-white border border-gray-200 rounded-2xl shadow-sm cursor-pointer transition hover:bg-gray-50">
+                <span id="count-stat-bayar" class="text-3xl font-black text-gray-400 block">0</span>
                 <span class="text-xs text-gray-500 font-bold mt-1 block">Proses Bayar</span>
             </div>
-            <div class="p-5 bg-green-50 border border-green-200 rounded-2xl shadow-sm">
-                <span class="text-3xl font-black text-green-700 block">1</span>
+            <div onclick="gantiTab('selesai')" class="p-5 bg-green-50 border border-green-200 rounded-2xl shadow-sm cursor-pointer transition hover:bg-green-100">
+                <span id="count-stat-selesai" class="text-3xl font-black text-green-700 block">0</span>
                 <span class="text-xs text-green-600 font-bold mt-1 block">Selesai</span>
             </div>
         </div>
 
         <div class="flex gap-2 mt-8 border-b border-gray-200 pb-px">
-            <button class="px-4 py-2 rounded-t-xl font-bold text-xs bg-gray-200 text-gray-500 border-0 cursor-pointer">3-Way Matching <span class="bg-red-500 text-white rounded-full px-1.5 py-0.2 ml-1 text-[10px]">0</span></button>
-            <button class="px-4 py-2 rounded-t-xl font-bold text-xs bg-gray-200 text-gray-500 border-0 cursor-pointer">Voucher Pembayaran <span class="bg-red-500 text-white rounded-full px-1.5 py-0.2 ml-1 text-[10px]">0</span></button>
-            <button class="px-4 py-2 rounded-t-xl font-bold text-xs bg-gray-200 text-gray-500 border-0 cursor-pointer">Proses Bayar <span class="bg-red-500 text-white rounded-full px-1.5 py-0.2 ml-1 text-[10px]">0</span></button>
-            <button class="px-5 py-2 rounded-t-xl font-bold text-xs bg-green-900 text-white border-0 cursor-pointer shadow-sm">Selesai</button>
+            <button id="btn-tab-matching" onclick="gantiTab('matching')" class="px-4 py-2 rounded-t-xl font-bold text-xs border-0 cursor-pointer transition bg-gray-200 text-gray-500">
+                3-Way Matching <span id="badge-matching" class="bg-red-500 text-white rounded-full px-1.5 py-0.2 ml-1 text-[10px]">0</span>
+            </button>
+            <button id="btn-tab-voucher" onclick="gantiTab('voucher')" class="px-4 py-2 rounded-t-xl font-bold text-xs border-0 cursor-pointer transition bg-gray-200 text-gray-500">
+                Voucher Pembayaran <span id="badge-voucher" class="bg-red-500 text-white rounded-full px-1.5 py-0.2 ml-1 text-[10px]">0</span>
+            </button>
+            <button id="btn-tab-bayar" onclick="gantiTab('bayar')" class="px-4 py-2 rounded-t-xl font-bold text-xs border-0 cursor-pointer transition bg-gray-200 text-gray-500">
+                Proses Bayar <span id="badge-bayar" class="bg-red-500 text-white rounded-full px-1.5 py-0.2 ml-1 text-[10px]">0</span>
+            </button>
+            <button id="btn-tab-selesai" onclick="gantiTab('selesai')" class="px-5 py-2 rounded-t-xl font-bold text-xs border-0 cursor-pointer transition bg-green-900 text-white shadow-sm">
+                Selesai
+            </button>
         </div>
 
         <div class="bg-white border border-gray-200 rounded-b-2xl rounded-tr-2xl p-6 shadow-sm">
-            <div class="p-4 bg-green-50 border border-green-200 rounded-xl mb-6 flex items-start gap-3">
+            <div id="info-banner" class="p-4 bg-green-50 border border-green-200 rounded-xl mb-6 flex items-start gap-3">
                 <span class="text-green-700 text-lg font-bold leading-none">✓</span>
                 <div>
-                    <h4 class="font-bold text-green-900 text-sm m-0">PR Selesai</h4>
-                    <p class="text-green-700 text-xs mt-0.5">Seluruh rangkaian alur proses pengadaan barang saat ini sudah tuntas dan terbayar.</p>
+                    <h4 id="info-title" class="font-bold text-green-900 text-sm m-0">PR Selesai</h4>
+                    <p id="info-desc" class="text-green-700 text-xs mt-0.5">Seluruh rangkaian alur proses pengadaan barang saat ini sudah tuntas dan terbayar.</p>
                 </div>
             </div>
 
-            <div class="p-5 border border-gray-200 rounded-2xl bg-white hover:border-green-300 transition">
-                <div class="flex justify-between items-start">
-                    <div>
-                        <h3 class="font-black text-gray-800 text-lg m-0">laptop dell</h3>
-                        <p class="text-gray-500 text-xs mt-1.5 space-x-2">
-                            <span>5 unit</span>
-                            <span class="text-gray-300">•</span>
-                            <span>Selesai 01 Jun 2026</span>
-                            <span class="text-gray-300">•</span>
-                            <span>Invoice: <strong class="text-gray-700">INV/2024/001</strong></span>
-                            <span class="text-gray-300">•</span>
-                            <span class="text-emerald-600 font-bold">Rp 14.799.999</span>
-                        </p>
-                    </div>
-                    <span class="text-xs font-bold px-3 py-1 bg-green-100 text-green-700 rounded-full border border-green-200">
-                        ● Selesai
-                    </span>
-                </div>
-                
-                <div class="mt-4 pt-4 border-t border-gray-100 flex gap-2">
-                    <button onclick="bukaModalCetak()" class="bg-green-900 hover:bg-green-800 text-white text-xs font-bold py-2 px-4 rounded-xl border-0 cursor-pointer shadow-sm transition flex items-center gap-1.5">
-                        📄 View / Print Invoice
-                    </button>
-                </div>
+            <div id="list-container" class="space-y-4">
+                <div class="text-center text-gray-400 py-10 text-sm">Sedang memuat seluruh data PR...</div>
             </div>
         </div>
     </div>
 
-    <div id="cetakModal" class="modal-overlay" onclick="event.stopPropagation()">
+    <div id="cetakModal" class="modal-overlay" onclick="tutupModal()">
         <div class="bg-white rounded-2xl p-6 w-full max-w-[650px] shadow-2xl relative" onclick="event.stopPropagation()">
-            
             <div class="flex justify-between items-center mb-4 border-b border-gray-100 pb-3">
                 <h3 class="font-bold text-gray-800 text-base m-0">Pratinjau Dokumen Kontrak</h3>
                 <div class="flex items-center gap-2">
-                    <button onclick="unduhSebagaiPDF()" style="pointer-events: auto !important; cursor: pointer !important;" class="bg-emerald-600 hover:bg-emerald-700 text-white font-bold text-xs px-4 py-2 rounded-xl border-0 shadow-md flex items-center gap-1.5 relative z-50">
+                    <button onclick="unduhSebagaiPDF()" class="bg-emerald-600 hover:bg-emerald-700 text-white font-bold text-xs px-4 py-2 rounded-xl border-0 shadow-md flex items-center gap-1.5 relative z-50 cursor-pointer">
                         📥 Ambil / Unduh File PDF
                     </button>
-                    <button onclick="tutupModal()" style="pointer-events: auto !important; cursor: pointer !important;" class="bg-gray-100 hover:bg-gray-200 border-0 rounded-full w-8 h-8 flex items-center justify-center font-bold text-gray-500 relative z-50 text-sm">✕</button>
+                    <button onclick="tutupModal()" class="bg-gray-100 hover:bg-gray-200 border-0 rounded-full w-8 h-8 flex items-center justify-center font-bold text-gray-500 relative z-50 text-sm cursor-pointer">✕</button>
                 </div>
             </div>
 
@@ -126,7 +111,7 @@
                     </div>
                     <div class="text-right">
                         <h2 class="text-lg font-black text-gray-800 m-0">INVOICE DIGITAL</h2>
-                        <p class="text-[11px] text-gray-500 mt-0.5 font-bold tracking-wider">#INV/2024/001</p>
+                        <p id="modal-invoice-num" class="text-[11px] text-gray-500 mt-0.5 font-bold tracking-wider">#INV/2026/001</p>
                     </div>
                 </div>
 
@@ -138,8 +123,8 @@
                     </div>
                     <div class="text-right">
                         <span class="text-gray-400 font-bold block uppercase tracking-wider text-[10px]">Tanggal Dokumen Lunak:</span>
-                        <strong class="text-gray-800 block text-sm mt-0.5">01 Juni 2026</strong>
-                        <span class="text-xs text-green-600 font-bold bg-green-50 border border-green-100 px-2 py-0.5 rounded inline-block mt-1">✓ Lunas Terverifikasi</span>
+                        <strong id="modal-tanggal" class="text-gray-800 block text-sm mt-0.5">01 Juni 2026</strong>
+                        <span id="modal-badge-status" class="text-xs text-green-600 font-bold bg-green-50 border border-green-100 px-2 py-0.5 rounded inline-block mt-1">✓ Lunas Terverifikasi</span>
                     </div>
                 </div>
 
@@ -148,21 +133,21 @@
                         <tr class="bg-gray-50 text-gray-500 border-b border-gray-200">
                             <th class="p-2.5 font-bold">Nama Barang Pasokan</th>
                             <th class="p-2.5 font-bold text-center">Jumlah</th>
-                            <th class="p-2.5 font-bold text-right">Total Harga Kelompok</th>
+                            <th class="p-2.5 font-bold text-right">Total Harga</th>
                         </tr>
                     </thead>
                     <tbody>
                         <tr class="border-b border-gray-100">
-                            <td class="p-3 font-medium text-gray-800">laptop dell (Core i7, RAM 16GB, SSD 512GB)</td>
-                            <td class="p-3 text-center text-gray-600">5 Unit</td>
-                            <td class="p-3 text-right font-bold text-gray-800">Rp 14.799.999</td>
+                            <td id="modal-nama-barang" class="p-3 font-medium text-gray-800">-</td>
+                            <td id="modal-jumlah-barang" class="p-3 text-center text-gray-600">-</td>
+                            <td id="modal-total-harga" class="p-3 text-right font-bold text-gray-800">Rp 0</td>
                         </tr>
                     </tbody>
                 </table>
 
                 <div class="mt-6 pt-4 border-t-2 border-dashed border-gray-200 flex justify-between items-center">
                     <span class="text-xs font-black text-gray-700 uppercase tracking-wide">Total Pembayaran Akhir:</span>
-                    <span class="text-xl font-black text-emerald-600">Rp 14.799.999</span>
+                    <span id="modal-total-final" class="text-xl font-black text-emerald-600">Rp 0</span>
                 </div>
 
                 <div class="text-center mt-8 pt-4 border-t border-gray-100">
@@ -173,35 +158,220 @@
     </div>
 
     <script>
-        function bukaModalCetak() {
-            // Membuka modal dengan display block murni agar pointer-events tidak terkunci
-            const modal = document.getElementById('cetakModal');
-            modal.style.display = 'flex';
+        // Inisialisasi Supabase menggunakan kredensial proyekmu yang sudah ada
+        const _supabase = supabase.createClient(
+            "https://eexbshvunbbybshwccas.supabase.co", 
+            "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImVleGJzaHZ1bmJieWJzaHdjY2FzIiwicm9sZSI6ImFub24iLCJpYXQiOjE3MTY4ODg3NzcsImV4cCI6MjAzMjQ2NDc3N30.8MhO86iPl2hX2Z7S9W4YvCj3qUuxVlR40oO82S4jJz8"
+        );
+
+        let semuaDataPR = [];
+        let tabAktif = 'selesai'; 
+        let dataTerpilihUntukPDF = null;
+
+        // Tarik data dinamis TANPA MENGUNCI nama barang tertentu (.select('*'))
+        async function muatDataSupabase() {
+            try {
+                const { data, error } = await _supabase
+                    .from('purchase_requests')
+                    .select('*')
+                    .order('created_at', { ascending: false });
+
+                if (error) throw error;
+                semuaDataPR = data || [];
+                
+                hitungStatistik();
+                renderDataKeUI();
+            } catch (err) {
+                console.error("Gagal load data:", err);
+                document.getElementById('list-container').innerHTML = `
+                    <div class="text-center text-red-500 py-10 text-sm font-bold">
+                        ❌ Gagal memuat data dari database Supabase.
+                    </div>`;
+            }
+        }
+
+        function hitungStatistik() {
+            // Filter longgar agar status kiriman user baru langsung masuk antrean keuangan
+            const matching = semuaDataPR.filter(item => ['perlu_matching', 'Perlu Matching', 'Barang Dikirim', 'barang_dikirim', 'verifikasi_sj'].includes(item.status)).length;
+            const voucher = semuaDataPR.filter(item => ['terbitkan_voucher', 'Voucher Pembayaran', 'menunggu_po'].includes(item.status)).length;
+            const bayar = semuaDataPR.filter(item => ['proses_bayar', 'Proses Bayar'].includes(item.status)).length;
+            const selesai = semuaDataPR.filter(item => ['selesai', 'Selesai'].includes(item.status)).length;
+
+            document.getElementById('count-stat-matching').innerText = matching;
+            document.getElementById('count-stat-voucher').innerText = voucher;
+            document.getElementById('count-stat-bayar').innerText = bayar;
+            document.getElementById('count-stat-selesai').innerText = selesai;
+
+            document.getElementById('badge-matching').innerText = matching;
+            document.getElementById('badge-voucher').innerText = voucher;
+            document.getElementById('badge-bayar').innerText = bayar;
+        }
+
+        function renderDataKeUI() {
+            const container = document.getElementById('list-container');
+            container.innerHTML = '';
+
+            let dataFilter = [];
+            let warnaTemaTab = 'green';
+
+            if (tabAktif === 'matching') {
+                dataFilter = semuaDataPR.filter(item => ['perlu_matching', 'Perlu Matching', 'Barang Dikirim', 'barang_dikirim', 'verifikasi_sj'].includes(item.status));
+                warnaTemaTab = 'orange';
+                aturBanner("Antrean 3-Way Matching", "Silakan periksa kesesuaian dokumen PO, Surat Jalan, dan Invoice fisik dari Vendor.", "bg-orange-50 border-orange-200 text-orange-700 text-orange-900");
+            } else if (tabAktif === 'voucher') {
+                dataFilter = semuaDataPR.filter(item => ['terbitkan_voucher', 'Voucher Pembayaran', 'menunggu_po'].includes(item.status));
+                warnaTemaTab = 'blue';
+                aturBanner("Penerbitan Voucher Pembayaran", "Data terverifikasi, siapkan dokumen pengeluaran kas atau kuitansi internal.", "bg-blue-50 border-blue-200 text-blue-700 text-blue-900");
+            } else if (tabAktif === 'bayar') {
+                dataFilter = semuaDataPR.filter(item => ['proses_bayar', 'Proses Bayar'].includes(item.status));
+                warnaTemaTab = 'purple';
+                aturBanner("Proses Likuidasi / Pembayaran Bank", "Otorisasi akhir pengiriman dana kepada rekening giro pihak ketiga/Supplier.", "bg-purple-50 border-purple-200 text-purple-700 text-purple-900");
+            } else {
+                dataFilter = semuaDataPR.filter(item => ['selesai', 'Selesai'].includes(item.status));
+                warnaTemaTab = 'green';
+                aturBanner("PR Selesai", "Seluruh rangkaian alur proses pengadaan barang saat ini sudah tuntas dan terbayar.", "bg-green-50 border-green-200 text-green-700 text-green-900");
+            }
+
+            if (dataFilter.length === 0) {
+                container.innerHTML = `<div class="text-center text-gray-400 py-12 text-xs font-medium">Tidak ada berkas PR pada tahap ini.</div>`;
+                return;
+            }
+
+            dataFilter.forEach(item => {
+                // Fleksibel mengambil nama kolom harga (baik harga maupun total_harga)
+                const hargaNominal = item.harga || item.total_harga || 0;
+                const formatRupiah = new Intl.NumberFormat('id-ID', { style: 'currency', currency: 'IDR', maximumFractionDigits: 0 }).format(hargaNominal);
+                const formatTgl = item.created_at ? new Date(item.created_at).toLocaleDateString('id-ID', { day: '2-digit', month: 'short', year: 'numeric' }) : '02 Jun 2026';
+                const nomorInvoice = item.invoice_number || item.no_invoice || `INV/2026/0${Math.floor(Math.random() * 80) + 10}`;
+
+                const cardHtml = `
+                    <div class="p-5 border border-gray-200 rounded-2xl bg-white hover:border-${warnaTemaTab}-300 shadow-sm transition">
+                        <div class="flex justify-between items-start">
+                            <div>
+                                <h3 class="font-black text-gray-800 text-lg m-0 capitalize">${item.nama_barang}</h3>
+                                <p class="text-gray-500 text-xs mt-1.5 space-x-2 flex flex-wrap items-center gap-y-1">
+                                    <span>${item.jumlah || item.quantity || 1} unit</span>
+                                    <span class="text-gray-300">•</span>
+                                    <span>Tanggal: ${formatTgl}</span>
+                                    <span class="text-gray-300">•</span>
+                                    <span>Invoice: <strong class="text-gray-700">${nomorInvoice}</strong></span>
+                                    <span class="text-gray-300">•</span>
+                                    <span class="text-emerald-600 font-bold">${formatRupiah}</span>
+                                </p>
+                            </div>
+                            <span class="text-xs font-bold px-3 py-1 bg-${warnaTemaTab}-100 text-${warnaTemaTab}-700 rounded-full border border-${warnaTemaTab}-200 capitalize">
+                                ● ${item.status.replace('_', ' ')}
+                            </span>
+                        </div>
+                        
+                        <div class="mt-4 pt-4 border-t border-gray-100 flex gap-2">
+                            ${tabAktif === 'selesai' ? 
+                                `<button onclick="bukaModalCetak('${item.id}')" class="bg-green-900 hover:bg-green-800 text-white text-xs font-bold py-2 px-4 rounded-xl border-0 cursor-pointer shadow-sm transition flex items-center gap-1.5">
+                                    📄 View / Print Invoice
+                                </button>` :
+                                `<button onclick="prosesAlurKeuangan('${item.id}', '${item.status}')" class="bg-blue-600 hover:bg-blue-700 text-white text-xs font-bold py-2 px-4 rounded-xl border-0 cursor-pointer shadow-sm transition">
+                                    Lanjutkan Proses Menuju Tahap Berikutnya →
+                                </button>`
+                            }
+                        </div>
+                    </div>
+                `;
+                container.insertAdjacentHTML('beforeend', cardHtml);
+            });
+        }
+
+        function gantiTab(namaTab) {
+            tabAktif = namaTab;
+            const listTabs = ['matching', 'voucher', 'bayar', 'selesai'];
+            listTabs.forEach(t => {
+                const btn = document.getElementById(`btn-tab-${t}`);
+                if (t === namaTab) {
+                    if (t === 'selesai') {
+                        btn.className = "px-5 py-2 rounded-t-xl font-bold text-xs border-0 cursor-pointer transition bg-green-900 text-white shadow-sm";
+                    } else {
+                        btn.className = `px-4 py-2 rounded-t-xl font-bold text-xs border-0 cursor-pointer transition bg-blue-900 text-white shadow-sm`;
+                    }
+                } else {
+                    btn.className = "px-4 py-2 rounded-t-xl font-bold text-xs border-0 cursor-pointer transition bg-gray-200 text-gray-500";
+                }
+            });
+            renderDataKeUI();
+        }
+
+        function aturBanner(title, desc, classStyle) {
+            document.getElementById('info-title').innerText = title;
+            document.getElementById('info-desc').innerText = desc;
+            document.getElementById('info-banner').className = `p-4 rounded-xl mb-6 flex items-start gap-3 border ${classStyle}`;
+        }
+
+        async function prosesAlurKeuangan(prId, statusSekarang) {
+            let statusBaru = 'selesai';
+            if (['perlu_matching', 'Perlu Matching', 'Barang Dikirim', 'barang_dikirim', 'verifikasi_sj'].includes(statusSekarang)) {
+                statusBaru = 'terbitkan_voucher';
+            } else if (statusSekarang === 'terbitkan_voucher' || statusSekarang === 'menunggu_po') {
+                statusBaru = 'proses_bayar';
+            }
+
+            try {
+                const { error } = await _supabase
+                    .from('purchase_requests')
+                    .update({ status: statusBaru })
+                    .eq('id', prId);
+
+                if (error) throw error;
+                alert(`Sukses! Berkas PR berhasil dimajukan tingkat.`);
+                muatDataSupabase();
+            } catch (err) {
+                alert("Gagal update status: " + err.message);
+            }
+        }
+
+        function bukaModalCetak(idBarang) {
+            const dataItem = semuaDataPR.find(item => item.id === idBarang);
+            if (!dataItem) return;
+
+            dataTerpilihUntukPDF = dataItem;
+
+            const hargaNominal = dataItem.harga || dataItem.total_harga || 0;
+            const formatRupiah = new Intl.NumberFormat('id-ID', { style: 'currency', currency: 'IDR', maximumFractionDigits: 0 }).format(hargaNominal);
+            const formatTgl = dataItem.created_at ? new Date(dataItem.created_at).toLocaleDateString('id-ID', { day: '2-digit', month: 'long', year: 'numeric' }) : '02 Juni 2026';
+            const nomorInvoice = dataItem.invoice_number || dataItem.no_invoice || `INV/2026/012`;
+
+            // Mengganti konten modal PDF secara dinamis mengikuti data barang yang dipilih
+            document.getElementById('modal-invoice-num').innerText = `#${nomorInvoice}`;
+            document.getElementById('modal-tanggal').innerText = formatTgl;
+            document.getElementById('modal-nama-barang').innerText = dataItem.nama_barang;
+            document.getElementById('modal-jumlah-barang').innerText = `${dataItem.jumlah || dataItem.quantity || 1} Unit`;
+            document.getElementById('modal-total-harga').innerText = formatRupiah;
+            document.getElementById('modal-total-final').innerText = formatRupiah;
+
+            document.getElementById('cetakModal').style.display = 'flex';
         }
 
         function tutupModal() {
-            const modal = document.getElementById('cetakModal');
-            modal.style.style.display = 'none';
-            // Alternatif reload ringan agar status UI kembali bersih setelah interaksi
-            window.location.reload();
+            document.getElementById('cetakModal').style.display = 'none';
         }
 
         function unduhSebagaiPDF() {
+            if (!dataTerpilihUntukPDF) return;
             const element = document.getElementById('area-pdf');
+            const namaFileClean = dataTerpilihUntukPDF.nama_barang.replace(/\s+/g, '-');
             
             const opsi = {
                 margin:       10,
-                filename:     'Invoice-Laptop-Dell-INV2024001.pdf',
+                filename:     `Invoice-${namaFileClean}.pdf`,
                 image:        { type: 'jpeg', quality: 0.98 },
                 html2canvas:  { scale: 2, useCORS: true },
                 jsPDF:        { unit: 'mm', format: 'a4', orientation: 'portrait' }
             };
 
-            // Mengunduh dokumen secara langsung tanpa jendela print browser
             html2pdf().set(opsi).from(element).save().then(() => {
-                alert("Sukses! File Invoice-Laptop-Dell-INV2024001.pdf berhasil diunduh ke folder komputer Anda.");
+                alert(`Sukses! Berkas Invoice-${namaFileClean}.pdf berhasil diunduh.`);
+                tutupModal();
             });
         }
+
+        window.onload = muatDataSupabase;
     </script>
 </body>
 
