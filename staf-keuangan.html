@@ -4,18 +4,17 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Sistem Pengadaan</title>
-    <link rel="stylesheet" href="style.css">
+    <title>Sistem Pengadaan - Dashboard Staf Keuangan</title>
     <script src="https://cdn.jsdelivr.net/npm/@tailwindcss/browser@4"></script>
-    
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.10.1/html2pdf.bundle.min.js"></script>
     <style>
-        .invoice-overlay {
+        .modal-overlay {
             position: fixed;
             top: 0;
             left: 0;
             width: 100%;
             height: 100%;
-            background: rgba(0, 0, 0, 0.6);
+            background: rgba(0, 0, 0, 0.5);
             display: flex;
             justify-content: center;
             align-items: center;
@@ -23,233 +22,186 @@
             opacity: 0;
             pointer-events: none;
             transition: all 0.3s ease;
-            padding: 20px;
         }
-        .invoice-overlay.open {
+        .modal-overlay.open {
             opacity: 1;
             pointer-events: auto;
-        }
-        .invoice-popup {
-            background: white;
-            width: 100%;
-            max-width: 600px;
-            padding: 35px;
-            border-radius: 16px;
-            box-shadow: 0 25px 50px -12px rgba(0,0,0,0.25);
-            position: relative;
-            transform: scale(0.95);
-            transition: all 0.3s ease;
-        }
-        .invoice-overlay.open .invoice-popup {
-            transform: scale(1);
-        }
-        .btn-close-invoice {
-            position: absolute;
-            top: 20px;
-            right: 20px;
-            background: #f3f4f6;
-            border: none;
-            font-size: 22px;
-            font-weight: bold;
-            width: 32px;
-            height: 32px;
-            border-radius: 50%;
-            cursor: pointer;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            color: #4b5563;
-        }
-
-        /* CSS CETAK: AKTIF SAAT TOMBOL PRINT DIKLIK */
-        @media print {
-            body * {
-                visibility: hidden;
-            }
-            #invoiceModal, #invoiceModal * {
-                visibility: visible;
-            }
-            #invoiceModal {
-                position: absolute;
-                left: 0;
-                top: 0;
-                width: 100%;
-                background: white !important;
-                display: flex !important;
-                justify-content: center !important;
-                align-items: flex-start !important;
-            }
-            .btn-close-invoice, .hidden-print, button {
-                display: none !important;
-            }
-            .invoice-popup {
-                box-shadow: none !important;
-                padding: 0 !important;
-                margin: 0 !important;
-                width: 100% !important;
-                max-width: 100% !important;
-            }
         }
     </style>
 </head>
 
-<body class="bg-[#f3f4f6]">
-    <nav class="bg-[#14532d] text-white p-[25px] flex justify-between items-center">
-        <div class="flex items-center">
-            <div class="bg-white text-emerald-800 flex items-center justify-center m-2 w-[45px] h-[45px] rounded-[10px] font-bold text-xl">
-                <span>$</span>
-            </div>
+<body class="bg-[#f3f4f6] font-sans antialiased">
+    <nav class="bg-[#14532d] text-white p-[20px] flex justify-between items-center shadow-md">
+        <div class="flex items-center gap-3">
+            <div class="bg-white/10 p-2 rounded-lg text-xl font-bold">💵</div>
             <div class="leading-tight">
-                <span class="text-lg font-bold block">Sistem Pengadaan</span><br>
-                <span class="text-sm text-gray-300 opacity-75">Dashboard Staf Keuangan</span>
+                <span class="text-lg font-bold block">Sistem Pengadaan</span>
+                <span class="text-xs text-green-200 opacity-80">Dashboard Staf Keuangan</span>
             </div>
         </div>
-        <div class="flex items-center">
-            <div class="rounded-full py-2 px-4 m-2 flex items-center justify-center bg-white/10 text-sm">
-                <span class="p-1 m-1 bg-emerald-450 rounded-full"></span>
-                staf.keuangan@itk.ac.id
-            </div>
-            <button onclick="window.location.href='index.html'" class="bg-[#1c3d26] border border-white/20 text-white font-bold px-4 py-2 rounded-[10px] cursor-pointer hover:bg-[#122819] transition">
+        <div class="flex items-center gap-4">
+            <span class="bg-white/10 px-3 py-1.5 rounded-full text-xs font-medium border border-white/20">staf.keuangan@itk.ac.id</span>
+            <button onclick="window.location.href='index.html'" class="bg-[#22c55e] hover:bg-[#16a34a] text-white font-bold px-4 py-2 rounded-lg transition border-0 text-sm shadow-sm cursor-pointer">
                 Keluar
             </button>
         </div>
     </nav>
 
-    <div class="max-w-[1100px] mx-auto my-[50px] px-5">
+    <div class="max-w-[1100px] mx-auto my-[40px] px-5">
         <div class="grid grid-cols-4 gap-4 text-center">
-            <div class="p-4 bg-white border rounded-2xl shadow-sm">
-                <span class="text-2xl font-bold text-gray-800 block">0</span>
-                <span class="text-xs text-gray-500 font-semibold">Perlu Matching</span>
+            <div class="p-5 bg-white border border-gray-200 rounded-2xl shadow-sm">
+                <span class="text-3xl font-black text-gray-400 block">0</span>
+                <span class="text-xs text-gray-500 font-bold mt-1 block">Perlu Matching</span>
             </div>
-            <div class="p-4 bg-white border rounded-2xl shadow-sm">
-                <span class="text-2xl font-bold text-gray-800 block">0</span>
-                <span class="text-xs text-gray-500 font-semibold">Terbitkan Voucher</span>
+            <div class="p-5 bg-white border border-gray-200 rounded-2xl shadow-sm">
+                <span class="text-3xl font-black text-gray-400 block">0</span>
+                <span class="text-xs text-gray-500 font-bold mt-1 block">Terbitkan Voucher</span>
             </div>
-            <div class="p-4 bg-white border rounded-2xl shadow-sm">
-                <span class="text-2xl font-bold text-gray-800 block">0</span>
-                <span class="text-xs text-gray-500 font-semibold">Proses Bayar</span>
+            <div class="p-5 bg-white border border-gray-200 rounded-2xl shadow-sm">
+                <span class="text-3xl font-black text-gray-400 block">0</span>
+                <span class="text-xs text-gray-500 font-bold mt-1 block">Proses Bayar</span>
             </div>
-            <div class="p-4 border rounded-2xl shadow-sm bg-[#f0fdf4] border-[#bbf7d0]">
-                <span class="text-2xl font-bold text-emerald-700 block">1</span>
-                <span class="text-xs text-emerald-700 font-bold">Selesai</span>
+            <div class="p-5 bg-[#f0fdf4] border border-green-200 rounded-2xl shadow-sm">
+                <span class="text-3xl font-black text-green-700 block">1</span>
+                <span class="text-xs text-green-600 font-bold mt-1 block">Selesai</span>
             </div>
         </div>
 
-        <div class="flex gap-2 border-b border-gray-200 py-4 mt-4">
-            <button class="bg-gray-100 hover:bg-gray-200 border text-gray-600 font-semibold px-4 py-2 rounded-lg text-sm">3-Way Matching <span class="bg-red-500 text-white rounded-full px-2 py-0.5 text-xs ml-1">0</span></button>
-            <button class="bg-gray-100 hover:bg-gray-200 border text-gray-600 font-semibold px-4 py-2 rounded-lg text-sm">Voucher Pembayaran <span class="bg-red-500 text-white rounded-full px-2 py-0.5 text-xs ml-1">0</span></button>
-            <button class="bg-gray-100 hover:bg-gray-200 border text-gray-600 font-semibold px-4 py-2 rounded-lg text-sm">Proses Bayar <span class="bg-red-500 text-white rounded-full px-2 py-0.5 text-xs ml-1">0</span></button>
-            <button class="text-white font-bold px-4 py-2 rounded-lg text-sm bg-[#14532d]">Selesai</button>
+        <div class="flex gap-2 mt-8 border-b border-gray-200 pb-px">
+            <button class="px-4 py-2 rounded-t-xl font-bold text-xs bg-gray-100 text-gray-500 border-0 cursor-pointer">3-Way Matching <span class="bg-red-500 text-white rounded-full px-1.5 py-0.2 ml-1 text-[10px]">0</span></button>
+            <button class="px-4 py-2 rounded-t-xl font-bold text-xs bg-gray-100 text-gray-500 border-0 cursor-pointer">Voucher Pembayaran <span class="bg-red-500 text-white rounded-full px-1.5 py-0.2 ml-1 text-[10px]">0</span></button>
+            <button class="px-4 py-2 rounded-t-xl font-bold text-xs bg-gray-100 text-gray-500 border-0 cursor-pointer">Proses Bayar <span class="bg-red-500 text-white rounded-full px-1.5 py-0.2 ml-1 text-[10px]">0</span></button>
+            <button class="px-5 py-2 rounded-t-xl font-bold text-xs bg-[#14532d] text-white border-0 cursor-pointer shadow-sm">Selesai</button>
         </div>
 
-        <div class="bg-white border border-gray-200 rounded-2xl my-4 overflow-hidden shadow-sm">
-            <div class="p-3 flex align-items-center gap-3 bg-[#f0fdf4] border-b border-[#e6f4ea]">
-                <div class="bg-emerald-700 text-white flex items-center justify-center rounded-lg font-bold w-[35px] h-[35px]">✓</div>
+        <div class="bg-white border border-gray-200 rounded-b-2xl rounded-tr-2xl p-6 shadow-sm">
+            <div class="p-4 bg-green-50 border border-green-200 rounded-xl mb-6 flex items-start gap-3">
+                <span class="text-green-700 text-lg font-bold leading-none">✓</span>
                 <div>
-                    <span class="text-gray-800 block text-sm font-bold">PR Selesai</span>
-                    <span class="text-gray-500 text-xs">Seluruh proses pengadaan sudah tuntas.</span>
+                    <h4 class="font-bold text-green-900 text-sm m-0">PR Selesai</h4>
+                    <p class="text-green-700 text-xs mt-0.5">Seluruh rangkaian alur proses pengadaan barang saat ini sudah tuntas dan terbayar.</p>
                 </div>
             </div>
 
-            <div class="p-4">
-                <div class="p-4 border border-gray-200 rounded-2xl bg-gray-50 flex justify-between items-center">
+            <div class="p-5 border border-gray-200 rounded-2xl bg-white hover:border-green-300 transition">
+                <div class="flex justify-between items-start">
                     <div>
-                        <h4 class="font-bold text-gray-800 text-base m-0 pb-1">laptop dell</h4>
-                        <p class="text-gray-500 text-xs m-0">
-                            5 unit · Selesai 01 Jun 2026 · Invoice: 
-                            <span class="font-semibold text-gray-700">INV/2024/001</span> · 
+                        <h3 class="font-black text-gray-800 text-lg m-0">laptop dell</h3>
+                        <p class="text-gray-500 text-xs mt-1.5 space-x-2">
+                            <span>5 unit</span>
+                            <span class="text-gray-300">•</span>
+                            <span>Selesai 01 Jun 2026</span>
+                            <span class="text-gray-300">•</span>
+                            <span>Invoice: <strong class="text-gray-700">INV/2024/001</strong></span>
+                            <span class="text-gray-300">•</span>
                             <span class="text-emerald-600 font-bold">Rp 14.799.999</span>
                         </p>
-                        
-                        <button onclick="bukaInvoice()" class="mt-3 bg-[#14532d] hover:bg-[#1e4629] text-white font-bold py-1.5 px-3 rounded-lg text-xs flex items-center gap-2 border-0 cursor-pointer transition">
-                            📄 View / Print Invoice
-                        </button>
                     </div>
-                    <div>
-                        <span class="text-emerald-700 bg-emerald-50 border border-emerald-200 rounded-full px-3 py-1 text-xs font-bold block">
-                            • Selesai
-                        </span>
-                    </div>
+                    <span class="text-xs font-bold px-3 py-1 bg-green-100 text-green-700 rounded-full border border-green-200">
+                        ● Selesai
+                    </span>
+                </div>
+                
+                <div class="mt-4 pt-4 border-t border-gray-100 flex gap-2">
+                    <button onclick="bukaModalCetak()" class="bg-[#14532d] hover:bg-[#166534] text-white text-xs font-bold py-2 px-4 rounded-xl border-0 cursor-pointer shadow-sm transition flex items-center gap-1.5">
+                        📄 Lihat & Simpan Invoice Resmi (PDF)
+                    </button>
                 </div>
             </div>
         </div>
     </div>
 
-    <div id="invoiceModal" class="invoice-overlay" onclick="tutupInvoiceOutside(event)">
-        <div class="invoice-popup">
-            <button class="btn-close-invoice" onclick="tutupInvoice()">×</button>
+    <div id="cetakModal" class="modal-overlay">
+        <div class="bg-white rounded-2xl p-6 w-full max-w-[650px] shadow-2xl relative">
+            <button onclick="tutupModal()" class="absolute top-4 right-4 bg-gray-100 hover:bg-gray-200 border-0 rounded-full w-8 h-8 flex items-center justify-center font-bold text-gray-500 cursor-pointer text-sm">✕</button>
             
-            <div class="flex justify-between border-b-2 border-gray-100 pb-4 mb-4">
-                <div>
-                    <h3 class="m-0 text-[#14532d] font-bold text-xl tracking-tight">ITK PROCUREMENT</h3>
-                    <p class="text-[11px] text-gray-400 m-0 mt-0.5">Institut Teknologi Kalimantan</p>
-                </div>
-                <div class="text-right">
-                    <h4 class="m-0 text-gray-800 font-bold text-lg tracking-wide">INVOICE</h4>
-                    <p class="text-xs font-semibold text-gray-600 m-0 mt-0.5">#INV/2024/001</p>
-                </div>
+            <div class="flex justify-between items-center mb-4 border-b border-gray-100 pb-3">
+                <h3 class="font-bold text-gray-800 text-base m-0">Pratinjau Dokumen Kontrak</h3>
+                <button onclick="unduhSebagaiPDF()" class="bg-emerald-600 hover:bg-emerald-700 text-white font-bold text-xs px-4 py-2 rounded-xl border-0 cursor-pointer shadow-sm flex items-center gap-1">
+                    ⬇️ Ambil / Unduh File PDF
+                </button>
             </div>
 
-            <div class="flex justify-between text-xs my-5">
-                <div>
-                    <span class="text-gray-400 block mb-0.5">Ditagih Kepada:</span>
-                    <p class="m-0 font-bold text-gray-700 text-sm">Staf Keuangan ITK</p>
+            <div id="area-pdf" class="bg-white p-8 border border-gray-200 rounded-xl">
+                <div class="flex justify-between items-start border-b-2 border-gray-150 pb-4">
+                    <div>
+                        <h2 class="text-xl font-black text-green-800 tracking-wide m-0">ITK PROCUREMENT</h2>
+                        <p class="text-[11px] text-gray-400 mt-0.5 font-medium">Institut Teknologi Kalimantan</p>
+                    </div>
+                    <div class="text-right">
+                        <h2 class="text-lg font-black text-gray-800 m-0">INVOICE DIGITAL</h2>
+                        <p class="text-[11px] text-gray-500 mt-0.5 font-bold tracking-wider">#INV/2024/001</p>
+                    </div>
                 </div>
-                <div class="text-right">
-                    <span class="text-gray-400 block mb-0.5">Tanggal Dokumen:</span>
-                    <p class="m-0 font-bold text-gray-700 text-sm">01 Juni 2026</p>
-                </div>
-            </div>
 
-            <div class="w-full overflow-hidden border border-gray-100 rounded-xl my-4">
-                <table class="w-full text-left text-xs border-collapse">
+                <div class="grid grid-cols-2 gap-4 my-6 text-xs">
+                    <div>
+                        <span class="text-gray-400 font-bold block uppercase tracking-wider text-[10px]">Ditagih Kepada:</span>
+                        <strong class="text-gray-800 block text-sm mt-0.5">Staf Keuangan ITK</strong>
+                        <span class="text-gray-500 block mt-0.5">Kementerian Pendidikan dan Kebudayaan</span>
+                    </div>
+                    <div class="text-right">
+                        <span class="text-gray-400 font-bold block uppercase tracking-wider text-[10px]">Tanggal Dokumen Lunak:</span>
+                        <strong class="text-gray-800 block text-sm mt-0.5">01 Juni 2026</strong>
+                        <span class="text-xs text-green-600 font-bold bg-green-50 border border-green-100 px-2 py-0.5 rounded inline-block mt-1">✓ Lunas Terverifikasi</span>
+                    </div>
+                </div>
+
+                <table class="w-full text-left text-xs border-collapse mt-4">
                     <thead>
-                        <tr class="bg-gray-50 border-b border-gray-100 text-gray-500 font-semibold">
-                            <th class="p-3">Nama Barang</th>
-                            <th class="p-3 text-center">Jumlah</th>
-                            <th class="p-3 text-right">Total Harga</th>
+                        <tr class="bg-gray-50 text-gray-500 border-b border-gray-200">
+                            <th class="p-2.5 font-bold">Nama Barang Pasokan</th>
+                            <th class="p-2.5 font-bold text-center">Jumlah</th>
+                            <th class="p-2.5 font-bold text-right">Total Harga Kelompok</th>
                         </tr>
                     </thead>
-                    <tbody class="text-gray-700 font-medium">
-                        <tr class="border-b border-gray-50">
-                            <td class="p-3 font-semibold text-gray-800">laptop dell</td>
-                            <td class="p-3 text-center text-gray-500">5 Unit</td>
-                            <td class="p-3 text-right font-bold text-emerald-800 text-sm">Rp 14.799.999</td>
+                    <tbody>
+                        <tr class="border-b border-gray-100">
+                            <td class="p-3 font-medium text-gray-800">laptop dell (Core i7, RAM 16GB, SSD 512GB)</td>
+                            <td class="p-3 text-center text-gray-600">5 Unit</td>
+                            <td class="p-3 text-right font-bold text-gray-800">Rp 14.799.999</td>
                         </tr>
                     </tbody>
                 </table>
-            </div>
 
-            <div class="flex justify-between items-center font-bold text-base mt-6 border-t border-gray-100 pt-4">
-                <span class="text-gray-500 text-sm">Total Pembayaran:</span>
-                <span class="text-xl text-[#14532d] font-black">Rp 14.799.999</span>
-            </div>
-            
-            <div class="text-center mt-6 hidden-print">
-                <button onclick="window.print()" class="bg-[#14532d] hover:bg-[#1e4629] text-white font-bold py-2 px-6 rounded-lg text-xs tracking-wide transition shadow-sm cursor-pointer border-0">
-                    🖨️ Cetak / Simpan Jadi PDF
-                </button>
-            </div>
-            
-            <div class="text-center text-[10px] text-gray-400 mt-6 border-t border-dashed border-gray-200 pt-3">
-                Dokumen Digital Sah Cetakan Otomatis Sistem Procurement ITK.
+                <div class="mt-6 pt-4 border-t-2 border-dashed border-gray-200 flex justify-between items-center">
+                    <span class="text-xs font-black text-gray-700 uppercase tracking-wide">Total Pembayaran Akhir:</span>
+                    <span class="text-xl font-black text-emerald-600">Rp 14.799.999</span>
+                </div>
+
+                <div class="text-center mt-8 pt-4 border-t border-gray-100">
+                    <p class="text-[10px] text-gray-400 m-0 italic">Dokumen ini merupakan bukti sah digital yang dihasilkan otomatis oleh Sistem Procurement ITK 2026.</p>
+                </div>
             </div>
         </div>
     </div>
 
     <script>
-        function bukaInvoice() {
-            document.getElementById('invoiceModal').classList.add('open');
+        function bukaModalCetak() {
+            document.getElementById('cetakModal').classList.add('open');
         }
 
-        function tutupInvoice() {
-            document.getElementById('invoiceModal').classList.remove('open');
+        function tutupModal() {
+            document.getElementById('cetakModal').classList.remove('open');
         }
 
-        function tutupInvoiceOutside(event) {
-            if (event.target.id === 'invoiceModal') {
-                tutupInvoice();
-            }
+        // FUNGSI INI AKAN MENANGKAP ELEMEN "area-pdf" DAN MENJADIKANNYA FILE DOWNLOAD PDF
+        function unduhSebagaiPDF() {
+            const element = document.getElementById('area-pdf');
+            
+            // Pengaturan Kertas PDF Biar Rapih Pas Diunduh
+            const opsi = {
+                margin:       10,
+                filename:     'Invoice-Laptop-Dell-INV2024001.pdf',
+                image:        { type: 'jpeg', quality: 0.98 },
+                html2canvas:  { scale: 2 },
+                jsPDF:        { unit: 'mm', format: 'a4', orientation: 'portrait' }
+            };
+
+            // Jalankan perintah download instan bawaan html2pdf
+            html2pdf().set(opsi).from(element).save().then(() => {
+                alert("Sukses! File PDF resmi berhasil disimpan di folder Downloads komputermu.");
+            });
         }
     </script>
 </body>
