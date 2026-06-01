@@ -6,8 +6,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Sistem Pengadaan</title>
     <link rel="stylesheet" href="style.css">
-    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/dist/css/bootstrap.min.css" rel="stylesheet"
-        integrity="sha384-QWTKZyjpPEjISv5WaRU9OFeRpok6YctnYmDr5pNlyT2bRjXh0JMhjY6hW+ALEwIH" crossorigin="anonymous">
+    <script src="https://cdn.jsdelivr.net/npm/@tailwindcss/browser@4"></script>
     
     <style>
         .invoice-overlay {
@@ -16,7 +15,7 @@
             left: 0;
             width: 100%;
             height: 100%;
-            background: rgba(0, 0, 0, 0.5);
+            background: rgba(0, 0, 0, 0.6);
             display: flex;
             justify-content: center;
             align-items: center;
@@ -24,6 +23,7 @@
             opacity: 0;
             pointer-events: none;
             transition: all 0.3s ease;
+            padding: 20px;
         }
         .invoice-overlay.open {
             opacity: 1;
@@ -33,134 +33,110 @@
             background: white;
             width: 100%;
             max-width: 600px;
-            padding: 30px;
-            border-radius: 12px;
-            box-shadow: 0 10px 25px rgba(0,0,0,0.2);
+            padding: 35px;
+            border-radius: 16px;
+            box-shadow: 0 25px 50px -12px rgba(0,0,0,0.25);
             position: relative;
+            transform: scale(0.95);
+            transition: all 0.3s ease;
         }
-        .invoice-header {
-            display: flex;
-            justify-content: space-between;
-            border-bottom: 2px solid #e5e7eb;
-            padding-bottom: 15px;
-            margin-bottom: 15px;
+        .invoice-overlay.open .invoice-popup {
+            transform: scale(1);
         }
         .btn-close-invoice {
             position: absolute;
-            top: 15px;
-            right: 15px;
+            top: 20px;
+            right: 20px;
             background: #f3f4f6;
             border: none;
-            font-size: 20px;
+            font-size: 22px;
             font-weight: bold;
-            width: 30px;
-            height: 30px;
+            width: 32px;
+            height: 32px;
             border-radius: 50%;
             cursor: pointer;
-        }
-        .invoice-table {
-            width: 100%;
-            margin-top: 15px;
-            margin-bottom: 15px;
-        }
-        .invoice-table th, .invoice-table td {
-            padding: 10px;
-            border-bottom: 1px solid #f3f4f6;
-            text-align: left;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: #4b5563;
         }
     </style>
 </head>
 
-<body>
-    <nav class="navbar text-white" style="background-color: #14532d; padding: 25px;">
-        <div class="container-fluid d-flex justify-content-between align-items-center">
-            <div class="d-flex align-items-center">
-                <div class="bg-light text-success d-flex align-items-center justify-content-center m-2"
-                    style="width: 45px; height: 45px; border-radius: 10px;">
-                    <span class="fs-4 fw-bold">$</span>
-                </div>
-                <div class="lh-1">
-                    <span class="fs-5 fw-bold block">Sistem Pengadaan</span><br>
-                    <span class="fs-7 text-light opacity-75">Dashboard Staf Keuangan</span>
-                </div>
+<body class="bg-[#f3f4f6]">
+    <nav class="bg-[#14532d] text-white p-[25px] flex justify-between items-center">
+        <div class="flex items-center">
+            <div class="bg-white text-emerald-800 flex items-center justify-center m-2 w-[45px] h-[45px] rounded-[10px] font-bold text-xl">
+                <span>$</span>
             </div>
-            <div class="d-flex align-items-center">
-                <div class="rounded-pill p-2 px-3 m-2 d-flex align-items-center justify-content-center"
-                    style="background-color: rgba(255, 255, 255, 0.1); font-size: 14px;">
-                    <span class="p-1 m-1 bg-success rounded-circle"></span>
-                    staf.keuangan@itk.ac.id
-                </div>
-                <button class="btn text-white fw-bold px-4"
-                    style="background-color: #1c3d26; border: 1px solid rgba(255, 255, 255, 0.2); border-radius: 10px;">Keluar</button>
+            <div class="leading-tight">
+                <span class="text-lg font-bold block">Sistem Pengadaan</span><br>
+                <span class="text-sm text-gray-300 opacity-75">Dashboard Staf Keuangan</span>
             </div>
+        </div>
+        <div class="flex items-center">
+            <div class="rounded-full py-2 px-4 m-2 flex items-center justify-center bg-white/10 text-sm">
+                <span class="p-1 m-1 bg-emerald-450 rounded-full"></span>
+                staf.keuangan@itk.ac.id
+            </div>
+            <button class="bg-[#1c3d26] border border-white/20 text-white font-bold px-4 py-2 rounded-[10px]">Keluar</button>
         </div>
     </nav>
 
-    <div class="container my-5">
-        <div class="row g-3 text-center">
-            <div class="col">
-                <div class="p-4 bg-white border rounded-4">
-                    <span class="fs-3 fw-bold text-dark block">0</span><br>
-                    <span class="fs-7 text-secondary fw-semibold">Perlu Matching</span>
-                </div>
+    <div class="max-w-[1100px] mx-auto my-[50px] px-5">
+        <div class="grid grid-cols-4 gap-4 text-center">
+            <div class="p-4 bg-white border rounded-2xl shadow-sm">
+                <span class="text-2xl font-bold text-gray-800 block">0</span>
+                <span class="text-xs text-gray-500 font-semibold">Perlu Matching</span>
             </div>
-            <div class="col">
-                <div class="p-4 bg-white border rounded-4">
-                    <span class="fs-3 fw-bold text-dark block">0</span><br>
-                    <span class="fs-7 text-secondary fw-semibold">Terbitkan Voucher</span>
-                </div>
+            <div class="p-4 bg-white border rounded-2xl shadow-sm">
+                <span class="text-2xl font-bold text-gray-800 block">0</span>
+                <span class="text-xs text-gray-500 font-semibold">Terbitkan Voucher</span>
             </div>
-            <div class="col">
-                <div class="p-4 bg-white border rounded-4">
-                    <span class="fs-3 fw-bold text-dark block">0</span><br>
-                    <span class="fs-7 text-secondary fw-semibold">Proses Bayar</span>
-                </div>
+            <div class="p-4 bg-white border rounded-2xl shadow-sm">
+                <span class="text-2xl font-bold text-gray-800 block">0</span>
+                <span class="text-xs text-gray-500 font-semibold">Proses Bayar</span>
             </div>
-            <div class="col">
-                <div class="p-4 border rounded-4" style="background-color: #f0fdf4; border-color: #bbf7d0;">
-                    <span class="fs-3 fw-bold text-success block">1</span><br>
-                    <span class="fs-7 text-success fw-bold">Selesai</span>
-                </div>
+            <div class="p-4 border rounded-2xl shadow-sm bg-[#f0fdf4] border-[#bbf7d0]">
+                <span class="text-2xl font-bold text-emerald-700 block">1</span>
+                <span class="text-xs text-emerald-700 font-bold">Selesai</span>
             </div>
         </div>
 
-        <div class="d-flex gap-2 border-bottom py-4">
-            <button class="btn btn-light border fw-semibold text-secondary px-4 py-2">3-Way Matching <span
-                    class="badge bg-danger rounded-circle">0</span></button>
-            <button class="btn btn-light border fw-semibold text-secondary px-4 py-2">Voucher Pembayaran <span
-                    class="badge bg-danger rounded-circle">0</span></button>
-            <button class="btn btn-light border fw-semibold text-secondary px-4 py-2">Proses Bayar <span
-                    class="badge bg-danger rounded-circle">0</span></button>
-            <button class="btn text-white fw-bold px-4 py-2" style="background-color: #14532d;">Selesai</button>
+        <div class="flex gap-2 border-b border-gray-200 py-4 mt-4">
+            <button class="bg-gray-100 hover:bg-gray-200 border text-gray-600 font-semibold px-4 py-2 rounded-lg text-sm">3-Way Matching <span class="bg-red-500 text-white rounded-full px-2 py-0.5 text-xs ml-1">0</span></button>
+            <button class="bg-gray-100 hover:bg-gray-200 border text-gray-600 font-semibold px-4 py-2 rounded-lg text-sm">Voucher Pembayaran <span class="bg-red-500 text-white rounded-full px-2 py-0.5 text-xs ml-1">0</span></button>
+            <button class="bg-gray-100 hover:bg-gray-200 border text-gray-600 font-semibold px-4 py-2 rounded-lg text-sm">Proses Bayar <span class="bg-red-500 text-white rounded-full px-2 py-0.5 text-xs ml-1">0</span></button>
+            <button class="text-white font-bold px-4 py-2 rounded-lg text-sm bg-[#14532d]">Selesai</button>
         </div>
 
-        <div class="bg-white border rounded-4 my-4 overflow-hidden shadow-sm">
-            <div class="p-3 d-flex align-items-center gap-3"
-                style="background-color: #f0fdf4; border-bottom: 1px solid #e6f4ea;">
-                <div class="bg-success text-white d-flex align-items-center justify-content-center rounded-3 fw-bold"
-                    style="width: 35px; height: 35px;">✓</div>
+        <div class="bg-white border border-gray-200 rounded-2xl my-4 overflow-hidden shadow-sm">
+            <div class="p-3 flex align-items-center gap-3 bg-[#f0fdf4] border-b border-[#e6f4ea]">
+                <div class="bg-emerald-700 text-white flex items-center justify-center rounded-lg font-bold w-[35px] h-[35px]">✓</div>
                 <div>
-                    <span class="fw-bold text-dark d-block" style="font-size: 15px;">PR Selesai</span>
-                    <span class="text-secondary" style="font-size: 13px;">Seluruh proses pengadaan sudah tuntas.</span>
+                    <span class="fw-bold text-gray-800 block text-sm font-bold">PR Selesai</span>
+                    <span class="text-gray-500 text-xs">Seluruh proses pengadaan sudah tuntas.</span>
                 </div>
             </div>
 
             <div class="p-4">
-                <div class="p-4 border rounded-4 bg-light d-flex justify-content-between align-items-center">
+                <div class="p-4 border border-gray-200 rounded-2xl bg-gray-50 flex justify-between items-center">
                     <div>
-                        <h4 class="fw-bold text-dark m-0 pb-1" style="font-size: 18px;">laptop dell</h4>
-                        <p class="text-secondary m-0" style="font-size: 14px;">
+                        <h4 class="font-bold text-gray-800 text-base m-0 pb-1">laptop dell</h4>
+                        <p class="text-gray-500 text-xs m-0">
                             5 unit · Selesai 01 Jun 2026 · Invoice: 
-                            <span class="fw-semibold text-dark">INV/2024/001</span> · 
-                            <span class="text-success fw-bold">Rp 14.799.999</span>
+                            <span class="font-semibold text-gray-700">INV/2024/001</span> · 
+                            <span class="text-emerald-600 font-bold">Rp 14.799.999</span>
                         </p>
-                        <button onclick="bukaInvoice()" class="btn btn-success btn-sm fw-bold mt-2 px-3 py-1.5" style="background-color: #14532d; border: none; font-size: 12px;">
+                        
+                        <button onclick="bukaInvoice()" class="mt-3 bg-[#14532d] hover:bg-[#1e4629] text-white font-bold py-1.5 px-3 rounded-lg text-xs flex items-center gap-2 border-0 cursor-pointer transition">
                             📄 View / Print Invoice
                         </button>
                     </div>
                     <div>
-                        <span class="badge text-success bg-success-subtle border border-success-subtle rounded-pill px-3 py-2 fw-bold"
-                            style="font-size: 13px;">• Selesai</span>
+                        <span class="text-emerald-700 bg-emerald-50 border border-emerald-200 rounded-full px-3 py-1 text-xs font-bold block">
+                            • Selesai
+                        </span>
                     </div>
                 </div>
             </div>
@@ -171,52 +147,54 @@
         <div class="invoice-popup">
             <button class="btn-close-invoice" onclick="tutupInvoice()">×</button>
             
-            <div class="invoice-header">
+            <div class="flex justify-between border-b-2 border-gray-100 pb-4 mb-4">
                 <div>
-                    <h3 style="margin: 0; color: #14532d; font-weight: bold; font-size: 22px;">ITK PROCUREMENT</h3>
-                    <p style="font-size: 11px; color: #6b7280; margin: 2px 0;">Institut Teknologi Kalimantan</p>
+                    <h3 class="m-0 text-[#14532d] font-bold text-xl tracking-tight">ITK PROCUREMENT</h3>
+                    <p class="text-[11px] text-gray-400 m-0 mt-0.5">Institut Teknologi Kalimantan</p>
                 </div>
-                <div style="text-align: right;">
-                    <h4 style="margin: 0; font-size: 18px; font-weight: bold;">INVOICE</h4>
-                    <p style="font-size: 13px; color: #4b5563; margin: 2px 0; font-weight: 600;">#INV/2024/001</p>
+                <div class="text-right">
+                    <h4 class="m-0 text-gray-800 font-bold text-lg tracking-wide">INVOICE</h4>
+                    <p class="text-xs font-semibold text-gray-600 m-0 mt-0.5">#INV/2024/001</p>
                 </div>
             </div>
 
-            <div style="display: flex; justify-content: space-between; font-size: 13px; margin-bottom: 20px;">
+            <div class="flex justify-between text-xs my-5">
                 <div>
-                    <span style="color: #6b7280; d-block;">Ditagih Kepada:</span>
-                    <p style="margin: 3px 0; font-weight: bold;">Staf Keuangan ITK</p>
+                    <span class="text-gray-400 block mb-0.5">Ditagih Kepada:</span>
+                    <p class="m-0 font-bold text-gray-700 text-sm">Staf Keuangan ITK</p>
                 </div>
-                <div style="text-align: right;">
-                    <span style="color: #6b7280;">Tanggal:</span>
-                    <p style="margin: 3px 0; font-weight: bold;">01 Juni 2026</p>
+                <div class="text-right">
+                    <span class="text-gray-400 block mb-0.5">Tanggal Dokumen:</span>
+                    <p class="m-0 font-bold text-gray-700 text-sm">01 Juni 2026</p>
                 </div>
             </div>
 
-            <table class="invoice-table">
-                <thead>
-                    <tr style="background: #f9fafb;">
-                        <th>Item</th>
-                        <th style="text-align: center;">Qty</th>
-                        <th style="text-align: right;">Total</th>
-                    </tr>
-                </thead>
-                <tbody>
-                    <tr>
-                        <td style="font-weight: 600; font-size: 14px;">laptop dell</td>
-                        <td style="text-align: center; font-size: 14px;">5 Unit</td>
-                        <td style="text-align: right; font-weight: bold; font-size: 14px; color: #14532d;">Rp 14.799.999</td>
-                    </tr>
-                </tbody>
-            </table>
+            <div class="w-full overflow-hidden border border-gray-100 rounded-xl my-4">
+                <table class="w-full text-left text-xs border-collapse">
+                    <thead>
+                        <tr class="bg-gray-50 border-b border-gray-100 text-gray-500 font-semibold">
+                            <th class="p-3">Nama Barang</th>
+                            <th class="p-3 text-center">Jumlah</th>
+                            <th class="p-3 text-right">Total Harga</th>
+                        </tr>
+                    </thead>
+                    <tbody class="text-gray-700 font-medium">
+                        <tr class="border-b border-gray-50">
+                            <td class="p-3 font-semibold text-gray-800">laptop dell</td>
+                            <td class="p-3 text-center text-gray-500">5 Unit</td>
+                            <td class="p-3 text-right font-bold text-emerald-800 text-sm">Rp 14.799.999</td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
 
-            <div style="display: flex; justify-content: space-between; font-weight: bold; font-size: 16px; margin-top: 20px; border-top: 2px solid #e5e7eb; padding-top: 10px;">
-                <span>Total Bayar:</span>
-                <span style="color: #14532d;">Rp 14.799.999</span>
+            <div class="flex justify-between items-center font-bold text-base mt-6 border-t border-gray-100 pt-4">
+                <span class="text-gray-500 text-sm">Total Pembayaran:</span>
+                <span class="text-xl text-[#14532d] font-black">Rp 14.799.999</span>
             </div>
             
-            <div style="text-align: center; font-size: 11px; color: #9ca3af; margin-top: 30px; border-top: 1px dashed #e5e7eb; padding-top: 10px;">
-                Dokumen Digital Sah Sistem Procurement ITK.
+            <div class="text-center text-[10px] text-gray-400 mt-8 border-t border-dashed border-gray-200 pt-3">
+                Dokumen Digital Sah Cetakan Otomatis Sistem Procurement ITK.
             </div>
         </div>
     </div>
@@ -236,10 +214,6 @@
             }
         }
     </script>
-
-    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"
-        integrity="sha384-YvpcrYf0tY3lHB60NNkmXc5s9fDVZLESaAA55NDzOxhy9GkcIdslK1eN7N6jIeHz"
-        crossorigin="anonymous"></script>
 </body>
 
 </html>
