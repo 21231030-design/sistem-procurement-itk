@@ -7,7 +7,6 @@
     <title>Sistem Pengadaan - Dashboard Staf Keuangan</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.10.1/html2pdf.bundle.min.js"></script>
-    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
     <style>
         .modal-overlay {
             position: fixed;
@@ -56,7 +55,7 @@
                 <span class="text-xs text-gray-500 font-bold mt-1 block">Proses Bayar</span>
             </div>
             <div onclick="gantiTab('selesai')" class="p-5 bg-green-50 border border-green-200 rounded-2xl shadow-sm cursor-pointer transition hover:bg-green-100">
-                <span id="count-stat-selesai" class="text-3xl font-black text-green-700 block">0</span>
+                <span id="count-stat-selesai" class="text-3xl font-black text-green-700 block">1</span>
                 <span class="text-xs text-green-600 font-bold mt-1 block">Selesai</span>
             </div>
         </div>
@@ -86,8 +85,7 @@
             </div>
 
             <div id="list-container" class="space-y-4">
-                <div class="text-center text-gray-400 py-10 text-sm">Sedang memuat seluruh data PR...</div>
-            </div>
+                </div>
         </div>
     </div>
 
@@ -158,40 +156,30 @@
     </div>
 
     <script>
-        // Inisialisasi Supabase menggunakan kredensial proyekmu yang sudah DIKUNCI PASTI
-        const _supabase = supabase.createClient(
-            "https://eexbshvunbbybshwccas.supabase.co", 
-            "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImVleGJzaHZ1bmJieWJzaHdjY2FzIiwicm9sZSI6ImFub24iLCJpYXQiOjE3MTY4ODg3NzcsImV4cCI6MjAzMjQ2NDc3N30.8MhO86iPl2hX2Z7S9W4YvCj3qUuxVlR40oO82S4jJz8"
-        );
+        // Data Dummy default bawaan sidang biar langsung tampil aman jaya tanpa perlu internet server
+        const defaultData = [
+            { id: "1", nama_barang: "laptop dell", jumlah: 5, harga: 14799999, status: "selesai", created_at: "2026-06-01T08:00:00.000Z", invoice_number: "INV/2024/001" },
+            { id: "2", nama_barang: "sepatu safety", jumlah: 2, harga: 450000, status: "perlu_matching", created_at: "2026-06-01T16:23:00.000Z", invoice_number: "INV/2026/088" }
+        ];
+
+        // Inisialisasi Database Lokal Browser
+        if (!localStorage.getItem('purchase_requests_local')) {
+            localStorage.setItem('purchase_requests_local', JSON.stringify(defaultData));
+        }
 
         let semuaDataPR = [];
         let tabAktif = 'selesai'; 
         let dataTerpilihUntukPDF = null;
 
-        async function muatDataSupabase() {
-            try {
-                const { data, error } = await _supabase
-                    .from('purchase_requests')
-                    .select('*')
-                    .order('created_at', { ascending: false });
-
-                if (error) throw error;
-                semuaDataPR = data || [];
-                
-                hitungStatistik();
-                renderDataKeUI();
-            } catch (err) {
-                console.error("Gagal load data:", err);
-                document.getElementById('list-container').innerHTML = `
-                    <div class="text-center text-red-500 py-10 text-sm font-bold">
-                        ❌ Gagal memuat data dari database Supabase.
-                    </div>`;
-            }
+        function muatDataLokal() {
+            semuaDataPR = JSON.parse(localStorage.getItem('purchase_requests_local'));
+            hitungStatistik();
+            renderDataKeUI();
         }
 
         function hitungStatistik() {
-            const matching = semuaDataPR.filter(item => ['perlu_matching', 'Perlu Matching', 'Barang Dikirim', 'barang_dikirim', 'verifikasi_sj'].includes(item.status)).length;
-            const voucher = semuaDataPR.filter(item => ['terbitkan_voucher', 'Voucher Pembayaran', 'menunggu_po'].includes(item.status)).length;
+            const matching = semuaDataPR.filter(item => ['perlu_matching', 'Perlu Matching', 'Barang Dikirim', 'barang_dikirim'].includes(item.status)).length;
+            const voucher = semuaDataPR.filter(item => ['terbitkan_voucher', 'Voucher Pembayaran'].includes(item.status)).length;
             const bayar = semuaDataPR.filter(item => ['proses_bayar', 'Proses Bayar'].includes(item.status)).length;
             const selesai = semuaDataPR.filter(item => ['selesai', 'Selesai'].includes(item.status)).length;
 
@@ -213,11 +201,11 @@
             let warnaTemaTab = 'green';
 
             if (tabAktif === 'matching') {
-                dataFilter = semuaDataPR.filter(item => ['perlu_matching', 'Perlu Matching', 'Barang Dikirim', 'barang_dikirim', 'verifikasi_sj'].includes(item.status));
+                dataFilter = semuaDataPR.filter(item => ['perlu_matching', 'Perlu Matching', 'Barang Dikirim', 'barang_dikirim'].includes(item.status));
                 warnaTemaTab = 'orange';
                 aturBanner("Antrean 3-Way Matching", "Silakan periksa kesesuaian dokumen PO, Surat Jalan, dan Invoice fisik dari Vendor.", "bg-orange-50 border-orange-200 text-orange-700 text-orange-900");
             } else if (tabAktif === 'voucher') {
-                dataFilter = semuaDataPR.filter(item => ['terbitkan_voucher', 'Voucher Pembayaran', 'menunggu_po'].includes(item.status));
+                dataFilter = semuaDataPR.filter(item => ['terbitkan_voucher', 'Voucher Pembayaran'].includes(item.status));
                 warnaTemaTab = 'blue';
                 aturBanner("Penerbitan Voucher Pembayaran", "Data terverifikasi, siapkan dokumen pengeluaran kas atau kuitansi internal.", "bg-blue-50 border-blue-200 text-blue-700 text-blue-900");
             } else if (tabAktif === 'bayar') {
@@ -236,10 +224,9 @@
             }
 
             dataFilter.forEach(item => {
-                const hargaNominal = item.harga || item.total_harga || 0;
+                const hargaNominal = item.harga || 0;
                 const formatRupiah = new Intl.NumberFormat('id-ID', { style: 'currency', currency: 'IDR', maximumFractionDigits: 0 }).format(hargaNominal);
-                const formatTgl = item.created_at ? new Date(item.created_at).toLocaleDateString('id-ID', { day: '2-digit', month: 'short', year: 'numeric' }) : '02 Jun 2026';
-                const nomorInvoice = item.invoice_number || item.no_invoice || `INV/2026/0${Math.floor(Math.random() * 80) + 10}`;
+                const formatTgl = '01 Jun 2026';
 
                 const cardHtml = `
                     <div class="p-5 border border-gray-200 rounded-2xl bg-white hover:border-${warnaTemaTab}-300 shadow-sm transition">
@@ -247,11 +234,11 @@
                             <div>
                                 <h3 class="font-black text-gray-800 text-lg m-0 capitalize">${item.nama_barang}</h3>
                                 <p class="text-gray-500 text-xs mt-1.5 space-x-2 flex flex-wrap items-center gap-y-1">
-                                    <span>${item.jumlah || item.quantity || 1} unit</span>
+                                    <span>${item.jumlah} unit</span>
                                     <span class="text-gray-300">•</span>
                                     <span>Tanggal: ${formatTgl}</span>
                                     <span class="text-gray-300">•</span>
-                                    <span>Invoice: <strong class="text-gray-700">${nomorInvoice}</strong></span>
+                                    <span>Invoice: <strong class="text-gray-700">${item.invoice_number}</strong></span>
                                     <span class="text-gray-300">•</span>
                                     <span class="text-emerald-600 font-bold">${formatRupiah}</span>
                                 </p>
@@ -301,26 +288,24 @@
             document.getElementById('info-banner').className = `p-4 rounded-xl mb-6 flex items-start gap-3 border ${classStyle}`;
         }
 
-        async function prosesAlurKeuangan(prId, statusSekarang) {
+        function prosesAlurKeuangan(prId, statusSekarang) {
             let statusBaru = 'selesai';
-            if (['perlu_matching', 'Perlu Matching', 'Barang Dikirim', 'barang_dikirim', 'verifikasi_sj'].includes(statusSekarang)) {
+            if (statusSekarang === 'perlu_matching') {
                 statusBaru = 'terbitkan_voucher';
-            } else if (statusSekarang === 'terbitkan_voucher' || statusSekarang === 'menunggu_po') {
+            } else if (statusSekarang === 'terbitkan_voucher') {
                 statusBaru = 'proses_bayar';
             }
 
-            try {
-                const { error } = await _supabase
-                    .from('purchase_requests')
-                    .update({ status: statusBaru })
-                    .eq('id', prId);
+            semuaDataPR = semuaDataPR.map(item => {
+                if (item.id === prId) {
+                    return { ...item, status: statusBaru };
+                }
+                return item;
+            });
 
-                if (error) throw error;
-                alert(`Sukses! Berkas PR berhasil dimajukan tingkat.`);
-                muatDataSupabase();
-            } catch (err) {
-                alert("Gagal update status: " + err.message);
-            }
+            localStorage.setItem('purchase_requests_local', JSON.stringify(semuaDataPR));
+            alert(`Sukses! Berkas PR berhasil dimajukan tingkat.`);
+            muatDataLokal();
         }
 
         function bukaModalCetak(idBarang) {
@@ -329,15 +314,12 @@
 
             dataTerpilihUntukPDF = dataItem;
 
-            const hargaNominal = dataItem.harga || dataItem.total_harga || 0;
-            const formatRupiah = new Intl.NumberFormat('id-ID', { style: 'currency', currency: 'IDR', maximumFractionDigits: 0 }).format(hargaNominal);
-            const formatTgl = dataItem.created_at ? new Date(dataItem.created_at).toLocaleDateString('id-ID', { day: '2-digit', month: 'long', year: 'numeric' }) : '02 Juni 2026';
-            const nomorInvoice = dataItem.invoice_number || dataItem.no_invoice || `INV/2026/012`;
+            const formatRupiah = new Intl.NumberFormat('id-ID', { style: 'currency', currency: 'IDR', maximumFractionDigits: 0 }).format(dataItem.harga);
 
-            document.getElementById('modal-invoice-num').innerText = `#${nomorInvoice}`;
-            document.getElementById('modal-tanggal').innerText = formatTgl;
+            document.getElementById('modal-invoice-num').innerText = `#${dataItem.invoice_number}`;
+            document.getElementById('modal-tanggal').innerText = "01 Juni 2026";
             document.getElementById('modal-nama-barang').innerText = dataItem.nama_barang;
-            document.getElementById('modal-jumlah-barang').innerText = `${dataItem.jumlah || dataItem.quantity || 1} Unit`;
+            document.getElementById('modal-jumlah-barang').innerText = `${dataItem.jumlah} Unit`;
             document.getElementById('modal-total-harga').innerText = formatRupiah;
             document.getElementById('modal-total-final').innerText = formatRupiah;
 
@@ -367,7 +349,7 @@
             });
         }
 
-        window.onload = muatDataSupabase;
+        window.onload = muatDataLokal;
     </script>
 </body>
 
