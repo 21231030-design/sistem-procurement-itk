@@ -60,6 +60,41 @@
             justify-content: center;
             color: #4b5563;
         }
+
+        /* =======================================================
+           TRICK CSS CETAK: AKTIF SAAT TOMBOL PRINT DIKLIK
+           ======================================================= */
+        @media print {
+            /* 1. Sembunyikan seluruh halaman utama di belakang */
+            body * {
+                visibility: hidden;
+            }
+            /* 2. Hanya munculkan area pop-up invoice */
+            #invoiceModal, #invoiceModal * {
+                visibility: visible;
+            }
+            #invoiceModal {
+                position: absolute;
+                left: 0;
+                top: 0;
+                width: 100%;
+                background: white !important;
+                display: flex !important;
+                justify-content: center !important;
+                align-items: flex-start !important;
+            }
+            /* 3. Hilangkan bayangan, tombol close, dan tombol cetak itu sendiri di kertas PDF */
+            .btn-close-invoice, .hidden-print, button {
+                display: none !important;
+            }
+            .invoice-popup {
+                box-shadow: none !important;
+                padding: 0 !important;
+                margin: 0 !important;
+                width: 100% !important;
+                max-width: 100% !important;
+            }
+        }
     </style>
 </head>
 
@@ -114,7 +149,7 @@
             <div class="p-3 flex align-items-center gap-3 bg-[#f0fdf4] border-b border-[#e6f4ea]">
                 <div class="bg-emerald-700 text-white flex items-center justify-center rounded-lg font-bold w-[35px] h-[35px]">✓</div>
                 <div>
-                    <span class="fw-bold text-gray-800 block text-sm font-bold">PR Selesai</span>
+                    <span class="text-gray-800 block text-sm font-bold">PR Selesai</span>
                     <span class="text-gray-500 text-xs">Seluruh proses pengadaan sudah tuntas.</span>
                 </div>
             </div>
@@ -193,7 +228,13 @@
                 <span class="text-xl text-[#14532d] font-black">Rp 14.799.999</span>
             </div>
             
-            <div class="text-center text-[10px] text-gray-400 mt-8 border-t border-dashed border-gray-200 pt-3">
+            <div class="text-center mt-6 hidden-print">
+                <button onclick="window.print()" class="bg-[#14532d] hover:bg-[#1e4629] text-white font-bold py-2 px-6 rounded-lg text-xs tracking-wide transition shadow-sm cursor-pointer border-0">
+                    🖨️ Cetak / Simpan Jadi PDF
+                </button>
+            </div>
+            
+            <div class="text-center text-[10px] text-gray-400 mt-6 border-t border-dashed border-gray-200 pt-3">
                 Dokumen Digital Sah Cetakan Otomatis Sistem Procurement ITK.
             </div>
         </div>
