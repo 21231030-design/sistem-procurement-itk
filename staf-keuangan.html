@@ -61,15 +61,11 @@
             color: #4b5563;
         }
 
-        /* =======================================================
-           TRICK CSS CETAK: AKTIF SAAT TOMBOL PRINT DIKLIK
-           ======================================================= */
+        /* CSS CETAK: AKTIF SAAT TOMBOL PRINT DIKLIK */
         @media print {
-            /* 1. Sembunyikan seluruh halaman utama di belakang */
             body * {
                 visibility: hidden;
             }
-            /* 2. Hanya munculkan area pop-up invoice */
             #invoiceModal, #invoiceModal * {
                 visibility: visible;
             }
@@ -83,7 +79,6 @@
                 justify-content: center !important;
                 align-items: flex-start !important;
             }
-            /* 3. Hilangkan bayangan, tombol close, dan tombol cetak itu sendiri di kertas PDF */
             .btn-close-invoice, .hidden-print, button {
                 display: none !important;
             }
@@ -114,7 +109,9 @@
                 <span class="p-1 m-1 bg-emerald-450 rounded-full"></span>
                 staf.keuangan@itk.ac.id
             </div>
-            <button class="bg-[#1c3d26] border border-white/20 text-white font-bold px-4 py-2 rounded-[10px]">Keluar</button>
+            <button onclick="window.location.href='index.html'" class="bg-[#1c3d26] border border-white/20 text-white font-bold px-4 py-2 rounded-[10px] cursor-pointer hover:bg-[#122819] transition">
+                Keluar
+            </button>
         </div>
     </nav>
 
