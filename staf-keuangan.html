@@ -1,91 +1,101 @@
 <!DOCTYPE html>
-<html lang="id">
+<html lang="en">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Sistem Pengadaan - Staf Keuangan</title>
+    <title>Sistem Pengadaan - Dashboard Staf Keuangan</title>
     <script src="https://cdn.jsdelivr.net/npm/@tailwindcss/browser@4"></script>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
 </head>
-<body class="bg-gray-100 font-sans">
+<body class="bg-[#f3f4f6] font-sans antialiased text-[#1f2937]">
 
-    <nav class="bg-[#1b4332] text-white px-6 py-4 flex justify-between items-center shadow-md">
+    <nav class="bg-[#14532d] text-white px-6 py-4 flex justify-between items-center shadow-sm">
         <div class="flex items-center gap-3">
-            <div class="bg-white/10 p-2 rounded-lg">
-                <i class="fa-solid fa-dollar-sign text-xl text-emerald-400"></i>
+            <div class="bg-white/10 p-2.5 rounded-xl flex items-center justify-center">
+                <i class="fa-solid fa-dollar-sign text-xl text-[#4ade80]"></i>
             </div>
             <div>
-                <h1 class="font-bold text-lg leading-tight">Sistem Pengadaan</h1>
-                <p class="text-xs text-gray-300">Dashboard Staf Keuangan</p>
+                <h1 class="font-bold text-lg leading-tight tracking-wide">Sistem Pengadaan</h1>
+                <p class="text-xs text-gray-300 font-medium">Dashboard Staf Keuangan</p>
             </div>
         </div>
         <div class="flex items-center gap-4">
-            <div class="bg-white/10 px-4 py-2 rounded-full text-sm flex items-center gap-2">
-                <span class="w-2 h-2 rounded-full bg-emerald-400 inline-block animate-pulse"></span>
+            <div class="bg-white/10 px-4 py-2 rounded-full text-sm flex items-center gap-2 font-medium">
+                <span class="w-2 h-2 rounded-full bg-[#4ade80] inline-block animate-pulse"></span>
                 staf.keuangan@itk.ac.id
             </div>
-            <button class="bg-red-700 hover:bg-red-800 px-4 py-2 rounded-lg text-sm font-medium transition shadow">
+            <button class="bg-[#1e3a1e] hover:bg-[#2d4d2d] border border-white/20 px-4 py-2 rounded-xl text-sm font-semibold transition shadow-sm">
                 Keluar
             </button>
         </div>
     </nav>
 
-    <main class="max-w-7xl mx-auto p-6 space-y-6">
+    <main class="max-w-6xl mx-auto p-6 space-y-6">
 
         <div class="grid grid-cols-1 md:grid-cols-4 gap-4">
-            <div class="bg-white p-4 rounded-xl border border-gray-200 shadow-sm text-center">
-                <span class="text-2xl font-black text-gray-400 block">0</span>
-                <span class="text-xs text-gray-500 font-medium">Perlu Matching</span>
+            <div class="bg-white p-5 rounded-2xl border border-gray-200 shadow-xs text-center">
+                <span class="text-2xl font-black text-[#c2410c] block mb-1">0</span>
+                <span class="text-xs text-gray-500 font-semibold tracking-wide uppercase">Perlu Matching</span>
             </div>
-            <div class="bg-white p-4 rounded-xl border border-gray-200 shadow-sm text-center">
-                <span class="text-2xl font-black text-gray-400 block">0</span>
-                <span class="text-xs text-gray-500 font-medium">Terbitkan Voucher</span>
+            <div class="bg-white p-5 rounded-2xl border border-gray-200 shadow-xs text-center">
+                <span class="text-2xl font-black text-[#701a75] block mb-1">0</span>
+                <span class="text-xs text-gray-500 font-semibold tracking-wide uppercase">Terbitkan Voucher</span>
             </div>
-            <div class="bg-white p-4 rounded-xl border border-gray-200 shadow-sm text-center">
-                <span class="text-2xl font-black text-gray-400 block">0</span>
-                <span class="text-xs text-gray-500 font-medium">Proses Bayar</span>
+            <div class="bg-white p-5 rounded-2xl border border-gray-200 shadow-xs text-center">
+                <span class="text-2xl font-black text-[#1d4ed8] block mb-1">0</span>
+                <span class="text-xs text-gray-500 font-semibold tracking-wide uppercase">Proses Bayar</span>
             </div>
-            <div class="bg-white p-4 rounded-xl border border-gray-200 shadow-sm text-center bg-emerald-50/50 border-emerald-200">
-                <span class="text-2xl font-black text-emerald-600 block">1</span>
-                <span class="text-xs text-emerald-600 font-semibold">Selesai</span>
+            <div class="bg-white p-5 rounded-2xl border border-[#bbf7d0] shadow-xs text-center bg-[#f0fdf4]">
+                <span class="text-2xl font-black text-[#15803d] block mb-1">1</span>
+                <span class="text-xs text-[#15803d] font-bold tracking-wide uppercase">Selesai</span>
             </div>
         </div>
 
-        <div class="flex flex-wrap gap-2 border-b border-gray-200 pb-2">
-            <button class="px-4 py-2 text-sm font-medium text-gray-500 hover:text-gray-700">3-Way Matching <span class="bg-red-500 text-white text-xs px-2 py-0.5 rounded-full ml-1">0</span></button>
-            <button class="px-4 py-2 text-sm font-medium text-gray-500 hover:text-gray-700">Voucher Pembayaran <span class="bg-red-500 text-white text-xs px-2 py-0.5 rounded-full ml-1">0</span></button>
-            <button class="px-4 py-2 text-sm font-medium text-gray-500 hover:text-gray-700">Proses Bayar <span class="bg-red-500 text-white text-xs px-2 py-0.5 rounded-full ml-1">0</span></button>
-            <button class="px-4 py-2 text-sm font-semibold bg-[#1b4332] text-white rounded-lg shadow">Selesai</button>
+        <div class="flex flex-wrap gap-2 border-b border-gray-200 pb-3">
+            <button class="px-4 py-2.5 text-sm font-semibold text-gray-500 hover:text-gray-700 transition flex items-center gap-2">
+                3-Way Matching <span class="bg-[#ef4444] text-white text-[10px] font-bold px-2 py-0.5 rounded-full">0</span>
+            </button>
+            <button class="px-4 py-2.5 text-sm font-semibold text-gray-500 hover:text-gray-700 transition flex items-center gap-2">
+                Voucher Pembayaran <span class="bg-[#ef4444] text-white text-[10px] font-bold px-2 py-0.5 rounded-full">0</span>
+            </button>
+            <button class="px-4 py-2.5 text-sm font-semibold text-gray-500 hover:text-gray-700 transition flex items-center gap-2">
+                Proses Bayar <span class="bg-[#ef4444] text-white text-[10px] font-bold px-2 py-0.5 rounded-full">0</span>
+            </button>
+            <button class="px-5 py-2.5 text-sm font-bold bg-[#14532d] text-white rounded-xl shadow-xs transition">
+                Selesai
+            </button>
         </div>
 
-        <div class="bg-white rounded-xl border border-gray-200 shadow-sm overflow-hidden">
-            <div class="p-4 bg-emerald-50 border-b border-emerald-100 flex items-start gap-3">
-                <div class="bg-emerald-500 text-white p-2 rounded-lg mt-0.5">
-                    <i class="fa-solid fa-square-check"></i>
+        <div class="bg-white rounded-2xl border border-gray-200 shadow-xs overflow-hidden">
+            <div class="p-4 bg-[#f0fdf4] border-b border-[#e6f4ea] flex items-start gap-3">
+                <div class="bg-[#4ade80] text-[#14532d] w-8 h-8 rounded-xl flex items-center justify-center text-sm shadow-xs mt-0.5">
+                    <i class="fa-solid fa-check-double"></i>
                 </div>
                 <div>
                     <h2 class="font-bold text-gray-800 text-sm">PR Selesai</h2>
-                    <p class="text-xs text-gray-500">Seluruh proses pengadaan sudah tuntas.</p>
+                    <p class="text-xs text-gray-500 font-medium">Seluruh proses pengadaan sudah tuntas.</p>
                 </div>
             </div>
 
-            <div class="p-5">
-                <div class="p-4 border border-gray-200 rounded-xl bg-gray-50/50 flex flex-col md:flex-row justify-between items-start md:items-center gap-4">
-                    <div class="space-y-1">
-                        <h3 class="font-bold text-gray-850 text-base">laptop dell</h3>
-                        <p class="text-xs text-gray-500">5 unit &bull; Selesai 01 Jun 2026</p>
+            <div class="p-6">
+                <div class="p-5 border border-gray-100 rounded-2xl bg-[#f9fafb] flex flex-col md:flex-row justify-between items-start md:items-center gap-4 transition hover:border-gray-200">
+                    <div class="space-y-2">
+                        <h3 class="font-bold text-gray-800 text-base tracking-tight">laptop dell</h3>
+                        <p class="text-xs text-gray-500 font-medium leading-relaxed">
+                            5 unit &bull; Selesai 01 Jun 2026 &bull; Invoice: <span class="font-semibold text-gray-700">INV/2024/001</span> &bull; <span class="text-[#16a34a] font-bold">Rp 14.799.999</span>
+                        </p>
                         
-                        <div class="pt-2">
+                        <div class="pt-1">
                             <a href="https://bgtgeltkbanlnvymalum.supabase.co/storage/v1/object/public/invoices/invoice-laptop-dell.pdf" 
                                target="_blank" 
-                               class="inline-flex items-center gap-2 bg-emerald-600 hover:bg-emerald-700 text-white text-xs font-semibold px-4 py-2 rounded-lg shadow transition">
-                                <i class="fa-solid fa-file-invoice"></i> Lihat File Invoice
+                               class="inline-flex items-center gap-2 bg-[#16a34a] hover:bg-[#15803d] text-white text-xs font-bold px-4 py-2.5 rounded-xl shadow-xs transition transform active:scale-95">
+                                <i class="fa-solid fa-file-invoice"></i> Lihat Invoice
                             </a>
                         </div>
                     </div>
                     <div>
-                        <span class="bg-emerald-100 text-emerald-800 font-bold text-xs px-3 py-1 rounded-full border border-emerald-200 flex items-center gap-1.5">
-                            <span class="w-1.5 h-1.5 rounded-full bg-emerald-600"></span> Selesai
+                        <span class="bg-[#dcfce7] text-[#15803d] font-bold text-xs px-3 py-1.5 rounded-full border border-[#bbf7d0] flex items-center gap-1.5 shadow-2xs">
+                            <span class="w-1.5 h-1.5 rounded-full bg-[#16a34a]"></span> Selesai
                         </span>
                     </div>
                 </div>
