@@ -78,7 +78,7 @@
 </div>
 
 <script>
-  // KONEKSI DATABASE SUPABASE UTAMA
+  // KONEKSI DATABASE SUPABASE
   const SB_URL = "https://bgtgeltkbanlnvymalum.supabase.co";
   const SB_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImJndGdlbHRrYmFubG52eW1hbHVtIiwicm9sZSI6ImFub24iLCJpYXQiOjE3Nzk1MTAwNDksImV4cCI6MjA5NTA4NjA0OX0.-JlapeQpug44SjkEKgb1wyoX2_ftdGGcAnTHJhdzvwE";
   const sb = supabase.createClient(SB_URL, SB_KEY);
@@ -99,7 +99,7 @@
 
       prs.forEach(pr => {
         const qty = Number(pr.jumlah) || 0;
-        // Pembetulan pembacaan kolom dari 'harga' menjadi 'harga_estimasi'
+        // MEMBACA KOLOM 'harga_estimasi' DENGAN BENAR AGAR TIDAK Rp 0
         const satuan = Number(pr.harga_estimasi) || 0; 
         const total = qty * satuan;
         const statusText = pr.status || 'pending';
@@ -125,7 +125,7 @@
     }
   }
 
-  // FUNGSI TOMBOL TAMBAH DATA (AJUKAN PR)
+  // FUNGSI AJUKAN DATA BARU
   async function simpanPRBaru() {
     const namaInput = document.getElementById('nama_barang').value.trim();
     const qtyInput = parseInt(document.getElementById('jumlah').value) || 1;
@@ -136,11 +136,11 @@
       return;
     }
 
-    // Memasukkan data ke kolom database yang tepat
+    // MEMASUKKAN DATA KE KOLOM HARGA_ESTIMASI YANG BENAR
     const { error } = await sb.from('purchase_request').insert([{
       nama_barang: namaInput,
       jumlah: qtyInput,
-      harga_estimasi: hargaInput, // Diarahkan ke kolom harga_estimasi
+      harga_estimasi: hargaInput, 
       status: 'pending'
     }]);
 
@@ -148,16 +148,13 @@
       alert("Gagal menyimpan data: " + error.message);
     } else {
       alert("Sukses! Permintaan barang baru berhasil diajukan.");
-      // Reset form input setelah sukses
       document.getElementById('nama_barang').value = "";
       document.getElementById('jumlah').value = "1";
       document.getElementById('harga').value = "";
-      // Refresh tabel otomatis
       await muatTabelPengadaan();
     }
   }
 
-  // Jalankan fungsi muat tabel saat halaman selesai dibuka
   window.onload = muatTabelPengadaan;
 </script>
 </body>
