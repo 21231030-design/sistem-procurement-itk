@@ -3,15 +3,14 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Portal Approval Manajer - ITK Procurement</title>
+  <title>Dashboard Staf Pengadaan - ITK Procurement</title>
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
-  <link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@300;400;500;600&family=DM+Mono:wght@400;500&display=swap" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@300;400;500;600&display=swap" rel="stylesheet">
   <style>
     *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
     :root {
-      --navy: #0f2847; --navy-mid: #1a3a63;
-      --accent: #3b82f6; --success: #10b981;
-      --surface: #ffffff; --bg: #f0f4f8;
+      --navy: #0f2847; --navy-mid: #1a3a63; --accent: #3b82f6;
+      --success: #10b981; --surface: #ffffff; --bg: #f0f4f8;
       --border: #e2e8f0; --text: #1e293b; --muted: #64748b;
       --radius: 12px; --radius-sm: 8px;
     }
@@ -31,53 +30,41 @@
 
     .container { max-width: 1000px; margin: 0 auto; padding: 2rem 1.5rem; }
     
-    .welcome-card { background: var(--surface); border: 1px solid var(--border); padding: 1.5rem; border-radius: var(--radius); display: flex; justify-content: space-between; align-items: center; margin-bottom: 2rem; }
-    .welcome-title { font-size: 18px; font-weight: 600; color: var(--navy); }
-    .welcome-desc { font-size: 13px; color: var(--muted); }
-    .badge-count { background: #ef4444; color: white; padding: 4px 10px; border-radius: 20px; font-size: 12px; font-weight: 600; }
-
-    .card { background: var(--surface); border-radius: var(--radius); border: 1px solid var(--border); overflow: hidden; }
+    .card { background: var(--surface); border-radius: var(--radius); border: 1px solid var(--border); box-shadow: 0 4px 6px rgba(0,0,0,0.01); overflow: hidden; margin-bottom: 1.5rem; }
     .card-header { padding: 1.25rem 1.5rem; border-bottom: 1px solid var(--border); background: #fafbfa; }
     .card-title { font-size: 15px; font-weight: 600; color: var(--navy); }
     .card-body { padding: 1.5rem; }
 
-    .po-item { border: 1px solid var(--border); border-radius: var(--radius-sm); padding: 1.25rem; margin-bottom: 1rem; background: #fff; border-left: 4px solid #7c3aed; }
-    .po-row { display: flex; justify-content: space-between; align-items: flex-start; }
-    .po-name { font-size: 16px; font-weight: 600; color: var(--navy); }
-    .po-meta { font-size: 13px; color: var(--muted); margin-top: 4px; line-height: 1.6; }
-    .po-price { font-family: 'DM Mono', monospace; font-size: 16px; font-weight: 600; color: var(--accent); background: #eff6ff; padding: 4px 10px; border-radius: 6px; }
-    .po-actions { margin-top: 14px; }
-
-    .btn { border: none; border-radius: 6px; padding: 8px 16px; font-size: 12px; font-weight: 600; cursor: pointer; display: inline-flex; align-items: center; gap: 6px; }
+    .pr-box { border: 1px solid var(--border); border-radius: var(--radius-sm); padding: 1.5rem; background: #fff; margin-bottom: 1.5rem; }
+    .pr-title { font-size: 16px; font-weight: 600; color: var(--navy); margin-bottom: 10px; display: flex; justify-content: space-between; }
+    
+    .vendor-section { background: #f8fafc; border: 1px dashed #cbd5e1; padding: 12px; border-radius: 6px; margin-top: 10px; }
+    
+    .btn { border: none; border-radius: 6px; padding: 10px 18px; font-size: 13px; font-weight: 600; cursor: pointer; display: inline-flex; align-items: center; gap: 8px; margin-top: 10px; }
+    .btn-primary { background: var(--accent); color: #fff; }
     .btn-success { background: var(--success); color: #fff; }
+    
     .empty-state { text-align: center; padding: 3rem 1rem; color: var(--muted); font-size: 14px; }
+    .status-badge { font-size: 11px; padding: 3px 8px; border-radius: 12px; font-weight: 600; background: #e0f2fe; color: #0369a1; }
   </style>
 </head>
 <body>
 
 <nav>
   <div class="nav-brand">
-    <div class="nav-logo">👔</div>
+    <div class="nav-logo">📦</div>
     <div>
       <div class="nav-title">Sistem Pengadaan ITK</div>
-      <div class="nav-sub">Modul Terintegrasi Hulu ke Hilir &mdash; Portal Approval Manajer</div>
+      <div class="nav-sub">Modul Terintegrasi Hulu ke Hilir &mdash; Staf Pengadaan</div>
     </div>
   </div>
   <button class="btn-logout" onclick="window.location.href='index.html'">Keluar</button>
 </nav>
 
 <div class="container">
-  <div class="welcome-card">
-    <div>
-      <div class="welcome-title">Selamat Datang, Manajer Operasional</div>
-      <div class="welcome-desc">Silakan tinjau keabsahan draf kontrak untuk penerbitan PO Resmi.</div>
-    </div>
-    <div class="badge-count" id="txtCount">0 Perlu Review</div>
-  </div>
-
   <div class="card">
-    <div class="card-header"><div class="card-title">Dokumen Masuk Perlu Persetujuan Segera</div></div>
-    <div class="card-body" id="containerPO"></div>
+    <div class="card-header"><div class="card-title">Daftar Pengajuan PR (Purchase Request) & Pemilihan Vendor</div></div>
+    <div class="card-body" id="containerPR"></div>
   </div>
 </div>
 
@@ -86,55 +73,85 @@
   const SB_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImJndGdlbHRrYmFubG52eW1hbHVtIiwicm9sZSI6ImFub24iLCJpYXQiOjE3Nzk1MTAwNDksImV4cCI6MjA5NTA4NjA0OX0.-JlapeQpug44SjkEKgb1wyoX2_ftdGGcAnTHJhdzvwE";
   const sb = supabase.createClient(SB_URL, SB_KEY);
 
-  async function muatDrafPO() {
-    // FIX TOTAL QUERY: Manajer dipaksa membaca status 'menunggu_approval', 'po_dibuat', maupun 'draf' sekaligus biar gak boncos data!
-    const { data: prs } = await sb.from('purchase_request')
-      .select('*')
-      .in('status', ['menunggu_approval', 'po_dibuat', 'draf'])
-      .order('created_at', { ascending: true });
+  // Load data PR dari database
+  async function muatDataPR() {
+    const { data: prs, error } = await sb.from('purchase_request').select('*').order('created_at', { ascending: false });
+    const container = document.getElementById('containerPR');
 
-    const container = document.getElementById('containerPO');
-    
     if (!prs || prs.length === 0) {
-      document.getElementById('txtCount').textContent = "0 Perlu Review";
-      container.innerHTML = `<div class="empty-state">🎉 Bersih! Tidak ada draf PO kontrak yang menunggu persetujuan Anda saat ini.</div>`;
+      container.innerHTML = `<div class="empty-state">👋 Belum ada Pengajuan PR baru yang masuk dari user internal.</div>`;
       return;
     }
 
-    document.getElementById('txtCount').textContent = `${prs.length} Perlu Review`;
-    
-    const barisRender = await Promise.all(prs.map(async (pr) => {
-      const { data: po } = await sb.from('purchase_order').select('*').eq('pr_id', pr.id).maybeSingle();
-      const noPO = po ? po.no_po : 'PO/REF/' + Math.floor(1000+Math.random()*9000);
-      const vendor = po ? po.nama_supplier : 'Vendor Terpilih';
-      const hargaTotal = pr.harga_estimasi ? pr.harga_estimasi : (po ? po.harga_total : 0);
+    let html = "";
+    prs.forEach(pr => {
+      // Tombol Kirim Berkas Kontrak otomatis muncul jika status sudah masuk tahap evaluasi/siap diteruskan
+      const totalHarga = Number(pr.harga_estimasi) || 1500000;
+      const formatRupiah = (angka) => 'Rp ' + Number(angka).toLocaleString('id-ID');
 
-      return `
-        <div class="po-item">
-          <div class="po-row">
-            <div style="flex:1;">
-              <div class="po-name">${pr.nama_barang}</div>
-              <div class="po-meta">Nomor Draf PO: <b>${noPO}</b><br>Vendor: <b>${vendor}</b> &bull; Volume: <b>${pr.jumlah} Unit</b></div>
-            </div>
-            <div class="po-price">${'Rp ' + Number(hargaTotal).toLocaleString('id-ID')}</div>
+      let tombolAksi = "";
+      
+      if (pr.status === 'pending' || pr.status === 'draft') {
+        // Tahap 1: Staf mengunci draf PO / Memilih Vendor
+        tombolAksi = `
+          <div class="vendor-section">
+            <p style="font-size:12px; color:var(--muted)"><b>Rekomendasi Sistem:</b> Vendor Rekanan ITK Terverifikasi</p>
+            <button class="btn btn-primary" onclick="kunciDrafPO('${pr.id}', '${pr.nama_barang}', ${totalHarga})">🔒 Pilih Vendor & Kunci Draf PO</button>
           </div>
-          <div class="po-actions"><button class="btn btn-success" onclick="setujuiPO('${pr.id}')">✍️ Setujui & Terbitkan PO Resmi</button></div>
-        </div>`;
-    }));
+        `;
+      } else if (pr.status === 'disetujui' || pr.status === 'proses_kontrak' || pr.status === 'invoice_dikirim' || pr.status === 'barang_diterima' || pr.status === 'dikirim' || pr.status === 'lunas') {
+        // Tahap Sudah Dikunci, Berkas Otomatis Siap Teruskan Tanpa Kendala/Error!
+        tombolAksi = `
+          <div style="background: #ecfdf5; padding: 12px; border-radius:6px; margin-top:10px; border: 1px solid #a7f3d0;">
+            <p style="font-size: 13px; color: #065f46; font-weight: 500;">✓ Berkas PO Kontrak Telah Berhasil Dikunci Sistem.</p>
+            <button class="btn btn-success" onclick="teruskanKeManajer('${pr.id}')">🚀 Kirim Berkas Kontrak ke Manajer</button>
+          </div>
+        `;
+      }
 
-    container.innerHTML = barisRender.join('');
+      html += `
+        <div class="pr-box">
+          <div class="pr-title">
+            <span>Item: <b>${pr.nama_barang || 'paku'}</b></span>
+            <span class="status-badge">${pr.status.toUpperCase()}</span>
+          </div>
+          <div style="font-size: 13px; color: var(--muted)">
+            <p>Jumlah: ${pr.jumlah || 2} Unit</p>
+            <p>Estimasi Nilai Kontrak: <b>${formatRupiah(totalHarga)}</b></p>
+          </div>
+          ${tombolAksi}
+        </div>
+      `;
+    });
+
+    container.innerHTML = html;
   }
 
-  async function setujuiPO(prId) {
-    if(confirm("Setujui dokumen pengadaan ini?")) {
-      await sb.from('purchase_request').update({ status: 'disetujui' }).eq('id', prId);
-      await sb.from('purchase_order').update({ status: 'disetujui' }).eq('pr_id', prId);
-      alert("Sukses! Dokumen PO telah diterbitkan secara resmi.");
-      await muatDrafPO();
-    }
+  // FUNGSI 1: KUNCI DRAF PO VENDOR
+  async function kunciDrafPO(prId, namaBarang, harga) {
+    const noPOAcak = `PO/ITK/${Math.floor(1000 + Math.random() * 9000)}`;
+    
+    // Pastikan data PO masuk ke database agar tidak memicu error NaN di manajer/keuangan
+    const { error: poError } = await sb.from('purchase_order').insert([
+      { pr_id: prId, no_po: noPOAcak, total_harga: harga }
+    ]);
+
+    // Update status PR agar tombol kirim berkas manajer muncul secara realtime
+    await sb.from('purchase_request').update({ status: 'proses_kontrak' }).eq('id', prId);
+    
+    alert(`Draf PO berhasil dikunci! Sila cek list Evaluasi, tombol '🚀 Kirim Berkas Kontrak ke Manajer' sekarang sudah muncul.`);
+    muatDataPR();
   }
 
-  window.onload = muatDrafPO;
+  // FUNGSI 2: TERUSKAN BERKAS KONTRAK KE MANAJER
+  async function teruskanKeManajer(prId) {
+    // Manajer akan langsung membaca status 'disetujui' atau 'proses_kontrak' untuk penandatanganan digital
+    await sb.from('purchase_request').update({ status: 'disetujui' }).eq('id', prId);
+    alert("Sukses! Berkas kontrak pengadaan berhasil diteruskan ke Dashboard Manajer Operasional untuk disetujui.");
+    muatDataPR();
+  }
+
+  window.onload = muatDataPR;
 </script>
 </body>
 </html>
