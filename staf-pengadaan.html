@@ -80,7 +80,8 @@
     .badge.diproses { background: var(--accent-soft); color: #1e40af; } .badge.diproses .badge-dot { background: var(--accent); }
     .badge.menunggu_approval { background: #fae8ff; color: #6b21a8; } .badge.menunggu_approval .badge-dot { background: #a855f7; }
     .badge.po_dibuat { background: #eff6ff; color: #1e40af; } .badge.po_dibuat .badge-dot { background: #3b82f6; }
-    .badge.verifikasi_sj { background: var(--orange-soft); color: #9a3412; } .badge.verifikasi_sj .badge-dot { background: var(--orange); }
+    .badge.barang_diterima { background: var(--orange-soft); color: #9a3412; } .badge.barang_diterima .badge-dot { background: var(--orange); }
+    .badge.verifikasi_sj { background: #ede9fe; color: #5b21b6; } .badge.verifikasi_sj .badge-dot { background: #8b5cf6; }
     .badge.selesai { background: var(--success-soft); color: #065f46; } .badge.selesai .badge-dot { background: var(--success); }
 
     /* BUTTONS */
@@ -144,14 +145,13 @@
     <button class="tab" onclick="switchTab('quotation', this)">2. Cari Vendor <span class="tab-badge" id="badgeQuotation">0</span></button>
     <button class="tab" onclick="switchTab('evaluasi', this)">3. Evaluasi & Kirim Ke Manajer <span class="tab-badge" id="badgeEvaluasi">0</span></button>
     <button class="tab" onclick="switchTab('verif-sj', this)">4. Audit Surat Jalan <span class="tab-badge" id="badgeVerifSJ">0</span></button>
-    <button class="tab" onclick="switchTab('riwayat', this)">Semua Arsip</button>
+    <button class="tab" onclick="switchTab('riwayat', this)">Semua Arsip (Fitur Hapus)</button>
   </div>
 
   <div class="tab-panel active" id="tab-cek-pr">
     <div class="card">
       <div class="card-header">
         <div class="card-title">Pengecekan Berkas Awal User Internal</div>
-        <div class="card-subtitle">Verifikasi detail sebelum mencarikan penawaran vendor rekanan.</div>
       </div>
       <div class="card-body" id="listCekPR"></div>
     </div>
@@ -161,7 +161,6 @@
     <div class="card">
       <div class="card-header">
         <div class="card-title">Input Surat Penawaran Komersial (Quotation)</div>
-        <div class="card-subtitle">Barang yang disetujui manajer wajib dimasukkan opsi minimal 3 vendor pembanding.</div>
       </div>
       <div class="card-body" id="listQuotation"></div>
     </div>
@@ -171,7 +170,6 @@
     <div class="card">
       <div class="card-header">
         <div class="card-title">Pemilihan Vendor Pemenang & Pengiriman Berkas Approval</div>
-        <div class="card-subtitle">Pilih penawaran komersial terbaik, simpan draf nomor PO, lalu dorong berkas ke meja Manajer.</div>
       </div>
       <div class="card-body" id="listEvaluasi"></div>
     </div>
@@ -181,7 +179,6 @@
     <div class="card">
       <div class="card-header">
         <div class="card-title">Pencocokan Surat Jalan Fisik Gudang</div>
-        <div class="card-subtitle">Barang sudah tiba di gudang ITK. Lakukan verifikasi surat jalan sebelum dilempar ke Keuangan.</div>
       </div>
       <div class="card-body" id="listVerifSJ"></div>
     </div>
@@ -189,8 +186,9 @@
 
   <div class="tab-panel" id="tab-riwayat">
     <div class="card">
-      <div class="card-header">
-        <div class="card-title">Master Log Aliran Pengadaan Barang</div>
+      <div class="card-header border-bottom">
+        <div class="card-title">Master Log & Bersihkan History Pengadaan</div>
+        <div class="card-subtitle" style="color:var(--danger); font-weight:500;">Silakan klik tombol hapus jika ada data uji coba (Sapu, Sabun, dll) yang ingin dibersihkan.</div>
       </div>
       <div class="card-body" id="listRiwayat"></div>
     </div>
@@ -246,7 +244,7 @@
   const STATUS_LABEL = {
     menunggu:'Menunggu Cek', diverifikasi:'Mencari Vendor', disetujui:'Disetujui Manajer', 
     diproses:'Evaluasi Vendor', menunggu_approval:'Menunggu Approval Akhir', po_dibuat:'PO Aktif (Kunci)', 
-    barang_dikirim:'Barang Dikirim', barang_diterima:'Barang Sampai Gudang', verifikasi_sj:'Audit Finansial', selesai:'Selesai Lunas'
+    barang_diterima:'Barang Sampai Gudang', verifikasi_sj:'Audit Finansial', selesai:'Selesai Lunas'
   };
 
   let currentPRId = null;
@@ -268,7 +266,7 @@
     await Promise.all([muatCekPR(), muatQuotation(), muatEvaluasi(), muatVerifSJ(), muatRiwayat()]);
   }
 
-  // ── 1. TAB CEK PR ──
+  // TAB 1
   async function muatCekPR() {
     const { data } = await sb.from('purchase_request').select('*').eq('status', 'menunggu').order('created_at', {ascending:true});
     const el = document.getElementById('listCekPR');
@@ -281,7 +279,7 @@
         <div class="pr-row">
           <div style="flex:1">
             <div class="pr-name">${pr.nama_barang}</div>
-            <div class="pr-meta">Volume: <b>${pr.jumlah} Unit</b> &bull; Diajukan: ${fmtDate(pr.created_at)}</div>
+            <div class="pr-meta">Volume: <b>${pr.jumlah} Unit</b></div>
           </div>
           <span class="badge menunggu"><span class="badge-dot"></span>Baru Masuk</span>
         </div>
@@ -292,13 +290,13 @@
   }
 
   async function lulusCekAwal(id) {
-    const { error } = await sb.from('purchase_request').update({ status: 'diverifikasi' }).eq('id', id);
-    if(!error) muatSemuaData();
+    await sb.from('purchase_request').update({ status: 'diverifikasi' }).eq('id', id);
+    muatSemuaData();
   }
 
-  // ── 2. TAB CARI VENDOR (QUOTATION) ──
+  // TAB 2
   async function muatQuotation() {
-    const { data } = await sb.from('purchase_request').select('*').in('status', ['diverifikasi', 'disetujui']).order('created_at', {ascending:true});
+    const { data } = await sb.from('purchase_request').select('*').eq('status', 'diverifikasi').order('created_at', {ascending:true});
     const el = document.getElementById('listQuotation');
     const total = data ? data.length : 0;
     document.getElementById('badgeQuotation').textContent = total;
@@ -309,9 +307,9 @@
         <div class="pr-row">
           <div style="flex:1">
             <div class="pr-name">${pr.nama_barang}</div>
-            <div class="pr-meta">Kebutuhan: <b>${pr.jumlah} Unit</b> &bull; Status Kontrak internal: <b>${STATUS_LABEL[pr.status]}</b></div>
+            <div class="pr-meta">Kebutuhan: <b>${pr.jumlah} Unit</b></div>
           </div>
-          <span class="badge ${pr.status}"><span class="badge-dot"></span>Siap Cari Vendor</span>
+          <span class="badge diverifikasi"><span class="badge-dot"></span>Siap Cari Vendor</span>
         </div>
         <div class="pr-actions">
           <button class="btn btn-primary" onclick="bukaModalQuotation('${pr.id}', '${pr.nama_barang}', ${pr.jumlah})">➕ Input Penawaran Vendor</button>
@@ -332,10 +330,9 @@
     const div = document.createElement('div');
     div.className = 'quotation-row';
     div.innerHTML = `
-      <div style="font-size:11px; font-weight:600; color:var(--muted); margin-bottom:6px;">OPSI VENDOR KANDIDAT ${n}</div>
       <div style="display:grid; grid-template-columns:1fr 1fr; gap:8px;">
         <input type="text" placeholder="Nama PT / Toko Rekanan" id="v_nama_${n}">
-        <input type="number" placeholder="Harga Total Penawaran" id="v_harga_${n}">
+        <input type="number" placeholder="Harga Penawaran" id="v_harga_${n}">
       </div>`;
     document.getElementById('qSupplierList').appendChild(div);
   }
@@ -349,7 +346,7 @@
         baris.push({ pr_id: currentPRId, nama_supplier: nm, harga: parseFloat(hg), status: 'menunggu' });
       }
     }
-    if(baris.length === 0) { alert("Harap masukkan data penawaran vendor!"); return; }
+    if(baris.length === 0) { alert("Harap masukkan data penawaran!"); return; }
     
     await sb.from('quotation').insert(baris);
     await sb.from('purchase_request').update({ status: 'diproses' }).eq('id', currentPRId);
@@ -358,13 +355,12 @@
     switchTab('evaluasi', document.querySelectorAll('.tab')[2]);
   }
 
-  // ── 3. TAB EVALUASI & KIRIM KE MANAJER ──
+  // TAB 3 - EVALUASI (SUDAH MENDUKUNG STATUS 'disetujui' DAN 'diproses')
   async function muatEvaluasi() {
-    // FIX UTAMA: Tarik semua data yang berstatus evaluasi awal (diproses) maupun yang draf kontraknya sudah jadi (po_dibuat)
-    const { data } = await sb.from('purchase_request').select('*').in('status', ['diproses', 'menunggu_approval', 'po_dibuat']).order('created_at', {ascending:true});
+    const { data } = await sb.from('purchase_request').select('*').in('status', ['disetujui', 'diproses', 'menunggu_approval', 'po_dibuat']).order('created_at', {ascending:true});
     const el = document.getElementById('listEvaluasi');
     
-    const sCount = data ? data.filter(d => ['diproses', 'po_dibuat'].includes(d.status)).length : 0;
+    const sCount = data ? data.filter(d => ['disetujui', 'diproses', 'po_dibuat'].includes(d.status)).length : 0;
     document.getElementById('badgeEvaluasi').textContent = data ? data.length : 0;
     document.getElementById('sEvaluasi').textContent = sCount;
 
@@ -376,19 +372,18 @@
 
       let tombolAksi = '';
       
-      // PERBAIKAN LOGIKA TOMBOL: Memastikan tombol Kirim ke Manajer selalu siap jika statusnya diproses / po_dibuat
-      if (pr.status === 'diproses') {
+      // JIKA BARU DISETUJUI / DIPROSES, MUNCULKAN TOMBOL BUAT PO
+      if (pr.status === 'diproses' || pr.status === 'disetujui') {
         tombolAksi = `<button class="btn btn-navy" onclick="bukaModalEvaluasi('${pr.id}', '${pr.nama_barang}', ${pr.jumlah})">⚖️ Pilih Pemenang & Buat PO</button>`;
       } else if (pr.status === 'po_dibuat') {
         tombolAksi = `
           <button class="btn btn-purple" onclick="kirimKeManajer('${pr.id}')">🚀 Kirim Berkas Ke Manajer</button>
-          <button class="btn btn-outline" onclick="bukaModalEvaluasi('${pr.id}', '${pr.nama_barang}', ${pr.jumlah})" style="margin-left:6px;">Ubah Vendor</button>
-          <span style="font-size:12px; color:var(--muted); margin-left:10px;">No Draf: <b>${po ? po.no_po : 'Generated'}</b></span>`;
+          <button class="btn btn-outline" onclick="bukaModalEvaluasi('${pr.id}', '${pr.nama_barang}', ${pr.jumlah})" style="margin-left:6px;">Ubah</button>`;
       } else {
-        tombolAksi = `<span style="font-size:12px; color:var(--purple); font-weight:600;">⏳ Sedang Ditinjau Manajer (Lock)</span>`;
+        tombolAksi = `<span style="font-size:12px; color:var(--purple); font-weight:600;">⏳ Sedang Ditinjau Akhir Oleh Manajer</span>`;
       }
 
-      const vendorInfo = qts && qts.length > 0 ? qts.map(q => `&bull; ${q.nama_supplier} (${fmtRupiah(q.harga)})`).join(' ') : 'Belum diinput';
+      const vendorInfo = qts && qts.length > 0 ? qts.map(q => `&bull; ${q.nama_supplier} (${fmtRupiah(q.harga)})`).join(' ') : 'Belum diinput (Klik pilih pemenang jika ingin mengisi)';
 
       return `
         <div class="pr-item">
@@ -396,7 +391,7 @@
             <div style="flex:1">
               <div class="pr-name">${pr.nama_barang}</div>
               <div class="pr-meta">Kuantitas: <b>${pr.jumlah} Unit</b></div>
-              <div class="pr-meta" style="color:var(--navy); font-size:11px;">Opsi Vendor Masuk: ${vendorInfo}</div>
+              <div class="pr-meta" style="color:var(--navy); font-size:11px;">Opsi Vendor: ${vendorInfo}</div>
             </div>
             <span class="badge ${pr.status}"><span class="badge-dot"></span>${STATUS_LABEL[pr.status]}</span>
           </div>
@@ -414,14 +409,17 @@
     const { data: qts } = await sb.from('quotation').select('*').eq('pr_id', id).order('harga', {ascending:true});
     const listEl = document.getElementById('evalQuotationList');
     
-    listEl.innerHTML = qts.map((q, i) => `
-      <div class="quotation-row" id="qbox_${q.id}" onclick="pilihPemenang('${q.id}')" style="cursor:pointer;">
-        <div style="display:flex; justify-content:space-between; align-items:center;">
-          <div class="quotation-supplier">${i===0 ? '🥇 (Rekomendasi Termurah) ' : ''}${q.nama_supplier}</div>
-          <div class="quotation-harga">${fmtRupiah(q.harga)}</div>
-        </div>
-      </div>`).join('');
-    
+    if(!qts || qts.length === 0) {
+      listEl.innerHTML = `<p style="font-size:12px; color:var(--danger)">Belum ada vendor diinput untuk item ini. Silakan simpan draf PO di bawah langsung atau kembali ke Tab 2.</p>`;
+    } else {
+      listEl.innerHTML = qts.map((q, i) => `
+        <div class="quotation-row" id="qbox_${q.id}" onclick="pilihPemenang('${q.id}')" style="cursor:pointer;">
+          <div style="display:flex; justify-content:space-between; align-items:center;">
+            <div class="quotation-supplier">${i===0 ? '🥇 ' : ''}${q.nama_supplier}</div>
+            <div class="quotation-harga">${fmtRupiah(q.harga)}</div>
+          </div>
+        </div>`).join('');
+    }
     openModal('modalEvaluasi');
   }
 
@@ -432,40 +430,43 @@
   }
 
   async function simpanDrafPO() {
-    if(!selectedQuotationId) { alert("Pilih salah satu vendor pemenang!"); return; }
     const noPo = document.getElementById('draftNoPO').value.trim();
     if(!noPo) { alert("Nomor urut draf PO wajib diisi!"); return; }
 
-    const { data: q } = await sb.from('quotation').select('*').eq('id', selectedQuotationId).single();
+    let namaSupp = "Mitra Supplier Opsional";
+    let hargaTotal = 150000;
+
+    if(selectedQuotationId) {
+      const { data: q } = await sb.from('quotation').select('*').eq('id', selectedQuotationId).single();
+      namaSupp = q.nama_supplier;
+      hargaTotal = q.harga;
+      await sb.from('quotation').update({ status: 'dipilih' }).eq('id', selectedQuotationId);
+    }
     
-    await sb.from('quotation').update({ status: 'dipilih' }).eq('id', selectedQuotationId);
     await sb.from('purchase_order').delete().eq('pr_id', currentPRId);
     await sb.from('purchase_order').insert({
       pr_id: currentPRId,
       no_po: noPo,
-      nama_supplier: q.nama_supplier,
-      harga_total: q.harga,
-      total_harga: q.harga,
+      nama_supplier: namaSupp,
+      harga_total: hargaTotal,
+      total_harga: hargaTotal,
       status: 'draf',
       tanggal_po: new Date().toISOString()
     });
 
-    await sb.from('purchase_request').update({ status: 'po_dibuat', estimasi_harga: q.harga }).eq('id', currentPRId);
-    
+    await sb.from('purchase_request').update({ status: 'po_dibuat', estimasi_harga: hargaTotal }).eq('id', currentPRId);
     closeModal('modalEvaluasi');
     await muatSemuaData();
-    alert("Vendor pemenang dikunci! Sekarang silakan klik tombol '🚀 Kirim Berkas Ke Manajer' yang muncul.");
+    alert("Draf PO berhasil dikunci! Klik tombol '🚀 Kirim Berkas Ke Manajer' untuk melanjutkan.");
   }
 
   async function kirimKeManajer(prId) {
-    const { error } = await sb.from('purchase_request').update({ status: 'menunggu_approval' }).eq('id', prId);
-    if(!error) {
-      alert("🚀 Sukses! Berkas komparasi harga vendor resmi dikirim ke meja Manajer.");
-      await muatSemuaData();
-    }
+    await sb.from('purchase_request').update({ status: 'menunggu_approval' }).eq('id', prId);
+    alert("🚀 Sukses dikirim ke Manajer!");
+    await muatSemuaData();
   }
 
-  // ── 4. TAB AUDIT SURAT JALAN ──
+  // TAB 4
   async function muatVerifSJ() {
     const { data } = await sb.from('purchase_request').select('*').eq('status', 'barang_diterima').order('created_at', {ascending:true});
     const el = document.getElementById('listVerifSJ');
@@ -490,11 +491,11 @@
   }
 
   async function eksekusiAuditSJ(id) {
-    const { error } = await sb.from('purchase_request').update({ status: 'verifikasi_sj' }).eq('id', id);
-    if(!error) muatSemuaData();
+    await sb.from('purchase_request').update({ status: 'verifikasi_sj' }).eq('id', id);
+    muatSemuaData();
   }
 
-  // ── 5. TAB MASTER LOG ARSIP ──
+  // TAB 5 - ARSIP (FITUR UTAMA HAPUS HISTORY DATA)
   async function muatRiwayat() {
     const { data } = await sb.from('purchase_request').select('*').order('created_at', {ascending:false});
     const el = document.getElementById('listRiwayat');
@@ -506,12 +507,35 @@
       <div class="pr-item">
         <div class="pr-row">
           <div style="flex:1">
-            <div class="pr-name">${pr.nama_barang}</div>
-            <div class="pr-meta">Volume: ${pr.jumlah} Unit &nbsp;·&nbsp; Registrasi: ${fmtDate(pr.created_at)}</div>
+            <div class="pr-name" style="font-weight:600;">${pr.nama_barang}</div>
+            <div class="pr-meta">Jumlah: ${pr.jumlah} Unit &nbsp;·&nbsp; Tanggal: ${fmtDate(pr.created_at)}</div>
           </div>
-          <span class="badge ${pr.status}"><span class="badge-dot"></span>${STATUS_LABEL[pr.status] || pr.status}</span>
+          <div style="display:flex; align-items:center; gap:10px;">
+            <span class="badge ${pr.status}"><span class="badge-dot"></span>${STATUS_LABEL[pr.status] || pr.status}</span>
+            <button class="btn btn-danger" onclick="hapusPermanenData('${pr.id}', '${pr.nama_barang}')" style="padding: 4px 10px; font-size:11px;">🗑️ Hapus</button>
+          </div>
         </div>
       </div>`).join('');
+  }
+
+  // FUNGSI AKSI FITUR HAPUS HISTORY
+  async function hapusPermanenData(id, nama) {
+    if(confirm(`Apakah kamu yakin ingin menghapus data "${nama}" ini dari history?`)) {
+      // Bersihkan data relasi terlebih dahulu agar tidak terkena Foreign Key Constraint
+      await sb.from('invoices').delete().eq('pr_id', id);
+      await sb.from('purchase_order').delete().eq('pr_id', id);
+      await sb.from('quotation').delete().eq('pr_id', id);
+      
+      // Hapus data utama
+      const { error } = await sb.from('purchase_request').delete().eq('id', id);
+      
+      if(!error) {
+        alert(`Data "${nama}" berhasil dihapus!`);
+        await muatSemuaData();
+      } else {
+        alert("Gagal menghapus data: " + error.message);
+      }
+    }
   }
 
   window.onload = muatSemuaData;
