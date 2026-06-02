@@ -3,99 +3,104 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Sistem Pengadaan ITK — Staf Pengadaan</title>
-  <link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600;700&display=swap" rel="stylesheet">
+  <title>Sistem Procurement ITK — Staf Pengadaan</title>
+  <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700&display=swap" rel="stylesheet">
   <style>
-    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
-    body { font-family: 'DM Sans', sans-serif; background: #f4f6f9; color: #1e293b; padding: 0; margin: 0; }
+    * { box-sizing: border-box; margin: 0; padding: 0; font-family: 'Plus Jakarta Sans', sans-serif; }
+    body { background: #f8fafc; color: #0f172a; padding-bottom: 50px; }
     
-    /* Navigation Bar */
-    nav { background: #0f2847; padding: 0 2rem; height: 70px; display: flex; align-items: center; justify-content: space-between; color: white; box-shadow: 0 2px 10px rgba(0,0,0,0.05); }
-    .nav-title { font-size: 20px; font-weight: 700; color: #fff; }
-    .btn-keluar { background: rgba(255,255,255,0.15); color: #fff; border: 1px solid rgba(255,255,255,0.2); padding: 8px 24px; border-radius: 6px; cursor: pointer; font-weight: 600; font-size: 14px; }
+    /* Header Dashboard */
+    header { background: #0f2847; color: white; padding: 0 2rem; height: 70px; display: flex; align-items: center; justify-content: space-between; box-shadow: 0 4px 12px rgba(15, 40, 71, 0.1); }
+    .logo-area { display: flex; align-items: center; gap: 10px; }
+    .logo-badge { background: #2563eb; padding: 6px 12px; border-radius: 6px; font-weight: 700; font-size: 12px; letter-spacing: 1px; }
+    .logo-text { font-size: 18px; font-weight: 700; }
+    .btn-logout { background: rgba(255,255,255,0.1); color: #fff; border: 1px solid rgba(255,255,255,0.2); padding: 8px 20px; border-radius: 8px; cursor: pointer; font-weight: 600; font-size: 13px; transition: 0.2s; }
+    .btn-logout:hover { background: #ef4444; border-color: #ef4444; }
+
+    .container { max-width: 1280px; margin: 30px auto; padding: 0 20px; }
     
-    .container { max-width: 1200px; margin: 0 auto; padding: 2.5rem 1.5rem; }
-    .card { background: white; border-radius: 12px; padding: 2rem; margin-bottom: 2.5rem; box-shadow: 0 4px 6px rgba(0,0,0,0.02); border: 1px solid #e2e8f0; }
-    .card h3 { font-size: 18px; font-weight: 700; color: #0f2847; margin-bottom: 1.5rem; border-left: 4px solid #2563eb; padding-left: 10px; }
+    /* Form Section */
+    .panel { background: white; border-radius: 12px; padding: 24px; margin-bottom: 30px; border: 1px solid #e2e8f0; box-shadow: 0 1px 3px rgba(0,0,0,0.05); }
+    .panel-title { font-size: 16px; font-weight: 700; color: #0f2847; margin-bottom: 20px; display: flex; align-items: center; gap: 8px; }
+    .panel-title::before { content: ''; display: inline-block; width: 4px; height: 16px; background: #2563eb; border-radius: 2px; }
     
-    /* Form Style */
-    .form-grid { display: flex; gap: 20px; align-items: flex-end; width: 100%; flex-wrap: wrap; }
-    .form-group { display: flex; flex-direction: column; gap: 8px; }
-    .form-group.nama { flex: 2; min-width: 250px; }
-    .form-group.qty { flex: 0.5; min-width: 80px; }
-    .form-group.harga { flex: 1; min-width: 150px; }
-    .form-group label { font-size: 14px; font-weight: 600; color: #475569; }
-    input { padding: 12px 16px; border: 1px solid #cbd5e1; border-radius: 8px; font-size: 14px; background: #fff; width: 100%; color: #334155; height: 48px; outline: none; }
-    input:focus { border-color: #2563eb; }
+    .form-row { display: grid; grid-template-columns: 2fr 1fr 1.5fr auto; gap: 16px; align-items: flex-end; }
+    .form-group { display: flex; flex-direction: column; gap: 6px; }
+    .form-group label { font-size: 13px; font-weight: 600; color: #475569; }
+    input { height: 44px; padding: 0 14px; border: 1px solid #cbd5e1; border-radius: 8px; font-size: 14px; color: #334155; background: #fff; outline: none; transition: 0.15s; }
+    input:focus { border-color: #2563eb; box-shadow: 0 0 0 3px rgba(37,99,235,0.1); }
     
-    .btn-submit { background: #0f2847; color: white; border: none; border-radius: 8px; padding: 0 32px; font-size: 15px; font-weight: 700; cursor: pointer; height: 48px; display: inline-flex; align-items: center; gap: 8px; transition: 0.2s; }
-    .btn-submit:hover { background: #173d6b; }
-    
-    /* Table Dashboard Style */
-    .table-responsive { width: 100%; overflow-x: auto; margin-top: 0.5rem; }
-    table { width: 100%; border-collapse: collapse; }
-    th { text-align: left; font-size: 11px; font-weight: 700; color: #64748b; text-transform: uppercase; padding: 14px 12px; background: #f8fafc; border-bottom: 2px solid #e2e8f0; letter-spacing: 0.5px; }
-    td { padding: 16px 12px; border-bottom: 1px solid #e2e8f0; font-size: 14px; color: #334155; vertical-align: middle; }
-    tr:hover { background-color: #f8fafc; }
-    
-    /* Status Badges */
-    .badge-status { font-size: 11px; padding: 6px 12px; border-radius: 6px; font-weight: 700; text-transform: uppercase; display: inline-block; }
+    .btn-primary { background: #0f2847; color: white; border: none; height: 44px; padding: 0 24px; border-radius: 8px; font-size: 14px; font-weight: 700; cursor: pointer; display: flex; align-items: center; gap: 8px; transition: 0.2s; }
+    .btn-primary:hover { background: #1e3a5f; transform: translateY(-1px); }
+
+    /* Table Section */
+    .table-wrapper { width: 100%; overflow-x: auto; }
+    table { width: 100%; border-collapse: collapse; text-align: left; }
+    th { background: #f8fafc; padding: 14px 16px; font-size: 11px; font-weight: 700; color: #64748b; text-transform: uppercase; letter-spacing: 0.5px; border-bottom: 2px solid #e2e8f0; }
+    td { padding: 16px; border-bottom: 1px solid #e2e8f0; font-size: 14px; color: #334155; }
+    tr:hover td { background: #f8fafc; }
+
+    /* Badges Status Procurement */
+    .badge { font-size: 11px; padding: 6px 12px; border-radius: 6px; font-weight: 700; text-transform: uppercase; display: inline-block; }
     .status-pending { background: #fef3c7; color: #d97706; }
     .status-quotation { background: #e0f2fe; color: #0369a1; }
     .status-evaluasi { background: #f3e8ff; color: #6b21a8; }
-    .status-vendor { background: #cbd5e1; color: #1e293b; }
+    .status-vendor { background: #e2e8f0; color: #334155; }
     .status-manajer { background: #dcfce7; color: #15803d; }
-    
-    /* Action Buttons */
-    .btn-aksi { background: #2563eb; color: white; border: none; padding: 8px 14px; border-radius: 6px; font-size: 12px; font-weight: 700; cursor: pointer; transition: 0.2s; box-shadow: 0 2px 4px rgba(37,99,235,0.15); }
-    .btn-aksi:hover { background: #1d4ed8; }
-    .text-done { color: #10b981; font-weight: 700; font-size: 13px; display: inline-flex; align-items: center; gap: 4px; }
+
+    /* Action Trigger Step */
+    .btn-action { background: #2563eb; color: white; border: none; padding: 8px 14px; border-radius: 6px; font-size: 12px; font-weight: 700; cursor: pointer; transition: 0.15s; }
+    .btn-action:hover { background: #1d4ed8; }
+    .text-success { color: #10b981; font-weight: 700; font-size: 13px; display: flex; align-items: center; gap: 4px; }
   </style>
 </head>
 <body>
 
-<nav>
-  <div class="nav-title">Sistem Pengadaan ITK — Staf Pengadaan</div>
-  <button class="btn-keluar" onclick="window.location.href='index.html'">Keluar</button>
-</nav>
+<header>
+  <div class="logo-area">
+    <span class="logo-badge">PRO</span>
+    <span class="logo-text">Sistem Procurement ITK</span>
+  </div>
+  <button class="btn-logout" onclick="window.location.href='index.html'">Keluar</button>
+</header>
 
 <div class="container">
-  <div class="card">
-    <h3>Buat Permintaan Barang Baru (PR)</h3>
-    <div class="form-grid">
-      <div class="form-group nama">
-        <label>Nama Barang / Item</label>
-        <input type="text" id="nama_barang" placeholder="Masukkan nama item baru...">
+  <div class="panel">
+    <div class="panel-title">Buat Permintaan Barang Baru (PR)</div>
+    <div class="form-row">
+      <div class="form-group">
+        <label>Nama Komponen / Item Barang</label>
+        <input type="text" id="nama_barang" placeholder="Contoh: Modul Sensor Ultrasonik">
       </div>
-      <div class="form-group qty">
-        <label>Jumlah (Qty)</label>
+      <div class="form-group">
+        <label>Kuantitas (Qty)</label>
         <input type="number" id="jumlah" value="1" min="1">
       </div>
-      <div class="form-group harga">
-        <label>Harga Satuan (Estimasi)</label>
+      <div class="form-group">
+        <label>Estimasi Harga Satuan</label>
         <input type="number" id="harga" placeholder="Rp 0">
       </div>
-      <button class="btn-submit" onclick="simpanPRBaru()">+ Ajukan PR</button>
+      <button class="btn-primary" onclick="tambahPR()">+ Ajukan Kebutuhan</button>
     </div>
   </div>
 
-  <div class="card">
-    <h3>Daftar Permintaan Pengadaan (PR Log & Procurement Workflow)</h3>
-    <div class="table-responsive">
+  <div class="panel">
+    <div class="panel-title">Daftar Log & Workflow Staf Pengadaan</div>
+    <div class="table-wrapper">
       <table>
         <thead>
           <tr>
-            <th>ID PR</th>
-            <th>Nama Barang</th>
-            <th>Jumlah</th>
+            <th>ID Sistem</th>
+            <th>Deskripsi Barang</th>
+            <th>Kuantitas</th>
             <th>Harga Satuan</th>
-            <th>Total Estimasi</th>
+            <th>Total Anggaran</th>
             <th>Status Alur</th>
-            <th>Aksi Tahapan Procurement</th>
+            <th>Aksi Penanganan Prosedur</th>
           </tr>
         </thead>
         <tbody id="tabelPR">
-          <tr><td colspan="7" style="text-align:center; color:#64748b; padding:2rem;">Menghubungkan ke database...</td></tr>
+          <tr><td colspan="7" style="text-align:center; color:#64748b; padding:30px;">Sinkronisasi data sistem...</td></tr>
         </tbody>
       </table>
     </div>
@@ -103,127 +108,92 @@
 </div>
 
 <script>
-  // Menggunakan API Endpoint langsung (Aman untuk Vercel production)
-  const BASE_URL = "https://bgtgeltkbanlnvymalum.supabase.co/rest/v1/purchase_request";
-  const HEADERS = {
-    "apikey": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImJndGdlbHRrYmFubG52eW1hbHVtIiwicm9sZSI6ImFub24iLCJpYXQiOjE3Nzk1MTAwNDksImV4cCI6MjA5NTA4NjA0OX0.-JlapeQpug44SjkEKgb1wyoX2_ftdGGcAnTHJhdzvwE",
-    "Authorization": "Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImJndGdlbHRrYmFubG52eW1hbHVtIiwicm9sZSI6ImFub24iLCJpYXQiOjE3Nzk1MTAwNDksImV4cCI6MjA5NTA4NjA0OX0.-JlapeQpug44SjkEKgb1wyoX2_ftdGGcAnTHJhdzvwE",
-    "Content-Type": "application/json"
-  };
+  const API_URL = "https://bgtgeltkbanlnvymalum.supabase.co/rest/v1/purchase_request";
+  const CONFIG_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImJndGdlbHRrYmFubG52eW1hbHVtIiwicm9sZSI6ImFub24iLCJpYXQiOjE3Nzk1MTAwNDksImV4cCI6MjA5NTA4NjA0OX0.-JlapeQpug44SjkEKgb1wyoX2_ftdGGcAnTHJhdzvwE";
+  const HEADERS = { "apikey": CONFIG_KEY, "Authorization": `Bearer ${CONFIG_KEY}`, "Content-Type": "application/json" };
 
-  async function muatTabelPengadaan() {
+  async function dapatkanDataPR() {
     try {
-      const response = await fetch(`${BASE_URL}?order=created_at.desc`, { method: "GET", headers: HEADERS });
-      if (!response.ok) throw new Error("Gagal mengambil data");
-      
-      const prs = await response.json();
+      const res = await fetch(`${API_URL}?order=created_at.desc`, { method: "GET", headers: HEADERS });
+      const data = await res.json();
       const tbody = document.getElementById('tabelPR');
       tbody.innerHTML = "";
 
-      if (!prs || prs.length === 0) {
-        tbody.innerHTML = `<tr><td colspan="7" style="text-align:center; color:#64748b; padding:2rem;">Belum ada data riwayat pengadaan.</td></tr>`;
+      if(!data || data.length === 0) {
+        tbody.innerHTML = `<tr><td colspan="7" style="text-align:center; padding:30px; color:#64748b;">Belum ada antrean pengadaan saat ini.</td></tr>`;
         return;
       }
 
-      prs.forEach(pr => {
-        const qty = Number(pr.jumlah) || 0;
-        const satuan = Number(pr.harga_estimasi) || 0; 
-        const total = qty * satuan;
-        const statusText = pr.status || 'pending';
+      data.forEach(item => {
+        const qty = Number(item.jumlah) || 0;
+        const harga = Number(item.harga_estimasi) || 0;
+        const total = qty * harga;
+        const status = item.status || 'pending';
 
-        // Badge styling berdasarkan status alur
-        let classBadge = "badge-status";
-        if(statusText === 'pending') classBadge += " status-pending";
-        if(statusText === 'buat_quotation') classBadge += " status-quotation";
-        if(statusText === 'evaluasi_pemilihan') classBadge += " status-evaluasi";
-        if(statusText === 'vendor_baru') classBadge += " status-vendor";
-        if(statusText === 'dikirim_ke_manajer') classBadge += " status-manajer";
+        let badgeClass = "badge";
+        if(status === 'pending') badgeClass += " status-pending";
+        if(status === 'buat_quotation') badgeClass += " status-quotation";
+        if(status === 'evaluasi_pemilihan') badgeClass += " status-evaluasi";
+        if(status === 'vendor_baru') badgeClass += " status-vendor";
+        if(status === 'dikirim_ke_manajer') badgeClass += " status-manajer";
 
-        // Pemetaan Alur Tombol Bertahap sesuai permintaan lu
-        let tombolAksi = "";
-        if (statusText === 'pending') {
-          tombolAksi = `<button class="btn-aksi" onclick="ubahStatusAlur('${pr.id}', 'buat_quotation')">🔍 Cek PR</button>`;
-        } else if (statusText === 'buat_quotation') {
-          tombolAksi = `<button class="btn-aksi" onclick="ubahStatusAlur('${pr.id}', 'evaluasi_pemilihan')">📄 Buat Quotation</button>`;
-        } else if (statusText === 'evaluasi_pemilihan') {
-          tombolAksi = `<button class="btn-aksi" onclick="ubahStatusAlur('${pr.id}', 'vendor_baru')">📊 Evaluasi Pemilihan</button>`;
-        } else if (statusText === 'vendor_baru') {
-          tombolAksi = `<button class="btn-aksi" onclick="ubahStatusAlur('${pr.id}', 'dikirim_ke_manajer')">🤝 Pilih Vendor Baru</button>`;
+        let aksiBtn = "";
+        if (status === 'pending') {
+          aksiBtn = `<button class="btn-action" onclick="prosesAlur('${item.id}', 'buat_quotation')">🔍 Cek PR</button>`;
+        } else if (status === 'buat_quotation') {
+          aksiBtn = `<button class="btn-action" onclick="prosesAlur('${item.id}', 'evaluasi_pemilihan')">📄 Buat Quotation</button>`;
+        } else if (status === 'evaluasi_pemilihan') {
+          aksiBtn = `<button class="btn-action" onclick="prosesAlur('${item.id}', 'vendor_baru')">📊 Evaluasi</button>`;
+        } else if (status === 'vendor_baru') {
+          aksiBtn = `<button class="btn-action" onclick="prosesAlur('${item.id}', 'dikirim_ke_manajer')">🤝 Pilih Vendor Baru</button>`;
         } else {
-          tombolAksi = `<span class="text-done">🚀 Sent to Manager</span>`;
+          aksiBtn = `<span class="text-success">🚀 Terkirim ke Manajer</span>`;
         }
 
         tbody.innerHTML += `
           <tr>
-            <td style="font-family:monospace; color:#64748b;">#${pr.id.substring(0,5)}</td>
-            <td><b>${pr.nama_barang || '—'}</b></td>
-            <td>${qty} Unit</td>
-            <td>Rp ${satuan.toLocaleString('id-ID')}</td>
-            <td><b>Rp ${total.toLocaleString('id-ID')}</b></td>
-            <td><span class="${classBadge}">${statusText.replace(/_/g, ' ')}</span></td>
-            <td>${tombolAksi}</td>
+            <td style="font-family:monospace; color:#64748b; font-size:12px;">#${item.id.substring(0,5)}</td>
+            <td><strong>${item.nama_barang}</strong></td>
+            <td>${qty} Pcs/Unit</td>
+            <td>Rp ${harga.toLocaleString('id-ID')}</td>
+            <td><strong>Rp ${total.toLocaleString('id-ID')}</strong></td>
+            <td><span class="${badgeClass}">${status.replace(/_/g, ' ')}</span></td>
+            <td>${aksiBtn}</td>
           </tr>
         `;
       });
     } catch (e) {
       console.error(e);
-      document.getElementById('tabelPR').innerHTML = `<tr><td colspan="7" style="text-align:center; color:red; padding:2rem;">Gagal memuat koneksi database.</td></tr>`;
     }
   }
 
-  async function ubahStatusAlur(idPR, statusBaru) {
+  async function prosesAlur(id, status_baru) {
     try {
-      const response = await fetch(`${BASE_URL}?id=eq.${idPR}`, {
-        method: "PATCH",
-        headers: HEADERS,
-        body: JSON.stringify({ status: statusBaru })
-      });
-      if(response.ok) {
-        await muatTabelPengadaan();
-      } else {
-        alert("Gagal merubah tahapan alur.");
-      }
-    } catch (e) {
-      console.error(e);
-    }
+      await fetch(`${API_URL}?id=eq.${id}`, { method: "PATCH", headers: HEADERS, body: JSON.stringify({ status: status_baru }) });
+      dapatkanDataPR();
+    } catch (e) { alert("Sistem gagal memperbarui alur data."); }
   }
 
-  async function simpanPRBaru() {
-    const namaInput = document.getElementById('nama_barang').value.trim();
-    const qtyInput = parseInt(document.getElementById('jumlah').value) || 1;
-    const hargaInput = parseFloat(document.getElementById('harga').value) || 0;
+  async function tambahPR() {
+    const nama = document.getElementById('nama_barang').value.trim();
+    const qty = parseInt(document.getElementById('jumlah').value) || 1;
+    const harga = parseFloat(document.getElementById('harga').value) || 0;
 
-    if(!namaInput || hargaInput <= 0) {
-      alert("Tolong isi nama barang dan harga satuan estimasi!");
-      return;
-    }
+    if(!nama || harga <= 0) { alert("Mohon lengkapi semua isian parameter barang."); return; }
 
     try {
-      const response = await fetch(BASE_URL, {
+      await fetch(API_URL, {
         method: "POST",
         headers: HEADERS,
-        body: JSON.stringify({
-          nama_barang: namaInput,
-          jumlah: qtyInput,
-          harga_estimasi: hargaInput,
-          status: 'pending'
-        })
+        body: JSON.stringify({ nama_barang: nama, jumlah: qty, harga_estimasi: harga, status: 'pending' })
       });
-
-      if(response.ok) {
-        alert("PR Baru Sukses Diajukan!");
-        document.getElementById('nama_barang').value = "";
-        document.getElementById('harga').value = "";
-        await muatTabelPengadaan();
-      } else {
-        alert("Gagal menyimpan data.");
-      }
-    } catch (e) {
-      console.error(e);
-    }
+      document.getElementById('nama_barang').value = "";
+      document.getElementById('harga').value = "";
+      dapatkanDataPR();
+    } catch(e) { console.error(e); }
   }
 
-  window.onload = muatTabelPengadaan;
+  window.onload = dapatkanDataPR;
 </script>
 </body>
 </html>
