@@ -158,7 +158,6 @@
     </div>
 
     <script>
-        // Konfigurasi Supabase Asli Proyek bgtgeltkbanlnvymalum
         const URL_SUPABASE_ASLI = "https://bgtgeltkbanlnvymalum.supabase.co"; 
         const ANON_KEY_SUPABASE_ASLI = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImJndGdlbHRrYmFubG52eW1hbHVtIiwicm9sZSI6ImFub24iLCJpYXQiOjE3Nzk1MTAwNDksImV4cCI6MjA5NTA4NjA0OX0.-JlapeQpug44SjkEKgb1wyoX2_ftdGGcAnTHJhdzvwE";
 
@@ -168,9 +167,28 @@
         let tabAktif = 'matching';
         let dataTerpilihUntukPDF = null;
 
+        // Fungsi normalisasi status agar tidak sensitif huruf besar/kecil/spasi
+        function dapatkanKategoriStatus(statusRaw) {
+            if (!statusRaw) return 'matching';
+            const s = statusRaw.toLowerCase().trim().replace(/_/g, ' ');
+            
+            if (s === 'perlu matching' || s === 'barang dikirim' || s === 'verifikasi sj' || s === 'perlu_matching' || s === 'barang_dikirim' || s === 'verifikasi_sj') {
+                return 'matching';
+            }
+            if (s === 'terbitkan voucher' || s === 'voucher pembayaran' || s === 'menunggu po' || s === 'terbitkan_voucher') {
+                return 'voucher';
+            }
+            if (s === 'proses bayar' || s === 'proses_bayar') {
+                return 'bayar';
+            }
+            if (s === 'selesai') {
+                return 'selesai';
+            }
+            return 'matching'; // Default fallback keamanan
+        }
+
         async function muatDataSupabase() {
             try {
-                // Diperbaiki: memanggil ke tabel 'purchase_requests' dengan akhiran s
                 const { data, error } = await _supabase
                     .from('purchase_requests')
                     .select('*')
@@ -185,17 +203,21 @@
                 console.error("Gagal load data:", err);
                 document.getElementById('list-container').innerHTML = `
                     <div class="text-center text-red-500 py-10 text-sm font-bold">
-                        ❌ Gagal memuat data dari database Supabase.<br>
-                        <span class="text-xs text-gray-400 font-normal">Hubungi Administrator atau pastikan RLS di Supabase sudah berstatus DISABLED.</span>
+                        ❌ Gagal memuat data dari database Supabase.
                     </div>`;
             }
         }
 
         function hitungStatistik() {
-            const matching = semuaDataPR.filter(item => !item.status || ['perlu_matching', 'Perlu Matching', 'Barang Dikirim', 'barang_dikirim', 'verifikasi_sj'].includes(item.status)).length;
-            const voucher = semuaDataPR.filter(item => ['terbitkan_voucher', 'Voucher Pembayaran', 'menunggu_po', 'terbitkan voucher'].includes(item.status)).length;
-            const bayar = semuaDataPR.filter(item => ['proses_bayar', 'Proses Bayar', 'proses bayar'].includes(item.status)).length;
-            const selesai = semuaDataPR.filter(item => ['selesai', 'Selesai'].includes(item.status)).length;
+            let matching = 0, voucher = 0, bayar = 0, selesai = 0;
+
+            semuaDataPR.forEach(item => {
+                const kat = dapatkanKategoriStatus(item.status);
+                if (kat === 'matching') matching++;
+                if (kat === 'voucher') voucher++;
+                if (kat === 'bayar') bayar++;
+                if (kat === 'selesai') selesai++;
+            });
 
             document.getElementById('count-stat-matching').innerText = matching;
             document.getElementById('count-stat-voucher').innerText = voucher;
@@ -211,26 +233,24 @@
             const container = document.getElementById('list-container');
             container.innerHTML = '';
 
-            let dataFilter = [];
             let warnaTemaTab = 'green';
 
             if (tabAktif === 'matching') {
-                dataFilter = semuaDataPR.filter(item => !item.status || ['perlu_matching', 'Perlu Matching', 'Barang Dikirim', 'barang_dikirim', 'verifikasi_sj'].includes(item.status));
                 warnaTemaTab = 'orange';
                 aturBanner("Antrean 3-Way Matching", "Silakan periksa kesesuaian dokumen PO, Surat Jalan, dan Invoice fisik dari Vendor.", "bg-orange-50 border-orange-200 text-orange-700 text-orange-900");
             } else if (tabAktif === 'voucher') {
-                dataFilter = semuaDataPR.filter(item => ['terbitkan_voucher', 'Voucher Pembayaran', 'menunggu_po', 'terbitkan voucher'].includes(item.status));
                 warnaTemaTab = 'blue';
                 aturBanner("Penerbitan Voucher Pembayaran", "Data terverifikasi, siapkan dokumen pengeluaran kas atau kuitansi internal.", "bg-blue-50 border-blue-200 text-blue-700 text-blue-900");
             } else if (tabAktif === 'bayar') {
-                dataFilter = semuaDataPR.filter(item => ['proses_bayar', 'Proses Bayar', 'proses bayar'].includes(item.status));
                 warnaTemaTab = 'purple';
                 aturBanner("Proses Likuidasi / Pembayaran Bank", "Otorisasi akhir pengiriman dana kepada rekening giro pihak ketiga/Supplier.", "bg-purple-50 border-purple-200 text-purple-700 text-purple-900");
             } else {
-                dataFilter = semuaDataPR.filter(item => ['selesai', 'Selesai'].includes(item.status));
                 warnaTemaTab = 'green';
                 aturBanner("PR Selesai", "Seluruh rangkaian alur proses pengadaan barang saat ini sudah tuntas dan terbayar.", "bg-green-50 border-green-200 text-green-700 text-green-900");
             }
+
+            // Filter data yang benar-benar sesuai dengan tab aktif saat ini
+            const dataFilter = semuaDataPR.filter(item => dapatkanKategoriStatus(item.status) === tabAktif);
 
             if (dataFilter.length === 0) {
                 container.innerHTML = `<div class="text-center text-gray-400 py-12 text-xs font-medium">Tidak ada berkas PR pada tahap ini.</div>`;
@@ -243,7 +263,7 @@
                 const formatRupiah = new Intl.NumberFormat('id-ID', { style: 'currency', currency: 'IDR', maximumFractionDigits: 0 }).format(hargaNominal);
                 const formatTgl = item.created_at ? new Date(item.created_at).toLocaleDateString('id-ID', { day: '2-digit', month: 'short', year: 'numeric' }) : '02 Jun 2026';
                 const nomorInvoice = item.invoice_number || item.no_invoice || `INV/2026/0${Math.floor(Math.random() * 80) + 10}`;
-                const statusTeks = item.status ? item.status.replace('_', ' ') : 'Perlu Matching';
+                const statusTeks = item.status ? item.status.replace(/_/g, ' ') : 'Perlu Matching';
 
                 const cardHtml = `
                     <div class="p-5 border border-gray-200 rounded-2xl bg-white hover:border-${warnaTemaTab}-300 shadow-sm transition">
@@ -307,12 +327,11 @@
 
         async function prosesAlurKeuangan(prId, statusSekarang) {
             let statusBaru = 'selesai';
-            const statusLapis1 = ['perlu_matching', 'Perlu Matching', 'Barang Dikirim', 'barang_dikirim', 'verifikasi_sj'];
-            const statusLapis2 = ['terbitkan_voucher', 'Voucher Pembayaran', 'menunggu_po', 'terbitkan voucher'];
+            const katSkrg = dapatkanKategoriStatus(statusSekarang);
 
-            if (statusLapis1.includes(statusSekarang)) {
+            if (katSkrg === 'matching') {
                 statusBaru = 'terbitkan_voucher';
-            } else if (statusLapis2.includes(statusSekarang)) {
+            } else if (katSkrg === 'voucher') {
                 statusBaru = 'proses_bayar';
             }
 
