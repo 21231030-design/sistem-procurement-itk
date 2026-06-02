@@ -90,7 +90,6 @@
     const { data: prs } = await sb.from('purchase_request').select('*').order('created_at', { ascending: false });
     const container = document.getElementById('containerAudit');
 
-    // Tangkap semua data yang sudah masuk proses invoicing/pengiriman/penyelesaian
     const dataKeuangan = prs ? prs.filter(p => ['invoice_dikirim', 'barang_diterima', 'dikirim', 'disetujui', 'lunas'].includes(p.status)) : [];
 
     if (dataKeuangan.length === 0) {
@@ -99,11 +98,10 @@
     }
 
     const htmlList = await Promise.all(dataKeuangan.map(async (pr) => {
-      // Ambil Invoice & PO pendukung
       const { data: inv } = await sb.from('invoices').select('*').eq('pr_id', pr.id).maybeSingle();
       const { data: po } = await sb.from('purchase_order').select('*').eq('pr_id', pr.id).maybeSingle();
 
-      // PROTEKSI ANTI-NaN: Jika nominal kosong / rusak, hitung paksa dari perkiraan sistem
+      // PROTEKSI MUTLAK ANTI-NaN
       const hargaPr = Number(pr.harga_estimasi) || 1500000;
       const jumlahBarang = Number(pr.jumlah) || 1;
       const totalAman = hargaPr; 
@@ -160,7 +158,7 @@
 
           <div>
             <button class="btn btn-success" onclick="bayarLunas('${pr.id}')">💸 Validasi & Bayar Lunas Sekarang</button>
-            <button class="btn btn-download" onclick="unduhPdfAudit('${pr.nama_barang}', '${noPO}', '${noInv}', '${jumlahBarang}', ${totalAman})">📄 Unduh Berkas Audit (PDF)</button>
+            <button class="btn btn-download" onclick="unduhPdfAudit('${pr.nama_barang}', '${noPO}', '${noInv}', '${jumlahBarang}', ${totalAman})">📄 Unduh Berkas Audit</button>
           </div>
         </div>
       `;
@@ -169,16 +167,16 @@
     container.innerHTML = htmlList.join('');
   }
 
-  // FITUR COAK JENDELA BROWSER UNTUK CETAK PDF RESMI
+  // TRICK GENERATOR: LANGSUNG DOWNLOAD FILE HTML INTERAKTIF KE PERANGKAT
   function unduhPdfAudit(namaBarang, noPO, noInv, qty, total) {
     const formatRupiah = (angka) => 'Rp ' + Number(angka).toLocaleString('id-ID');
-    const w = window.open('', '_blank');
-    w.document.write(`
+    
+    const kontenHtml = `
       <html>
       <head>
         <title>Berita Acara Pembayaran - ITK Procurement</title>
         <style>
-          body { font-family: 'Arial', sans-serif; padding: 40px; color: #333; line-height: 1.6; }
+          body { font-family: 'Arial', sans-serif; padding: 40px; color: #333; line-height: 1.6; background: #fff; }
           .kop { text-align: center; border-bottom: 3px double #000; padding-bottom: 10px; margin-bottom: 30px; }
           .title { font-size: 18px; font-weight: bold; text-transform: uppercase; text-align: center; margin-bottom: 20px; }
           table { width: 100%; border-collapse: collapse; margin: 20px 0; }
@@ -186,9 +184,12 @@
           th { background: #f2f2f2; }
           .ttd-box { margin-top: 50px; float: right; text-align: center; width: 250px; }
           .ttd-space { height: 80px; }
+          .btn-print-lokal { background: #10b981; color: white; padding: 10px 20px; border: none; border-radius: 6px; font-weight: bold; cursor: pointer; margin-bottom: 20px; font-size: 14px; }
+          @media print { .btn-print-lokal { display: none; } }
         </style>
       </head>
       <body>
+        <button class="btn-print-lokal" onclick="window.print()">🖨️ Cetak / Simpan ke PDF Sekarang</button>
         <div class="kop">
           <h2>INSTITUT TEKNOLOGI KALIMANTAN</h2>
           <p style="font-size:12px; color:#555;">Sistem Integrasi Pengadaan Barang & Jasa Digital Kampus Terpadu</p>
@@ -213,14 +214,21 @@
           <div class="ttd-space"></div>
           <p><u>Otorisasi Digital Keuangan</u></p>
         </div>
-
-        <script>
-          window.onload = function() { window.print(); window.close(); }
-        <\/script>
       </body>
       </html>
-    `);
-    w.document.close();
+    `;
+
+    // Kirim file langsung ke folder download komputer/perangkat
+    const blob = new Blob([kontenHtml], { type: 'text/html' });
+    const linkTautan = document.createElement('a');
+    linkTautan.href = URL.createObjectURL(blob);
+    linkTautan.download = `Berita_Acara_Audit_${namaBarang.replace(/\s+/g, '_')}.html`;
+    
+    document.body.appendChild(linkTautan);
+    linkTautan.click();
+    document.body.removeChild(linkTautan);
+    
+    alert("✓ Dokumen Berita Acara berhasil diunduh ke perangkat kamu! Silakan buka file tersebut di folder Download lalu klik tombol hijau untuk menyimpan ke PDF.");
   }
 
   async function bayarLunas(prId) {
