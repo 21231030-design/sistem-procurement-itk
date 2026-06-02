@@ -86,23 +86,21 @@ h1 { font-size: 24px; font-weight: 600; color: #111827; }
       <button class="btn-action" onclick="submitTagihanInvoice()">Kirim Berkas Tagihan</button>
     </div>
   </div>
-
 </div>
 
 <div class="modal" id="modalSJ">
   <div class="modal-content">
-    <h3 style="margin-bottom:16px;">Kirim Barang & Surat Jalan</h3>
+    <h3 style="margin-bottom:16px; font-weight:600;">Kirim Barang & Surat Jalan</h3>
     <div class="form-group">
       <label>Nomor Surat Jalan</label>
-      <input type="text" id="nomorSJ" placeholder="SJ-001">
+      <input type="text" id="nomorSJ" placeholder="Contoh: SJ-001">
     </div>
     <div class="modal-actions">
       <button class="btn-cancel" onclick="tutupModal('modalSJ')">Batal</button>
-      <button class="btn-action" onclick="submitSuratJalan()">Kirim</button>
+      <button class="btn-action" onclick="submitSuratJalan()">Kirim Surat Jalan</button>
     </div>
   </div>
 </div>
-
 
 <script>
 const SB_URL = "https://bgtgeltkbanlnvymalum.supabase.co";
@@ -122,19 +120,18 @@ async function muatDataPO() {
     .order('created_at', { ascending: false });
 
   if (prErr) {
-    el.innerHTML = `<p style="color:red">${prErr.message}</p>`;
+    el.innerHTML = `<p style="color:red; font-size:13px">${prErr.message}</p>`;
     return;
   }
 
   if (!prData || prData.length === 0) {
-    el.innerHTML = `<p style="color:var(--muted)">Belum ada PO.</p>`;
+    el.innerHTML = `<p style="color:var(--muted); font-size:13px">Belum ada Purchase Order (PO) aktif.</p>`;
     return;
   }
 
   el.innerHTML = '';
 
   for (const pr of prData) {
-
     const { data: po } = await sb
       .from('purchase_order')
       .select('*')
@@ -147,41 +144,24 @@ async function muatDataPO() {
       .eq('po_id', po?.id)
       .maybeSingle();
 
-    const sudahInvoice = !!invoice;
-
+    const sudahInvoice = !!invoice || !!pr.nomor_invoice;
     let buttonHtml = '';
 
-    if (
-   pr.status === 'po_dibuat'
-   && !pr.surat_jalan
-) {
+    // Perbaikan Logika Kondisional Alur Tombol Berjenjang (If-Else)
+    if (!pr.surat_jalan && (pr.status === 'po_dibuat' || pr.status === 'perlu_matching')) {
       buttonHtml = `
-        <button class="btn-action"
-          onclick="kirimSuratJalan('${pr.id}')">
+        <button class="btn-action" onclick="kirimSuratJalan('${pr.id}')">
           Kirim Barang + SJ
         </button>`;
-    }
-    else if (
-   pr.status === 'verifikasi_sj'
-   && !sudahInvoice
-) {
-
-   buttonHtml = `
-      <button
-         class="btn-action"
-         onclick="bukaModalTagihan('${pr.id}','${po ? po.id : ''}')">
-         Kirim Invoice
-      </button>
-   `;
-}
+    } 
+    else if (pr.surat_jalan && !sudahInvoice) {
       buttonHtml = `
-        <button class="btn-action"
-          onclick="bukaModalTagihan('${pr.id}','${po ? po.id : ''}')">
+        <button class="btn-action" style="background:var(--amber)" onclick="bukaModalTagihan('${pr.id}','${po ? po.id : ''}')">
           Kirim Invoice
         </button>`;
-    }
-    else if (sudahInvoice) {
-      buttonHtml = `<span style="color:var(--emerald);font-weight:600;">✓ Invoice Terkirim</span>`;
+    } 
+    else {
+      buttonHtml = `<span style="color:var(--emerald);font-weight:600;font-size:13px;">✓ Berkas Selesai dikirim</span>`;
     }
 
     el.innerHTML += `
@@ -189,16 +169,17 @@ async function muatDataPO() {
         <div>
           <div class="po-name">${pr.nama_barang || '-'}</div>
           <div class="po-meta">
-            Jumlah: <b>${pr.jumlah || 0}</b>
+            Jumlah: <b>${pr.jumlah || 0} unit</b>
             &bull;
-            Surat Jalan:
-            <b>${pr.surat_jalan || 'Belum Dikirim'}</b>
+            Surat Jalan: <b style="color:var(--text)">${pr.surat_jalan || 'Belum Dikirim'}</b>
+            &bull;
+            Invoice: <b style="color:var(--text)">${pr.nomor_invoice || 'Belum Diinput'}</b>
           </div>
         </div>
 
         <div style="display:flex;align-items:center;gap:16px;">
           <span class="badge ${pr.status === 'selesai' ? 'badge-aktif' : 'badge-proses'}">
-            ${pr.status || 'po_dibuat'}
+            ${(pr.status || 'po_dibuat').replace(/_/g, ' ')}
           </span>
           ${buttonHtml}
         </div>
@@ -227,7 +208,7 @@ async function submitSuratJalan() {
   const nomorSJ = document.getElementById('nomorSJ').value.trim();
 
   if (!nomorSJ) {
-    alert('Nomor Surat Jalan wajib diisi');
+    alert('Nomor Surat Jalan wajib diisi!');
     return;
   }
 
@@ -236,16 +217,16 @@ async function submitSuratJalan() {
     .update({
       surat_jalan: nomorSJ,
       status_surat_jalan: 'terkirim',
-      status: 'barang_dikirim'
+      status: 'verifikasi_sj' // Mengubah status agar masuk antrean matching keuangan
     })
     .eq('id', activeSJPR);
 
   if (error) {
-    alert(error.message);
+    alert('Gagal simpan Surat Jalan: ' + error.message);
     return;
   }
 
-  alert('Barang dan Surat Jalan berhasil dikirim');
+  alert('Sukses! Fisik barang dan nomor Surat Jalan berhasil diverifikasi.');
   tutupModal('modalSJ');
   muatDataPO();
 }
@@ -256,15 +237,18 @@ async function submitTagihanInvoice() {
   const tgl = document.getElementById('invTanggal').value;
 
   if (!noInv || !nilai || !tgl) {
-    alert('Lengkapi data invoice');
+    alert('Lengkapi seluruh kolom data invoice tagihan!');
     return;
   }
 
+  // Masukkan data berkas tagihan secara aman ke dalam tabel invoices
   const { error: invErr } = await sb
     .from('invoices')
     .insert({
-      po_id: aktivePOId,
-      nama_supplier: 'Supplier',
+      po_id: aktivePOId || null,
+      pr_id: aktivePRId,
+      nomor_invoice: noInv,
+      nama_supplier: 'Mitra Supplier ITK',
       jumlah_tagihan: parseInt(nilai),
       status_bayar: 'belum_bayar',
       status: 'aktif',
@@ -272,24 +256,26 @@ async function submitTagihanInvoice() {
       tanggal_invoice: tgl
     });
 
-  if (invErr) {
-    alert(invErr.message);
+  if (invErr && invErr.code !== '23505') {
+    alert('Gagal input ke tabel invoices: ' + invErr.message);
     return;
   }
 
+  // Perbarui master data di purchase_request agar nomor invoice dan status singkron ke staf keuangan
   const { error: prErr } = await sb
     .from('purchase_request')
     .update({
-      status: 'invoice_dikirim'
+      nomor_invoice: noInv,
+      status: 'verifikasi_sj'
     })
     .eq('id', aktivePRId);
 
   if (prErr) {
-    alert(prErr.message);
+    alert('Gagal memperbarui status dokumen utama: ' + prErr.message);
     return;
   }
 
-  alert('Invoice berhasil dikirim');
+  alert('Sukses! Berkas tagihan invoice resmi telah terkirim.');
   tutupModal('modalInvoice');
   muatDataPO();
 }
