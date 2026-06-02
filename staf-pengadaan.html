@@ -341,49 +341,60 @@
 
   // TAB 3: EVALUASI VENDOR PEMENANG
   async function muatEvaluasi() {
-    const { data } = await sb.from('purchase_request').select('*').in('status', ['diproses', 'po_dibuat', 'menunggu_approval']).order('created_at', {ascending:true});
-    const el = document.getElementById('listEvaluasi');
-    const count = data ? data.length : 0;
-    document.getElementById('badgeEvaluasi').textContent = count;
+  // PERBAIKAN 1: Pastikan status 'po_dibuat' ikut ditarik dengan benar dari database Supabase
+  const { data, error } = await sb.from('purchase_request')
+    .select('*')
+    .in('status', ['diproses', 'po_dibuat', 'menunggu_approval'])
+    .order('created_at', {ascending:true});
     
-    const prosesCount = data ? data.filter(d => ['diproses', 'po_dibuat'].includes(d.status)).length : 0;
-    document.getElementById('sEvaluasi').textContent = prosesCount;
+  const el = document.getElementById('listEvaluasi');
+  const count = data ? data.length : 0;
+  document.getElementById('badgeEvaluasi').textContent = count;
+  
+  const prosesCount = data ? data.filter(d => ['diproses', 'po_dibuat'].includes(d.status)).length : 0;
+  document.getElementById('sEvaluasi').textContent = prosesCount;
 
-    if(!data || count === 0) { el.innerHTML = `<div class="empty-state">Tidak ada dokumen penawaran dalam tahap komparasi komersial.</div>`; return; }
-
-    const barisRender = await Promise.all(data.map(async pr => {
-      const { data: qts } = await sb.from('quotation').select('*').eq('pr_id', pr.id).order('harga', {ascending:true});
-      
-      let aksiTombol = '';
-      if(pr.status === 'diproses') {
-        aksiTombol = `<button class="btn btn-navy" onclick="bukaModalEvaluasi('${pr.id}', '${pr.nama_barang}', ${pr.jumlah})">⚖️ Pilih Pemenang Vendor & Buat PO</button>`;
-      } else if(pr.status === 'po_dibuat') {
-        aksiTombol = `
-          <button class="btn btn-purple" onclick="ajukanKeManajer('${pr.id}')">🚀 Kirim Berkas Kontrak ke Manajer</button>
-          <button class="btn btn-outline" onclick="bukaModalEvaluasi('${pr.id}', '${pr.nama_barang}', ${pr.jumlah})" style="margin-left:6px;">Ubah Opsi</button>`;
-      } else {
-        aksiTombol = `<span style="font-size:12px; color:var(--purple); font-weight:600;">⏳ Sedang Ditinjau Akhir Oleh Pimpinan (Manajer)</span>`;
-      }
-
-      const infoVendor = qts && qts.length > 0 
-        ? qts.map((q,idx) => `&bull; <b>${idx===0?'[Rekomendasi] ':''}${q.nama_supplier}</b> (${fmtRupiah(q.harga)})`).join('<br>') 
-        : 'Belum ada data penawaran.';
-
-      return `
-        <div class="pr-item">
-          <div class="pr-row">
-            <div style="flex:1">
-              <div class="pr-name">${pr.nama_barang}</div>
-              <div class="pr-meta">Volume Kebutuhan: <b>${pr.jumlah} Unit</b></div>
-              <div class="pr-meta" style="margin-top:6px; background:#f8fafc; padding:8px; border-radius:4px; max-width:450px;">${infoVendor}</div>
-            </div>
-            <span class="badge ${pr.status}"><span class="badge-dot"></span>${MAP_STATUS[pr.status]}</span>
-          </div>
-          <div class="pr-actions">${aksiTombol}</div>
-        </div>`;
-    }));
-    el.innerHTML = barisRender.join('');
+  if(!data || count === 0) { 
+    el.innerHTML = `<div class="empty-state">Tidak ada dokumen penawaran dalam tahap komparasi komersial.</div>`; 
+    return; 
   }
+
+  const barisRender = await Promise.all(data.map(async pr => {
+    const { data: qts } = await sb.from('quotation').select('*').eq('pr_id', pr.id).order('harga', {ascending:true});
+    
+    // PERBAIKAN 2: Kondisional render tombol yang anti-gagal
+    let aksiTombol = '';
+    if (pr.status === 'diproses') {
+      aksiTombol = `<button class="btn btn-navy" onclick="bukaModalEvaluasi('${pr.id}', '${pr.nama_barang}', ${pr.jumlah})">⚖️ Pilih Pemenang Vendor & Buat PO</button>`;
+    } else if (pr.status === 'po_dibuat') {
+      // Tombol ROCKET yang kamu cari dipastikan ke-render di sini jika status pr adalah 'po_dibuat'
+      aksiTombol = `
+        <button class="btn btn-purple" onclick="ajukanKeManajer('${pr.id}')" style="background-color: var(--purple); color: white; padding: 8px 16px; font-weight: bold;">🚀 Kirim Berkas Kontrak ke Manajer</button>
+        <button class="btn btn-outline" onclick="bukaModalEvaluasi('${pr.id}', '${pr.nama_barang}', ${pr.jumlah})" style="margin-left:6px;">Ubah Pemenang</button>`;
+    } else if (pr.status === 'menunggu_approval') {
+      aksiTombol = `<span style="font-size:12px; color:var(--purple); font-weight:600; background:#f3e8ff; padding:6px 12px; border-radius:6px;">⏳ Sedang Ditinjau Akhir Oleh Pimpinan (Manajer)</span>`;
+    }
+
+    const infoVendor = qts && qts.length > 0 
+      ? qts.map((q, idx) => `&bull; <b>${q.status === 'dipilih' ? '[PEMENANG] ' : ''}${q.nama_supplier}</b> (${fmtRupiah(q.harga)})`).join('<br>') 
+      : 'Belum ada data penawaran.';
+
+    return `
+      <div class="pr-item" style="border-left: 4px solid ${pr.status === 'po_dibuat' ? 'var(--purple)' : 'var(--accent)'}">
+        <div class="pr-row">
+          <div style="flex:1">
+            <div class="pr-name" style="font-size:16px; font-weight:600;">${pr.nama_barang}</div>
+            <div class="pr-meta">Volume Kebutuhan: <b>${pr.jumlah} Unit</b></div>
+            <div class="pr-meta" style="margin-top:6px; background:#f8fafc; padding:8px; border-radius:4px; max-width:450px; border:1px dashed var(--border);">${infoVendor}</div>
+          </div>
+          <span class="badge ${pr.status}"><span class="badge-dot"></span>${MAP_STATUS[pr.status] || pr.status}</span>
+        </div>
+        <div class="pr-actions" style="margin-top:14px; display:block;">${aksiTombol}</div>
+      </div>`;
+  }));
+  
+  el.innerHTML = barisRender.join('');
+}
 
   async function bukaModalEvaluasi(id, nama, jml) {
     currentPRId = id; selectedQuotationId = null;
