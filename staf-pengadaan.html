@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Dashboard Staf Pengadaan</title>
+  <title>Dashboard Staf Pengadaan - ITK Procurement</title>
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
   <link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@300;400;500;600&family=DM+Mono:wght@400;500&display=swap" rel="stylesheet">
   <style>
@@ -31,299 +31,186 @@
       position: sticky; top: 0; z-index: 100;
     }
     .nav-brand { display: flex; align-items: center; gap: 12px; }
-    .nav-logo { width: 36px; height: 36px; background: rgba(255,255,255,0.12); border-radius: 10px; display: flex; align-items: center; justify-content: center; }
-    .nav-logo svg { width: 20px; height: 20px; stroke: #fff; fill: none; stroke-width: 2; }
+    .nav-logo { width: 36px; height: 36px; background: rgba(255,255,255,0.12); border-radius: 10px; display: flex; align-items: center; justify-content: center; font-size: 20px; }
     .nav-title { font-size: 15px; font-weight: 600; color: #fff; }
     .nav-sub { font-size: 12px; color: rgba(255,255,255,0.5); }
-    .nav-right { display: flex; align-items: center; gap: 10px; }
-    .user-chip { display: flex; align-items: center; gap: 8px; background: rgba(255,255,255,0.1); border: 1px solid rgba(255,255,255,0.15); border-radius: 40px; padding: 5px 12px 5px 6px; color: rgba(255,255,255,0.85); font-size: 13px; }
-    .avatar-sm { width: 26px; height: 26px; border-radius: 50%; background: var(--teal); display: flex; align-items: center; justify-content: center; font-size: 11px; font-weight: 600; color: #fff; }
-    .btn-logout { background: rgba(255,255,255,0.12); border: 1px solid rgba(255,255,255,0.2); color: #fff; padding: 7px 14px; border-radius: 8px; font-size: 13px; font-family: 'DM Sans', sans-serif; cursor: pointer; font-weight: 500; }
+    .btn-logout { background: rgba(255,255,255,0.12); border: 1px solid rgba(255,255,255,0.2); color: #fff; padding: 7px 14px; border-radius: 8px; font-size: 13px; cursor: pointer; font-weight: 500; font-family: 'DM Sans', sans-serif; }
     .btn-logout:hover { background: rgba(255,255,255,0.22); }
 
     .container { max-width: 1100px; margin: 0 auto; padding: 1.75rem 1.5rem; }
-
-    /* TABS */
-    .tabs { display: flex; gap: 4px; background: var(--surface); border: 1px solid var(--border); border-radius: var(--radius-sm); padding: 4px; margin-bottom: 1.5rem; width: fit-content; }
-    .tab { padding: 7px 16px; border-radius: 6px; font-size: 13px; font-weight: 500; cursor: pointer; color: var(--muted); border: none; background: none; font-family: 'DM Sans', sans-serif; transition: all 0.15s; white-space: nowrap; }
-    .tab.active { background: var(--navy); color: #fff; }
-    .tab:hover:not(.active) { background: var(--bg); color: var(--text); }
-    .tab-badge { display: inline-flex; align-items: center; justify-content: center; width: 18px; height: 18px; border-radius: 50%; font-size: 10px; font-weight: 700; margin-left: 6px; }
-    .tab.active .tab-badge { background: rgba(255,255,255,0.25); color: #fff; }
-    .tab:not(.active) .tab-badge { background: var(--danger); color: #fff; }
-
-    .tab-panel { display: none; }
-    .tab-panel.active { display: block; }
 
     /* STATS */
     .stat-row { display: grid; grid-template-columns: repeat(5, 1fr); gap: 10px; margin-bottom: 1.5rem; }
     .stat-card { background: var(--surface); border: 1px solid var(--border); border-radius: var(--radius-sm); padding: 1rem; text-align: center; }
     .stat-num { font-size: 22px; font-weight: 600; font-family: 'DM Mono', monospace; }
     .stat-label { font-size: 11px; color: var(--muted); margin-top: 2px; }
-    @media (max-width: 768px) { .stat-row { grid-template-columns: repeat(3,1fr); } }
 
-    /* CARD */
+    /* TABS */
+    .tabs { display: flex; gap: 4px; background: var(--surface); border: 1px solid var(--border); border-radius: var(--radius-sm); padding: 4px; margin-bottom: 1.5rem; width: fit-content; }
+    .tab { padding: 7px 16px; border-radius: 6px; font-size: 13px; font-weight: 500; cursor: pointer; color: var(--muted); border: none; background: none; font-family: 'DM Sans', sans-serif; transition: all 0.15s; }
+    .tab.active { background: var(--navy); color: #fff; }
+    .tab:hover:not(.active) { background: var(--bg); color: var(--text); }
+    .tab-badge { display: inline-flex; align-items: center; justify-content: center; padding: 2px 6px; border-radius: 10px; font-size: 10px; font-weight: 700; margin-left: 6px; background: var(--danger); color: #fff; }
+    .tab.active .tab-badge { background: rgba(255,255,255,0.25); }
+
+    .tab-panel { display: none; }
+    .tab-panel.active { display: block; }
+
+    /* CARD CONTAINER */
     .card { background: var(--surface); border-radius: var(--radius); border: 1px solid var(--border); overflow: hidden; margin-bottom: 1rem; }
-    .card-header { padding: 1rem 1.25rem; border-bottom: 1px solid var(--border); display: flex; align-items: center; gap: 10px; }
-    .card-icon { width: 34px; height: 34px; border-radius: 8px; display: flex; align-items: center; justify-content: center; flex-shrink: 0; }
-    .card-icon svg { width: 17px; height: 17px; stroke-width: 1.8; fill: none; }
-    .card-icon.blue { background: var(--accent-soft); } .card-icon.blue svg { stroke: var(--accent); }
-    .card-icon.teal { background: var(--teal-soft); } .card-icon.teal svg { stroke: var(--teal); }
-    .card-icon.orange { background: var(--orange-soft); } .card-icon.orange svg { stroke: var(--orange); }
-    .card-icon.purple { background: var(--purple-soft); } .card-icon.purple svg { stroke: var(--purple); }
+    .card-header { padding: 1rem 1.25rem; border-bottom: 1px solid var(--border); background: #fafbfa; }
     .card-title { font-size: 14px; font-weight: 600; }
-    .card-subtitle { font-size: 12px; color: var(--muted); margin-top: 1px; }
+    .card-subtitle { font-size: 12px; color: var(--muted); margin-top: 2px; }
     .card-body { padding: 1.25rem; }
 
-    /* PR ITEM */
-    .pr-item { border: 1px solid var(--border); border-radius: var(--radius-sm); padding: 1rem 1.1rem; margin-bottom: 0.65rem; }
+    /* ITEM RENDERING */
+    .pr-item { border: 1px solid var(--border); border-radius: var(--radius-sm); padding: 1rem; margin-bottom: 0.65rem; background: #fff; }
     .pr-item:last-child { margin-bottom: 0; }
     .pr-row { display: flex; align-items: flex-start; justify-content: space-between; gap: 12px; flex-wrap: wrap; }
-    .pr-name { font-size: 14px; font-weight: 600; margin-bottom: 3px; }
+    .pr-name { font-size: 15px; font-weight: 600; margin-bottom: 3px; color: var(--navy); }
     .pr-meta { font-size: 12px; color: var(--muted); line-height: 1.6; }
-    .pr-actions { display: flex; gap: 8px; flex-wrap: wrap; margin-top: 10px; }
+    .pr-actions { display: flex; gap: 8px; flex-wrap: wrap; margin-top: 12px; align-items: center; }
 
-    .badge { display: inline-flex; align-items: center; gap: 4px; font-size: 11px; font-weight: 600; padding: 3px 9px; border-radius: 40px; white-space: nowrap; }
+    /* BADGES */
+    .badge { display: inline-flex; align-items: center; gap: 4px; font-size: 11px; font-weight: 600; padding: 3px 9px; border-radius: 40px; }
     .badge-dot { width: 5px; height: 5px; border-radius: 50%; }
-    .badge.menunggu { background: var(--warn-soft); color: #92400e; }
-    .badge.menunggu .badge-dot { background: var(--warn); }
-    .badge.diverifikasi { background: var(--teal-soft); color: #134e4a; }
-    .badge.diverifikasi .badge-dot { background: var(--teal); }
-    .badge.menunggu_approval { background: #fae8ff; color: #6b21a8; }
-    .badge.menunggu_approval .badge-dot { background: #a855f7; }
-    .badge.po_dibuat { background: #eff6ff; color: #1e40af; }
-    .badge.po_dibuat .badge-dot { background: #3b82f6; }
-    .badge.disetujui { background: var(--success-soft); color: #065f46; }
-    .badge.disetujui .badge-dot { background: var(--success); }
-    .badge.ditolak { background: var(--danger-soft); color: #991b1b; }
-    .badge.ditolak .badge-dot { background: var(--danger); }
-    .badge.diproses { background: var(--accent-soft); color: #1e40af; }
-    .badge.diproses .badge-dot { background: var(--accent); }
-    .badge.barang_dikirim { background: var(--purple-soft); color: #5b21b6; }
-    .badge.barang_dikirim .badge-dot { background: var(--purple); }
-    .badge.barang_diterima { background: var(--teal-soft); color: #134e4a; }
-    .badge.barang_diterima .badge-dot { background: var(--teal); }
-    .badge.selesai { background: #f1f5f9; color: #475569; }
-    .badge.selesai .badge-dot { background: #94a3b8; }
-    .badge.verifikasi_sj { background: var(--orange-soft); color: #9a3412; }
-    .badge.verifikasi_sj .badge-dot { background: var(--orange); }
+    .badge.menunggu { background: var(--warn-soft); color: #92400e; } .badge.menunggu .badge-dot { background: var(--warn); }
+    .badge.diverifikasi { background: var(--teal-soft); color: #134e4a; } .badge.diverifikasi .badge-dot { background: var(--teal); }
+    .badge.diproses { background: var(--accent-soft); color: #1e40af; } .badge.diproses .badge-dot { background: var(--accent); }
+    .badge.menunggu_approval { background: #fae8ff; color: #6b21a8; } .badge.menunggu_approval .badge-dot { background: #a855f7; }
+    .badge.po_dibuat { background: #eff6ff; color: #1e40af; } .badge.po_dibuat .badge-dot { background: #3b82f6; }
+    .badge.verifikasi_sj { background: var(--orange-soft); color: #9a3412; } .badge.verifikasi_sj .badge-dot { background: var(--orange); }
+    .badge.selesai { background: var(--success-soft); color: #065f46; } .badge.selesai .badge-dot { background: var(--success); }
 
-    .btn { border: none; border-radius: 6px; padding: 7px 14px; font-size: 12px; font-weight: 600; font-family: 'DM Sans', sans-serif; cursor: pointer; display: inline-flex; align-items: center; gap: 6px; transition: opacity 0.15s; }
-    .btn:hover { opacity: 0.85; }
-    .btn svg { width: 13px; height: 13px; stroke-width: 2; fill: none; }
+    /* BUTTONS */
+    .btn { border: none; border-radius: 6px; padding: 7px 14px; font-size: 12px; font-weight: 600; font-family: 'DM Sans', sans-serif; cursor: pointer; display: inline-flex; align-items: center; gap: 6px; }
     .btn-success { background: var(--success); color: #fff; }
     .btn-danger { background: var(--danger); color: #fff; }
     .btn-primary { background: var(--accent); color: #fff; }
     .btn-navy { background: var(--navy); color: #fff; }
     .btn-orange { background: var(--orange); color: #fff; }
-    .btn-teal { background: var(--teal); color: #fff; }
     .btn-purple { background: var(--purple); color: #fff; }
     .btn-outline { background: transparent; color: var(--muted); border: 1px solid var(--border); }
 
-    .modal-overlay { position: fixed; inset: 0; background: rgba(0,0,0,0.45); z-index: 200; display: none; align-items: center; justify-content: center; padding: 1rem; }
+    /* MODALS */
+    .modal-overlay { position: fixed; inset: 0; background: rgba(0,0,0,0.4); z-index: 200; display: none; align-items: center; justify-content: center; padding: 1rem; }
     .modal-overlay.show { display: flex; }
-    .modal { background: var(--surface); border-radius: var(--radius); width: 100%; max-width: 560px; max-height: 90vh; overflow-y: auto; box-shadow: 0 20px 60px rgba(0,0,0,0.25); }
+    .modal { background: var(--surface); border-radius: var(--radius); width: 100%; max-width: 540px; box-shadow: 0 20px 40px rgba(0,0,0,0.2); overflow: hidden; }
     .modal-header { padding: 1.25rem 1.5rem; border-bottom: 1px solid var(--border); display: flex; align-items: center; justify-content: space-between; }
-    .modal-title { font-size: 16px; font-weight: 600; }
-    .modal-close { background: none; border: none; cursor: pointer; color: var(--muted); font-size: 20px; line-height: 1; }
-    .modal-body { padding: 1.5rem; }
-    .modal-footer { padding: 1rem 1.5rem; border-top: 1px solid var(--border); display: flex; gap: 10px; justify-content: flex-end; }
+    .modal-title { font-size: 15px; font-weight: 600; }
+    .modal-close { background: none; border: none; cursor: pointer; color: var(--muted); font-size: 20px; }
+    .modal-body { padding: 1.5rem; max-height: 70vh; overflow-y: auto; }
+    .modal-footer { padding: 1rem 1.5rem; border-top: 1px solid var(--border); background: #f8fafc; display: flex; gap: 10px; justify-content: flex-end; }
 
     .field { margin-bottom: 1rem; }
-    .field label { display: block; font-size: 11px; font-weight: 500; color: var(--muted); text-transform: uppercase; letter-spacing: 0.05em; margin-bottom: 5px; }
-    .field input, .field textarea, .field select { width: 100%; border: 1.5px solid var(--border); border-radius: var(--radius-sm); padding: 8px 11px; font-size: 14px; font-family: 'DM Sans', sans-serif; color: var(--text); background: var(--bg); outline: none; transition: border-color 0.2s; }
-    .field input:focus, .field textarea:focus, .field select:focus { border-color: var(--accent); background: #fff; }
-    .field textarea { height: 80px; resize: vertical; }
+    .field label { display: block; font-size: 11px; font-weight: 600; color: var(--muted); text-transform: uppercase; margin-bottom: 5px; }
+    .field input, .field textarea { width: 100%; border: 1.5px solid var(--border); border-radius: var(--radius-sm); padding: 8px 11px; font-size: 14px; outline: none; background: var(--bg); }
+    .field input:focus, .field textarea:focus { border-color: var(--accent); background: #fff; }
 
-    .info-box { background: var(--accent-soft); border: 1px solid #bfdbfe; border-radius: var(--radius-sm); padding: 10px 12px; margin-bottom: 1rem; font-size: 13px; color: #1e40af; }
-    .warn-box { background: var(--warn-soft); border: 1px solid #fde68a; border-radius: var(--radius-sm); padding: 10px 12px; margin-bottom: 1rem; font-size: 13px; color: #92400e; }
-    .success-box { background: var(--success-soft); border: 1px solid #6ee7b7; border-radius: var(--radius-sm); padding: 10px 12px; margin-bottom: 1rem; font-size: 13px; color: #065f46; }
-
-    .quotation-row { border: 1px solid var(--border); border-radius: var(--radius-sm); padding: 12px; margin-bottom: 8px; }
-    .quotation-row:last-child { margin-bottom: 0; }
+    .info-box { background: var(--accent-soft); border: 1px solid #bfdbfe; border-radius: var(--radius-sm); padding: 10px; margin-bottom: 1rem; font-size: 13px; color: #1e40af; }
+    .quotation-row { border: 1px solid var(--border); border-radius: var(--radius-sm); padding: 12px; margin-bottom: 8px; background: #fff; }
     .quotation-supplier { font-weight: 600; font-size: 14px; }
-    .quotation-harga { font-size: 15px; font-weight: 600; color: var(--accent); font-family: 'DM Mono', monospace; }
-    .quotation-detail { font-size: 12px; color: var(--muted); margin-top: 4px; }
+    .quotation-harga { font-size: 14px; font-weight: 600; color: var(--accent); font-family: 'DM Mono', monospace; }
     .quotation-selected { border-color: var(--success); background: var(--success-soft); }
-
-    .empty-state { text-align: center; padding: 2.5rem 1rem; color: var(--muted); }
-    .empty-state svg { width: 40px; height: 40px; stroke: #cbd5e1; fill: none; stroke-width: 1.5; margin-bottom: 10px; }
-    .empty-state p { font-size: 13px; }
-    .loading { font-size: 13px; color: var(--muted); padding: 1.5rem 0; text-align: center; }
+    .empty-state { text-align: center; padding: 2.5rem 1rem; color: var(--muted); font-size: 13px; }
   </style>
 </head>
 <body>
 
 <nav>
   <div class="nav-brand">
-    <div class="nav-logo">
-      <svg viewBox="0 0 24 24"><path d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2"/><rect x="9" y="3" width="6" height="4" rx="1"/><path d="M9 12h6M9 16h4"/></svg>
-    </div>
+    <div class="nav-logo">📦</div>
     <div>
-      <div class="nav-title">Sistem Pengadaan</div>
-      <div class="nav-sub">Dashboard Staf Pengadaan</div>
+      <div class="nav-title">Sistem Pengadaan ITK</div>
+      <div class="nav-sub">Verifikasi Kelayakan Logistik & Rekanan Vendor</div>
     </div>
   </div>
-  <div class="nav-right">
-    <div class="user-chip">
-      <div class="avatar-sm" id="avatarInitial">P</div>
-      <span id="userEmail">Loading...</span>
-    </div>
-    <button class="btn-logout" onclick="logout()">Keluar</button>
-  </div>
+  <button class="btn-logout" onclick="window.location.href='index.html'">Keluar</button>
 </nav>
 
 <div class="container">
 
   <div class="stat-row">
-    <div class="stat-card">
-      <div class="stat-num" id="sCekPR" style="color:#92400e">—</div>
-      <div class="stat-label">Perlu Dicek</div>
-    </div>
-    <div class="stat-card">
-      <div class="stat-num" id="sQuotation" style="color:#1e40af">—</div>
-      <div class="stat-label">Butuh Quotation</div>
-    </div>
-    <div class="stat-card">
-      <div class="stat-num" id="sEvaluasi" style="color:#5b21b6">—</div>
-      <div class="stat-label">Evaluasi Quotation</div>
-    </div>
-    <div class="stat-card">
-      <div class="stat-num" id="sVerifSJ" style="color:#9a3412">—</div>
-      <div class="stat-label">Verifikasi SJ</div>
-    </div>
-    <div class="stat-card">
-      <div class="stat-num" id="sSelesai" style="color:#065f46">—</div>
-      <div class="stat-label">Selesai</div>
-    </div>
+    <div class="stat-card"><div class="stat-num" id="sCekPR" style="color:#92400e">0</div><div class="stat-label">1. Perlu Dicek</div></div>
+    <div class="stat-card"><div class="stat-num" id="sQuotation" style="color:#0d9488">0</div><div class="stat-label">2. Cari Vendor</div></div>
+    <div class="stat-card"><div class="stat-num" id="sEvaluasi" style="color:#7c3aed">0</div><div class="stat-label">3. Evaluasi & Kirim</div></div>
+    <div class="stat-card"><div class="stat-num" id="sVerifSJ" style="color:#ea580c">0</div><div class="stat-label">4. Audit SJ</div></div>
+    <div class="stat-card"><div class="stat-num" id="sSelesai" style="color:#065f46">0</div><div class="stat-label">5. Selesai Lunas</div></div>
   </div>
 
   <div class="tabs">
-    <button class="tab active" onclick="switchTab('cek-pr', this)">Cek PR <span class="tab-badge" id="badgeCekPR">0</span></button>
-    <button class="tab" onclick="switchTab('quotation', this)">Quotation <span class="tab-badge" id="badgeQuotation">0</span></button>
-    <button class="tab" onclick="switchTab('evaluasi', this)">Evaluasi & Minta Approval</button>
-    <button class="tab" onclick="switchTab('verif-sj', this)">Verifikasi SJ <span class="tab-badge" id="badgeVerifSJ">0</span></button>
-    <button class="tab" onclick="switchTab('riwayat', this)">Semua PR</button>
+    <button class="tab active" onclick="switchTab('cek-pr', this)">1. Cek PR <span class="tab-badge" id="badgeCekPR">0</span></button>
+    <button class="tab" onclick="switchTab('quotation', this)">2. Cari Vendor <span class="tab-badge" id="badgeQuotation">0</span></button>
+    <button class="tab" onclick="switchTab('evaluasi', this)">3. Evaluasi & Kirim Ke Manajer <span class="tab-badge" id="badgeEvaluasi">0</span></button>
+    <button class="tab" onclick="switchTab('verif-sj', this)">4. Audit Surat Jalan <span class="tab-badge" id="badgeVerifSJ">0</span></button>
+    <button class="tab" onclick="switchTab('riwayat', this)">Semua Arsip</button>
   </div>
 
   <div class="tab-panel active" id="tab-cek-pr">
     <div class="card">
       <div class="card-header">
-        <div class="card-icon blue">
-          <svg viewBox="0 0 24 24"><path d="M9 11l3 3L22 4"/><path d="M21 12v7a2 2 0 01-2 2H5a2 2 0 01-2-2V5a2 2 0 012-2h11"/></svg>
-        </div>
-        <div>
-          <div class="card-title">PR Menunggu Pengecekan</div>
-          <div class="card-subtitle">Cek kelengkapan & teknis. Verifikasi lalu teruskan ke Manajer, atau tolak.</div>
-        </div>
+        <div class="card-title">Pengecekan Berkas Awal User Internal</div>
+        <div class="card-subtitle">Verifikasi detail sebelum mencarikan penawaran vendor rekanan.</div>
       </div>
-      <div class="card-body" id="listCekPR"><div class="loading">Memuat...</div></div>
+      <div class="card-body" id="listCekPR"></div>
     </div>
   </div>
 
   <div class="tab-panel" id="tab-quotation">
     <div class="card">
       <div class="card-header">
-        <div class="card-icon teal">
-          <svg viewBox="0 0 24 24"><path d="M14 2H6a2 2 0 00-2 2v16a2 2 0 002 2h12a2 2 0 002-2V8z"/><polyline points="14,2 14,8 20,8"/><line x1="16" y1="13" x2="8" y2="13"/><line x1="16" y1="17" x2="8" y2="17"/></svg>
-        </div>
-        <div>
-          <div class="card-title">PR Disetujui Manajer — Minta Quotation</div>
-          <div class="card-subtitle">PR sudah disetujui. Input minimal 3 supplier untuk request penawaran.</div>
-        </div>
+        <div class="card-title">Input Surat Penawaran Komersial (Quotation)</div>
+        <div class="card-subtitle">Barang yang lolos cek awal wajib dimasukkan opsi minimal 3 vendor pembanding.</div>
       </div>
-      <div class="card-body" id="listQuotation"><div class="loading">Memuat...</div></div>
+      <div class="card-body" id="listQuotation"></div>
     </div>
   </div>
 
   <div class="tab-panel" id="tab-evaluasi">
     <div class="card">
       <div class="card-header">
-        <div class="card-icon orange">
-          <svg viewBox="0 0 24 24"><path d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z"/></svg>
-        </div>
-        <div>
-          <div class="card-title">Evaluasi Quotation & Rilis Berkas Kontrak</div>
-          <div class="card-subtitle">Pilih supplier penawaran terbaik, simpan draf PO lalu teruskan berkas ke Manajer.</div>
-        </div>
+        <div class="card-title font-semibold">Pemilihan Vendor Pemenang & Pengiriman Berkas Approval</div>
+        <div class="card-subtitle">Pilih penawaran komersial terbaik, simpan draf nomor PO, lalu dorong berkas ke meja Manajer.</div>
       </div>
-      <div class="card-body" id="listEvaluasi"><div class="loading">Memuat...</div></div>
+      <div class="card-body" id="listEvaluasi"></div>
     </div>
   </div>
 
   <div class="tab-panel" id="tab-verif-sj">
     <div class="card">
       <div class="card-header">
-        <div class="card-icon orange">
-          <svg viewBox="0 0 24 24"><path d="M5 8h14M5 8a2 2 0 110-4h14a2 2 0 110 4M5 8v10a2 2 0 002 2h10a2 2 0 002-2V8m-9 4h4"/></svg>
-        </div>
-        <div>
-          <div class="card-title">Verifikasi Surat Jalan Logistik</div>
-          <div class="card-subtitle">User/Gudang sudah menerima barang fisik. Verifikasi berkas sebelum dialirkan ke Keuangan.</div>
-        </div>
+        <div class="card-title">Pencocokan Surat Jalan Fisik Gudang</div>
+        <div class="card-subtitle">Barang sudah tiba di gudang ITK. Lakukan verifikasi surat jalan sebelum dilempar ke Keuangan.</div>
       </div>
-      <div class="card-body" id="listVerifSJ"><div class="loading">Memuat...</div></div>
+      <div class="card-body" id="listVerifSJ"></div>
     </div>
   </div>
 
   <div class="tab-panel" id="tab-riwayat">
     <div class="card">
       <div class="card-header">
-        <div class="card-icon purple">
-          <svg viewBox="0 0 24 24"><path d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2"/><rect x="9" y="3" width="6" height="4" rx="1"/></svg>
-        </div>
-        <div>
-          <div class="card-title">Semua Purchase Request</div>
-          <div class="card-subtitle">Riwayat lengkap semua PR dari semua user.</div>
-        </div>
+        <div class="card-title">Master Log Aliran Pengadaan Barang</div>
       </div>
-      <div class="card-body" id="listRiwayat"><div class="loading">Memuat...</div></div>
+      <div class="card-body" id="listRiwayat"></div>
     </div>
   </div>
 
-</div>
-
-<div class="modal-overlay" id="modalTolak">
-  <div class="modal">
-    <div class="modal-header">
-      <span class="modal-title">Tolak Purchase Request</span>
-      <button class="modal-close" onclick="closeModal('modalTolak')">×</button>
-    </div>
-    <div class="modal-body">
-      <div class="warn-box">⚠️ PR akan dikembalikan ke user dengan catatan alasan penolakan.</div>
-      <div class="field">
-        <label>Alasan Penolakan *</label>
-        <textarea id="catatanTolak" placeholder="Contoh: Spesifikasi tidak lengkap, perlu ditambahkan detail..."></textarea>
-      </div>
-    </div>
-    <div class="modal-footer">
-      <button class="btn btn-outline" onclick="closeModal('modalTolak')">Batal</button>
-      <button class="btn btn-danger" onclick="eksekusiTolak()">
-        <svg viewBox="0 0 24 24"><path d="M18 6L6 18M6 6l12 12"/></svg>Tolak PR
-      </button>
-    </div>
-  </div>
 </div>
 
 <div class="modal-overlay" id="modalQuotation">
   <div class="modal">
     <div class="modal-header">
-      <span class="modal-title">Input Quotation Supplier</span>
+      <span class="modal-title">Registrasi Penawaran Harga Vendor</span>
       <button class="modal-close" onclick="closeModal('modalQuotation')">×</button>
     </div>
     <div class="modal-body">
-      <div class="info-box" id="qInfoPR">Detail PR akan muncul di sini.</div>
+      <div class="info-box" id="qInfoPR"></div>
       <div id="qSupplierList"></div>
-      <button class="btn btn-outline" onclick="tambahSupplierRow()" style="width:100%;margin-top:4px">
-        + Tambah Supplier
-      </button>
+      <button class="btn btn-outline" onclick="tambahSupplierRow()" style="width:100%;">+ Tambah Vendor Alternatif</button>
     </div>
     <div class="modal-footer">
       <button class="btn btn-outline" onclick="closeModal('modalQuotation')">Batal</button>
-      <button class="btn btn-teal" onclick="simpanQuotation()">
-        <svg viewBox="0 0 24 24"><path d="M19 21H5a2 2 0 01-2-2V5a2 2 0 012-2h11l5 5v11a2 2 0 01-2 2z"/><polyline points="17,21 17,13 7,13 7,21"/><polyline points="7,3 7,8 15,8"/></svg>
-        Simpan Quotation
-      </button>
+      <button class="btn btn-primary" onclick="simpanQuotation()">Simpan Penawaran</button>
     </div>
   </div>
 </div>
@@ -331,434 +218,305 @@
 <div class="modal-overlay" id="modalEvaluasi">
   <div class="modal">
     <div class="modal-header">
-      <span class="modal-title">Evaluasi & Pilih Supplier</span>
+      <span class="modal-title">Komparasi Komersial & Pembuatan Draf PO</span>
       <button class="modal-close" onclick="closeModal('modalEvaluasi')">×</button>
     </div>
     <div class="modal-body">
       <div class="info-box" id="evalInfoPR"></div>
-      <p style="font-size:13px;font-weight:600;margin-bottom:10px;">Pilih supplier terbaik penawaran komersial:</p>
+      <p style="font-size:12px; font-weight:600; margin-bottom:8px; color:var(--muted);">KLIK SALAH SATU VENDOR UNTUK MENJADI PEMENANG:</p>
       <div id="evalQuotationList"></div>
-      <div class="field" style="margin-top:1rem;">
-        <label>Nomor Purchase Order Draf</label>
-        <input type="text" id="draftNoPO" placeholder="Contoh: PO-ITK-2026-009A">
-      </div>
-      <div class="field">
-        <label>Catatan Tambahan PO</label>
-        <textarea id="catatanPO" placeholder="Catatan tambahan untuk instruksi kirim vendor..."></textarea>
+      <div class="field" style="margin-top:1.25rem;">
+        <label>Nomor Urut Draf PO Kontrak</label>
+        <input type="text" id="draftNoPO">
       </div>
     </div>
     <div class="modal-footer">
       <button class="btn btn-outline" onclick="closeModal('modalEvaluasi')">Batal</button>
-      <button class="btn btn-navy" onclick="buatPO()">
-        <svg viewBox="0 0 24 24"><path d="M14 2H6a2 2 0 00-2 2v16a2 2 0 002 2h12a2 2 0 002-2V8z"/><polyline points="14,2 14,8 20,8"/></svg>
-        Simpan Draf Berkas Kontrak
-      </button>
-    </div>
-  </div>
-</div>
-
-<div class="modal-overlay" id="modalVerifSJ">
-  <div class="modal">
-    <div class="modal-header">
-      <span class="modal-title">Verifikasi Surat Jalan</span>
-      <button class="modal-close" onclick="closeModal('modalVerifSJ')">×</button>
-    </div>
-    <div class="modal-body">
-      <div class="info-box" id="sjInfoPR"></div>
-      <div class="field">
-        <label>Nomor Surat Jalan Fisik Vendor *</label>
-        <input id="nomorSJ" type="text" placeholder="Contoh: SJ/ITK/2026/012">
-      </div>
-      <div class="field">
-        <label>Catatan Pengecekan Gudang</label>
-        <textarea id="catatanSJ" placeholder="Contoh: Barang lengkap sesuai invoice & fisik aman..."></textarea>
-      </div>
-      <div class="success-box">✓ Gudang internal sudah melakukan verifikasi. Dokumen akan diteruskan menuju Staf Keuangan untuk Audit 3-Way Matching.</div>
-    </div>
-    <div class="modal-footer">
-      <button class="btn btn-outline" onclick="closeModal('modalVerifSJ')">Batal</button>
-      <button class="btn btn-orange" onclick="eksekusiVerifSJ()">
-        <svg viewBox="0 0 24 24"><path d="M9 11l3 3L22 4"/></svg>Verifikasi & Selesai
-      </button>
+      <button class="btn btn-purple" onclick="simpanDrafPO()">Kunci & Simpan Draf Kontrak</button>
     </div>
   </div>
 </div>
 
 <script>
-  const { createClient } = supabase
-  const sb = createClient(
-    'https://bgtgeltkbanlnvymalum.supabase.co',
-    'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImJndGdlbHRrYmFubG52eW1hbHVtIiwicm9sZSI6ImFub24iLCJpYXQiOjE3Nzk1MTAwNDksImV4cCI6MjA5NTA4NjA0OX0.-JlapeQpug44SjkEKgb1wyoX2_ftdGGcAnTHJhdzvwE'
-  )
+  const SB_URL = "https://bgtgeltkbanlnvymalum.supabase.co";
+  const SB_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImJndGdlbHRrYmFubG52eW1hbHVtIiwicm9sZSI6ImFub24iLCJpYXQiOjE3Nzk1MTAwNDksImV4cCI6MjA5NTA4NjA0OX0.-JlapeQpug44SjkEKgb1wyoX2_ftdGGcAnTHJhdzvwE";
+  const sb = supabase.createClient(SB_URL, SB_KEY);
 
   const STATUS_LABEL = {
-    menunggu:'Menunggu Cek', diverifikasi:'Diverifikasi', menunggu_approval:'Menunggu Approval Manajer',
-    po_dibuat:'PO Aktif (Di Supplier)', ditolak:'Ditolak', diproses:'Mencari Vendor', 
-    barang_dikirim:'Barang Dikirim', barang_diterima:'Barang Diterima Gudang', verifikasi_sj:'Verifikasi SJ Finansial', selesai:'Selesai Lunas'
-  }
+    menunggu:'Menunggu Cek', diverifikasi:'Mencari Vendor', diproses:'Evaluasi Vendor', 
+    menunggu_approval:'Menunggu Approval Manajer', po_dibuat:'PO Aktif (Di Supplier)', 
+    barang_dikirim:'Barang Dikirim', barang_diterima:'Barang Sampai Gudang', verifikasi_sj:'Audit Finansial', selesai:'Selesai Lunas'
+  };
 
-  let currentPRId = null
-  let selectedSupplierQuotationId = null
-  let supplierRowCount = 0
+  let currentPRId = null;
+  let selectedQuotationId = null;
+  let rowCount = 0;
 
   function switchTab(id, el) {
-    document.querySelectorAll('.tab-panel').forEach(p => p.classList.remove('active'))
-    document.querySelectorAll('.tab').forEach(t => t.classList.remove('active'))
-    document.getElementById('tab-' + id).classList.add('active')
-    el.classList.add('active')
+    document.querySelectorAll('.tab-panel').forEach(p => p.classList.remove('active'));
+    document.querySelectorAll('.tab').forEach(t => t.classList.remove('active'));
+    document.getElementById('tab-' + id).classList.add('active');
+    el.classList.add('active');
+  }
+  function openModal(id) { document.getElementById(id).classList.add('show'); }
+  function closeModal(id) { document.getElementById(id).classList.remove('show'); }
+  function fmtDate(d) { return new Date(d).toLocaleDateString('id-ID', {day:'2-digit', month:'short', year:'numeric'}); }
+  function fmtRupiah(n) { return 'Rp ' + Number(n).toLocaleString('id-ID'); }
+
+  async function muatSemuaData() {
+    await Promise.all([muatCekPR(), muatQuotation(), muatEvaluasi(), muatVerifSJ(), muatRiwayat()]);
   }
 
-  function closeModal(id) { document.getElementById(id).classList.remove('show') }
-  function openModal(id) { document.getElementById(id).classList.add('show') }
-
-  async function cekLogin() {
-    const { data } = await sb.auth.getSession()
-    if (!data.session) { window.location.href = 'index.html'; return }
-    const email = data.session.user.email
-    document.getElementById('userEmail').textContent = email
-    document.getElementById('avatarInitial').textContent = email.charAt(0).toUpperCase()
-    muatSemua()
-  }
-
-  async function muatSemua() {
-    await Promise.all([muatCekPR(), muatQuotation(), muatEvaluasi(), muatVerifSJ(), muatRiwayat()])
-  }
-
-  function fmtDate(d) { return new Date(d).toLocaleDateString('id-ID', { day:'2-digit', month:'short', year:'numeric' }) }
-  function fmtRupiah(n) { return 'Rp ' + Number(n).toLocaleString('id-ID') }
-
-  // ── TAB 1: CEK PR ──
+  // ── 1. TAB CEK PR ──
   async function muatCekPR() {
-    const { data } = await sb.from('purchase_request').select('*').eq('status', 'menunggu').order('created_at', { ascending: true })
-    const el = document.getElementById('listCekPR')
-    document.getElementById('badgeCekPR').textContent = data ? data.length : 0
-    document.getElementById('sCekPR').textContent = data ? data.length : 0
-    if (!data || data.length === 0) { el.innerHTML = emptyState('Tidak ada PR yang perlu dicek.'); return }
+    const { data } = await sb.from('purchase_request').select('*').eq('status', 'menunggu').order('created_at', {ascending:true});
+    const el = document.getElementById('listCekPR');
+    const total = data ? data.length : 0;
+    document.getElementById('badgeCekPR').textContent = total;
+    document.getElementById('sCekPR').textContent = total;
+    if(!data || total===0) { el.innerHTML = `<div class="empty-state">Tidak ada PR baru dari user internal.</div>`; return; }
     el.innerHTML = data.map(pr => `
       <div class="pr-item">
         <div class="pr-row">
           <div style="flex:1">
             <div class="pr-name">${pr.nama_barang}</div>
-            <div class="pr-meta">Jumlah: <b>${pr.jumlah} unit</b> &nbsp;·&nbsp; Diajukan: ${fmtDate(pr.created_at)}</div>
-            <div class="pr-meta" style="margin-top:4px">${pr.spesifikasi || '-'}</div>
+            <div class="pr-meta">Volume: <b>${pr.jumlah} Unit</b> &bull; Diajukan: ${fmtDate(pr.created_at)}</div>
+            <div class="pr-meta" style="color:var(--text); font-style:italic;">Spek: ${pr.spesifikasi || '-'}</div>
           </div>
-          <span class="badge menunggu"><span class="badge-dot"></span>Menunggu</span>
+          <span class="badge menunggu"><span class="badge-dot"></span>Baru Masuk</span>
         </div>
         <div class="pr-actions">
-          <button class="btn btn-success" onclick="verifikasiPR('${pr.id}')">
-            <svg viewBox="0 0 24 24"><path d="M9 11l3 3L22 4"/></svg>Verifikasi & Teruskan
-          </button>
-          <button class="btn btn-danger" onclick="bukaModalTolak('${pr.id}')">
-            <svg viewBox="0 0 24 24"><path d="M18 6L6 18M6 6l12 12"/></svg>Tolak
-          </button>
+          <button class="btn btn-success" onclick="lulusCekAwal('${pr.id}')">✓ Lolos Cek & Cari Vendor</button>
         </div>
-      </div>`).join('')
+      </div>`).join('');
   }
 
-  async function verifikasiPR(id) {
-    if (!confirm('Verifikasi PR ini dan teruskan ke Manajer untuk approval?')) return
-    const { error } = await sb.from('purchase_request').update({ status: 'diverifikasi' }).eq('id', id)
-    if (!error) muatSemua()
-    else alert('Error: ' + error.message)
+  async function lulusCekAwal(id) {
+    if(!confirm("Apakah berkas PR ini valid secara teknis dan siap dicarikan vendor penawaran?")) return;
+    const { error } = await sb.from('purchase_request').update({ status: 'diverifikasi' }).eq('id', id);
+    if(!error) muatSemuaData();
   }
 
-  function bukaModalTolak(id) {
-    currentPRId = id
-    document.getElementById('catatanTolak').value = ''
-    openModal('modalTolak')
-  }
-
-  async function eksekusiTolak() {
-    const catatan = document.getElementById('catatanTolak').value.trim()
-    if (!catatan) { alert('Isi alasan penolakan!'); return }
-    const { error } = await sb.from('purchase_request').update({ status: 'ditolak', catatan_tolak: catatan }).eq('id', currentPRId)
-    if (!error) { closeModal('modalTolak'); muatSemua() }
-    else alert('Error: ' + error.message)
-  }
-
-  // ── TAB 2: QUOTATION ──
+  // ── 2. TAB CARI VENDOR (QUOTATION) ──
   async function muatQuotation() {
-    const { data } = await sb.from('purchase_request').select('*').eq('status', 'disetujui').order('created_at', { ascending: true })
-    const el = document.getElementById('listQuotation')
-    document.getElementById('badgeQuotation').textContent = data ? data.length : 0
-    document.getElementById('sQuotation').textContent = data ? data.length : 0
-    if (!data || data.length === 0) { el.innerHTML = emptyState('Tidak ada PR yang perlu quotation.'); return }
+    const { data } = await sb.from('purchase_request').select('*').eq('status', 'diverifikasi').order('created_at', {ascending:true});
+    const el = document.getElementById('listQuotation');
+    const total = data ? data.length : 0;
+    document.getElementById('badgeQuotation').textContent = total;
+    document.getElementById('sQuotation').textContent = total;
+    if(!data || total===0) { el.innerHTML = `<div class="empty-state">Tidak ada barang yang menunggu dicarikan vendor.</div>`; return; }
     el.innerHTML = data.map(pr => `
       <div class="pr-item">
         <div class="pr-row">
           <div style="flex:1">
             <div class="pr-name">${pr.nama_barang}</div>
-            <div class="pr-meta">Jumlah: <b>${pr.jumlah} unit</b> &nbsp;·&nbsp; ${fmtDate(pr.created_at)}</div>
+            <div class="pr-meta">Kebutuhan: <b>${pr.jumlah} Unit</b> &bull; Menunggu Opsi Penawaran</div>
           </div>
-          <span class="badge disetujui"><span class="badge-dot"></span>Disetujui</span>
+          <span class="badge diverifikasi"><span class="badge-dot"></span>Cari Vendor</span>
         </div>
         <div class="pr-actions">
-          <button class="btn btn-teal" onclick="bukaModalQuotation('${pr.id}','${pr.nama_barang}','${pr.jumlah}')">
-            <svg viewBox="0 0 24 24"><path d="M14 2H6a2 2 0 00-2 2v16a2 2 0 002 2h12a2 2 0 002-2V8z"/><polyline points="14,2 14,8 20,8"/></svg>Input Penawaran Vendor
-          </button>
+          <button class="btn btn-primary" onclick="bukaModalQuotation('${pr.id}', '${pr.nama_barang}', ${pr.jumlah})">➕ Input Penawaran Vendor</button>
         </div>
-      </div>`).join('')
+      </div>`).join('');
   }
 
-  function bukaModalQuotation(prId, namaBarang, jumlah) {
-    currentPRId = prId
-    supplierRowCount = 0
-    document.getElementById('qInfoPR').textContent = `📋 ${namaBarang} — ${jumlah} unit`
-    document.getElementById('qSupplierList').innerHTML = ''
-    tambahSupplierRow()
-    tambahSupplierRow()
-    tambahSupplierRow()
-    openModal('modalQuotation')
+  function bukaModalQuotation(id, nama, jml) {
+    currentPRId = id; rowCount = 0;
+    document.getElementById('qInfoPR').textContent = `📋 Komoditas: ${nama} (${jml} Unit)`;
+    document.getElementById('qSupplierList').innerHTML = '';
+    tambahSupplierRow(); tambahSupplierRow(); tambahSupplierRow();
+    openModal('modalQuotation');
   }
 
   function tambahSupplierRow() {
-    supplierRowCount++
-    const n = supplierRowCount
-    const div = document.createElement('div')
-    div.className = 'quotation-row'
-    div.id = 'qrow_' + n
+    rowCount++; const n = rowCount;
+    const div = document.createElement('div');
+    div.className = 'quotation-row';
     div.innerHTML = `
-      <div style="font-size:12px;font-weight:600;color:var(--muted);margin-bottom:8px">SUPPLIER ALTERNATIF ${n}</div>
-      <div style="display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-bottom:8px">
-        <input placeholder="Nama PT / Supplier" id="qs_nama_${n}">
-        <input placeholder="Harga Komersial Satuan" id="qs_harga_${n}" type="number">
-      </div>
-      <div style="display:grid;grid-template-columns:1fr 1fr;gap:8px">
-        <input placeholder="SLA Logistik (e.g. 5 Hari)" id="qs_waktu_${n}">
-        <input placeholder="Keterangan Spek Teknis" id="qs_catatan_${n}">
-      </div>`
-    document.getElementById('qSupplierList').appendChild(div)
+      <div style="font-size:11px; font-weight:600; color:var(--muted); margin-bottom:6px;">OPSI VENDOR KANDIDAT ${n}</div>
+      <div style="display:grid; grid-template-columns:1fr 1fr; gap:8px;">
+        <input type="text" placeholder="Nama PT / Toko Rekanan" id="v_nama_${n}">
+        <input type="number" placeholder="Harga Total Penawaran" id="v_harga_${n}">
+      </div>`;
+    document.getElementById('qSupplierList').appendChild(div);
   }
 
   async function simpanQuotation() {
-    const rows = []
-    for (let i = 1; i <= supplierRowCount; i++) {
-      const nama = document.getElementById('qs_nama_' + i)?.value.trim()
-      const harga = document.getElementById('qs_harga_' + i)?.value
-      const waktu = document.getElementById('qs_waktu_' + i)?.value.trim()
-      const catatan = document.getElementById('qs_catatan_' + i)?.value.trim()
-      if (nama && harga) rows.push({ pr_id: currentPRId, nama_supplier: nama, harga: parseFloat(harga), waktu_pengiriman: waktu, catatan, status: 'menunggu' })
+    const baris = [];
+    for(let i=1; i<=rowCount; i++) {
+      const nm = document.getElementById('v_nama_'+i)?.value.trim();
+      const hg = document.getElementById('v_harga_'+i)?.value;
+      if(nm && hg) {
+        baris.push({ pr_id: currentPRId, nama_supplier: nm, harga: parseFloat(hg), status: 'menunggu' });
+      }
     }
-    if (rows.length < 1) { alert('Harap isi minimal 1 supplier data!'); return }
-    const { error } = await sb.from('quotation').insert(rows)
-    if (error) { alert('Error: ' + error.message); return }
-    await sb.from('purchase_request').update({ status: 'diproses' }).eq('id', currentPRId)
-    closeModal('modalQuotation')
-    muatSemua()
+    if(baris.length === 0) { alert("Harap masukkan minimal 1 data penawaran vendor!"); return; }
+    
+    await sb.from('quotation').insert(baris);
+    await sb.from('purchase_request').update({ status: 'diproses' }).eq('id', currentPRId);
+    closeModal('modalQuotation');
+    muatSemuaData();
   }
 
-  // ── TAB 3: EVALUASI & MATRICES ──
+  // ── 3. TAB EVALUASI & KIRIM KE MANAJER ──
   async function muatEvaluasi() {
-    // Menampilkan data status 'diproses' (masuk penawaran) & status 'po_dibuat/menunggu_approval' yang butuh aksi kirim
-    const { data } = await sb.from('purchase_request').select('*').in('status', ['diproses', 'menunggu_approval', 'po_dibuat']).order('created_at', { ascending: true })
-    const el = document.getElementById('listEvaluasi')
-    document.getElementById('sEvaluasi').textContent = data ? data.filter(d=>d.status==='diproses').length : 0
-    if (!data || data.length === 0) { el.innerHTML = emptyState('Tidak ada draf penawaran komersial saat ini.'); return }
+    const { data } = await sb.from('purchase_request').select('*').in('status', ['diproses', 'menunggu_approval', 'po_dibuat']).order('created_at', {ascending:true});
+    const el = document.getElementById('listEvaluasi');
+    
+    const sCount = data ? data.filter(d => d.status === 'diproses').length : 0;
+    document.getElementById('badgeEvaluasi').textContent = data ? data.length : 0;
+    document.getElementById('sEvaluasi').textContent = sCount;
 
-    const renders = await Promise.all(data.map(async pr => {
-      const { data: qts } = await sb.from('quotation').select('*').eq('pr_id', pr.id).order('harga')
-      const { data: po } = await sb.from('purchase_order').select('*').eq('pr_id', pr.id).maybeSingle()
-      const qCount = qts ? qts.length : 0
-      
-      let actionBtn = ''
+    if(!data || data.length === 0) { el.innerHTML = `<div class="empty-state">Tidak ada berkas penawaran yang dievaluasi.</div>`; return; }
+
+    const barisRender = await Promise.all(data.map(async pr => {
+      const { data: qts } = await sb.from('quotation').select('*').eq('pr_id', pr.id).order('harga', {ascending:true});
+      const { data: po } = await sb.from('purchase_order').select('*').eq('pr_id', pr.id).maybeSingle();
+
+      let tombolAksi = '';
       if(pr.status === 'diproses') {
-        actionBtn = `
-          <button class="btn btn-navy" onclick="bukaModalEvaluasi('${pr.id}','${pr.nama_barang}', ${pr.jumlah})">
-            ⚖️ Evaluasi & Pilih Pemenang
-          </button>`
+        tombolAksi = `<button class="btn btn-navy" onclick="bukaModalEvaluasi('${pr.id}', '${pr.nama_barang}', ${pr.jumlah})">⚖️ Pilih Pemenang & Buat PO</button>`;
       } else if(pr.status === 'po_dibuat') {
-        // Error Fix: Melemparkan id pr dan estimasi_harga ke parameter agar lolos kriteria
-        actionBtn = `
-          <button class="btn btn-purple" onclick="kirimKeManajer('${pr.id}', ${pr.estimasi_harga || 0})">
-            🚀 Kirim Berkas Ke Manajer
-          </button>
-          <span style="font-size:12px; color:var(--muted); font-style:italic; padding-top:6px;">Draf PO: <b>${po?po.no_po||po.no_pembelian||'Ada':'Sudah Ada'}</b></span>`
+        tombolAksi = `<button class="btn btn-purple" onclick="kirimKeManajer('${pr.id}')">🚀 Kirim Berkas Ke Manajer</button>
+                      <span style="font-size:12px; color:var(--muted);">Draf PO: <b>${po?po.no_po:'Siap'}</b></span>`;
       } else {
-        actionBtn = `<span style="color:var(--purple); font-weight:600; font-size:12px;">⏳ Sedang Ditinjau Manajer</span>`
+        tombolAksi = `<span style="font-size:12px; color:var(--purple); font-weight:600;">⏳ Sedang Ditinjau Manajer (Lock)</span>`;
       }
+
+      const vendorInfo = qts && qts.length > 0 ? qts.map(q => `&bull; ${q.nama_supplier} (${fmtRupiah(q.harga)})`).join(' ') : 'Belum diinput';
 
       return `
         <div class="pr-item">
           <div class="pr-row">
             <div style="flex:1">
               <div class="pr-name">${pr.nama_barang}</div>
-              <div class="pr-meta">Volume: <b>${pr.jumlah} unit</b> &nbsp;·&nbsp; ${qCount} Vendor Mengajukan Harga</div>
+              <div class="pr-meta">Kuantitas: <b>${pr.jumlah} Unit</b></div>
+              <div class="pr-meta" style="color:var(--navy); font-size:11px;">Opsi Vendor Masuk: ${vendorInfo}</div>
             </div>
             <span class="badge ${pr.status}"><span class="badge-dot"></span>${STATUS_LABEL[pr.status]}</span>
           </div>
-          <div class="pr-actions" style="display:flex; align-items:center; gap:12px;">
-            ${actionBtn}
-          </div>
-        </div>`
-    }))
-    el.innerHTML = renders.join('')
+          <div class="pr-actions">${tombolAksi}</div>
+        </div>`;
+    }));
+    el.innerHTML = barisRender.join('');
   }
 
-  async function bukaModalEvaluasi(prId, namaBarang, jumlah) {
-    currentPRId = prId
-    selectedSupplierQuotationId = null
-    document.getElementById('evalInfoPR').textContent = `📋 ${namaBarang} — ${jumlah} unit`
-    document.getElementById('draftNoPO').value = 'PO/ITK/' + new Date().getFullYear() + '/' + Math.floor(1000 + Math.random() * 9000);
-    document.getElementById('catatanPO').value = ''
+  async function bukaModalEvaluasi(id, nama, jml) {
+    currentPRId = id; selectedQuotationId = null;
+    document.getElementById('evalInfoPR').textContent = `⚖️ Evaluasi Vendor Untuk: ${nama} (${jml} Unit)`;
+    document.getElementById('draftNoPO').value = 'PO/ITK/' + new Date().getFullYear() + '/' + Math.floor(1000 + Math.random()*9000);
+
+    const { data: qts } = await sb.from('quotation').select('*').eq('pr_id', id).order('harga', {ascending:true});
+    const listEl = document.getElementById('evalQuotationList');
     
-    const { data: qts } = await sb.from('quotation').select('*').eq('pr_id', prId).order('harga')
-    const listEl = document.getElementById('evalQuotationList')
-    if (!qts || qts.length === 0) {
-      listEl.innerHTML = '<p style="font-size:13px;color:var(--muted)">Belum ada quotation masuk.</p>'
-    } else {
-      listEl.innerHTML = qts.map((q, i) => `
-        <div class="quotation-row" id="qcard_${q.id}" onclick="pilihSupplier('${q.id}')" style="cursor:pointer">
-          <div style="display:flex;justify-content:space-between;align-items:center">
-            <div class="quotation-supplier">${i === 0 ? '🥇 (Termurah) ' : ''}${q.nama_supplier}</div>
-            <div class="quotation-harga">${fmtRupiah(q.harga)}</div>
-          </div>
-          <div class="quotation-detail">SLA: ${q.waktu_pengiriman || '-'} &nbsp;·&nbsp; Keterangan: ${q.catatan || '-'}</div>
-        </div>`).join('')
-    }
-    openModal('modalEvaluasi')
+    listEl.innerHTML = qts.map((q, i) => `
+      <div class="quotation-row" id="qbox_${q.id}" onclick="pilihPemenang('${q.id}')" style="cursor:pointer;">
+        <div style="display:flex; justify-content:space-between; align-items:center;">
+          <div class="quotation-supplier">${i===0 ? '🥇 (Rekomendasi Termurah) ' : ''}${q.nama_supplier}</div>
+          <div class="quotation-harga">${fmtRupiah(q.harga)}</div>
+        </div>
+      </div>`).join('');
+    
+    openModal('modalEvaluasi');
   }
 
-  function pilihSupplier(quotationId) {
-    selectedSupplierQuotationId = quotationId
-    document.querySelectorAll('[id^="qcard_"]').forEach(el => el.classList.remove('quotation-selected'))
-    document.getElementById('qcard_' + quotationId).classList.add('quotation-selected')
+  function pilihPemenang(qId) {
+    selectedQuotationId = qId;
+    document.querySelectorAll('[id^="qbox_"]').forEach(el => el.classList.remove('quotation-selected'));
+    document.getElementById('qbox_' + qId).classList.add('quotation-selected');
   }
 
-  async function buatPO() {
-    if (!selectedSupplierQuotationId) { alert('Pilih salah satu vendor pemenang komersial terlebih dahulu!'); return }
-    const nomorPO = document.getElementById('draftNoPO').value.trim()
-    const catatan = document.getElementById('catatanPO').value.trim()
-    if(!nomorPO) { alert('Tentukan nomor registrasi draf PO!'); return }
+  async function simpanDrafPO() {
+    if(!selectedQuotationId) { alert("Pilih salah satu vendor pemenang terlebih dahulu!"); return; }
+    const noPo = document.getElementById('draftNoPO').value.trim();
+    if(!noPo) { alert("Nomor urut draf PO wajib diisi!"); return; }
 
-    const { data: q } = await sb.from('quotation').select('*').eq('id', selectedSupplierQuotationId).single()
-    if (!q) { alert('Quotation tidak valid.'); return }
+    const { data: q } = await sb.from('quotation').select('*').eq('id', selectedQuotationId).single();
+    
+    // 1. Update status penawaran terpilih
+    await sb.from('quotation').update({ status: 'dipilih' }).eq('id', selectedQuotationId);
 
-    // 1. Kunci vendor terpilih
-    await sb.from('quotation').update({ status: 'dipilih' }).eq('id', selectedSupplierQuotationId)
-
-    // 2. Buat berkas draf Purchase Order
-    const { error } = await sb.from('purchase_order').insert({
+    // 2. Bersihkan draf PO lama jika ada, lalu insert baru agar tidak duplikat pr_id
+    await sb.from('purchase_order').delete().eq('pr_id', currentPRId);
+    await sb.from('purchase_order').insert({
       pr_id: currentPRId,
-      no_po: nomorPO,
-      supplier_id: q.supplier_id || null,
+      no_po: noPo,
       nama_supplier: q.nama_supplier,
       harga_total: q.harga,
       total_harga: q.harga,
       status: 'draf',
-      tanggal_po: new Date().toISOString(),
-      catatan
-    })
-    if (error) { alert('Gagal rilis PO: ' + error.message); return }
+      tanggal_po: new Date().toISOString()
+    });
 
-    // 3. Naikkan status PR ke po_dibuat agar tombol Kirim Berkas menyala
-    await sb.from('purchase_request').update({ status: 'po_dibuat', estimasi_harga: q.harga }).eq('id', currentPRId)
-    closeModal('modalEvaluasi')
-    muatSemua()
-    alert('✅ Draf PO Berhasil disimpan! Silakan klik tombol "Kirim Berkas Ke Manajer" untuk verifikasi akhir.')
+    // 3. Naikkan status berkas utama ke po_dibuat supaya tombol kirim menyala
+    await sb.from('purchase_request').update({ status: 'po_dibuat', estimasi_harga: q.harga }).eq('id', currentPRId);
+    
+    closeModal('modalEvaluasi');
+    muatSemuaData();
+    alert("Draf Kontrak & Vendor Pemenang Berhasil Dikunci! Silakan klik 'Kirim Berkas Ke Manajer' untuk meneruskan.");
   }
 
-  // FUNGSI UTAMA: MENYEMBUHKAN ERROR MERAH (PR_ID & PRICE IS NOT DEFINED)
-  async function kirimKeManajer(prId, estimasiHarga) {
-    if (!confirm("Apakah Anda yakin ingin mengirim berkas logistik ini ke meja Manajer untuk penandatanganan Kontrak / Approval PO?")) return;
-
-    // Ambil draf PO pembanding
-    const { data: po } = await sb.from('purchase_order').select('*').eq('pr_id', prId).maybeSingle();
-    if(!po) {
-      alert('Peringatan: Berkas draf PO tidak ditemukan untuk item ini!');
-      return;
-    }
-
-    // Ubah status menuju alur persetujuan internal manajer
-    const { error } = await sb.from('purchase_request').update({ status: 'menunggu_approval' }).eq('id', prId)
-    if (!error) {
-      alert('🚀 Sukses! Berkas pengadaan resmi dikirim ke dashboard Manajer.')
-      muatSemua()
-    } else {
-      alert('Gagal mengirim berkas: ' + error.message)
-    }
+  async function kirimKeManajer(prId) {
+    if(!confirm("Kirim seluruh bundel berkas seleksi vendor ini ke Manajer untuk dimintakan Approval resmi?")) return;
+    
+    const { error } = await sb.from('purchase_request').update({ status: 'menunggu_approval' }).eq('id', prId);
+    if(!error) {
+      alert("🚀 Sukses! Berkas pengadaan dikirim. Status saat ini: Menunggu Approval Manajer.");
+      muatSemuaData();
+    } else alert(error.message);
   }
 
-  // ── TAB 4: VERIFIKASI SURAT JALAN ──
+  // ── 4. TAB AUDIT SURAT JALAN ──
   async function muatVerifSJ() {
-    const { data } = await sb.from('purchase_request').select('*').eq('status', 'barang_diterima').order('created_at', { ascending: true })
-    const el = document.getElementById('listVerifSJ')
-    document.getElementById('badgeVerifSJ').textContent = data ? data.length : 0
-    document.getElementById('sVerifSJ').textContent = data ? data.length : 0
-    if (!data || data.length === 0) { el.innerHTML = emptyState('Tidak ada Surat Jalan baru untuk diaudit.'); return }
+    const { data } = await sb.from('purchase_request').select('*').eq('status', 'barang_diterima').order('created_at', {ascending:true});
+    const el = document.getElementById('listVerifSJ');
+    const total = data ? data.length : 0;
+    document.getElementById('badgeVerifSJ').textContent = total;
+    document.getElementById('sVerifSJ').textContent = total;
+    if(!data || total===0) { el.innerHTML = `<div class="empty-state">Tidak ada kiriman Surat Jalan masuk dari rekanan gudang.</div>`; return; }
+    
     el.innerHTML = data.map(pr => `
       <div class="pr-item">
         <div class="pr-row">
           <div style="flex:1">
             <div class="pr-name">${pr.nama_barang}</div>
-            <div class="pr-meta">Volume: <b>${pr.jumlah} unit</b> &nbsp;·&nbsp; SJ Masuk: <b>${pr.surat_jalan || 'Ada'}</b></div>
+            <div class="pr-meta">Volume: <b>${pr.jumlah} Unit</b> &bull; SJ Terlampir: <b>${pr.surat_jalan || '-'}</b></div>
           </div>
           <span class="badge barang_diterima"><span class="badge-dot"></span>Diterima Gudang</span>
         </div>
         <div class="pr-actions">
-          <button class="btn btn-orange" onclick="bukaModalVerifSJ('${pr.id}','${pr.nama_barang}', ${pr.jumlah}, '${pr.surat_jalan || ''}')">
-            <svg viewBox="0 0 24 24"><path d="M9 11l3 3L22 4"/></svg>Audit Kelayakan SJ
-          </button>
+          <button class="btn btn-orange" onclick="eksekusiAuditSJ('${pr.id}', '${pr.surat_jalan}')">✓ Teruskan Kelayakan Ke Keuangan</button>
         </div>
-      </div>`).join('')
+      </div>`).join('');
   }
 
-  function bukaModalVerifSJ(prId, namaBarang, jumlah, sjEksis) {
-    currentPRId = prId
-    document.getElementById('nomorSJ').value = sjEksis
-    document.getElementById('catatanSJ').value = ''
-    document.getElementById('sjInfoPR').textContent = `📦 ${namaBarang} — ${jumlah} unit`
-    openModal('modalVerifSJ')
+  async function eksekusiAuditSJ(id, noSJ) {
+    if(!confirm(`Apakah berkas Surat Jalan Nomor: ${noSJ} ini sudah sesuai fisik gudang dan layak ditagihkan?`)) return;
+    const { error } = await sb.from('purchase_request').update({ status: 'verifikasi_sj' }).eq('id', id);
+    if(!error) { alert("Sukses! Berkas logistik dialirkan ke Staf Keuangan."); muatSemuaData(); }
   }
 
-  async function eksekusiVerifSJ() {
-    const nomor = document.getElementById('nomorSJ').value.trim()
-    if (!nomor) { alert('Isi konfirmasi nomor berkas surat jalan fisik!'); return }
-    
-    // Alirkan status menuju meja Keuangan untuk 3-Way Matching Verifikasi
-    const { error } = await sb.from('purchase_request').update({
-      status: 'verifikasi_sj',
-      surat_jalan: nomor
-    }).eq('id', currentPRId)
-    
-    if (!error) {
-      closeModal('modalVerifSJ')
-      muatSemua()
-      alert('✅ Berkas logistik lolos audit! Status dialirkan menuju Staf Keuangan.')
-    } else alert('Error: ' + error.message)
-  }
-
-  // ── TAB 5: ARCHIVES RIWAYAT ──
+  // ── 5. TAB MASTER LOG ARSIP ──
   async function muatRiwayat() {
-    const { data } = await sb.from('purchase_request').select('*').order('created_at', { ascending: false })
-    const el = document.getElementById('listRiwayat')
-    const selesai = data ? data.filter(d => d.status === 'selesai').length : 0
-    document.getElementById('sSelesai').textContent = selesai
-    if (!data || data.length === 0) { el.innerHTML = emptyState('Belum ada riwayat terekam.'); return }
-    el.innerHTML = data.map(pr => {
-      const label = STATUS_LABEL[pr.status] || pr.status
-      const cls = pr.status || 'menunggu'
-      return `
-        <div class="pr-item">
-          <div class="pr-row">
-            <div style="flex:1">
-              <div class="pr-name">${pr.nama_barang}</div>
-              <div class="pr-meta">Volume Barang: ${pr.jumlah} unit &nbsp;·&nbsp; Tanggal Masuk: ${fmtDate(pr.created_at)}</div>
-            </div>
-            <span class="badge ${cls}"><span class="badge-dot"></span>${label}</span>
+    const { data } = await sb.from('purchase_request').select('*').order('created_at', {ascending:false});
+    const el = document.getElementById('listRiwayat');
+    const lunas = data ? data.filter(d => d.status === 'selesai').length : 0;
+    document.getElementById('sSelesai').textContent = lunas;
+    if(!data || data.length===0) { el.innerHTML = `<div class="empty-state">Belum ada arsip log pengadaan.</div>`; return; }
+    
+    el.innerHTML = data.map(pr => `
+      <div class="pr-item">
+        <div class="pr-row">
+          <div style="flex:1">
+            <div class="pr-name">${pr.nama_barang}</div>
+            <div class="pr-meta">Volume: ${pr.jumlah} Unit &nbsp;·&nbsp; Registrasi: ${fmtDate(pr.created_at)}</div>
           </div>
-        </div>`
-    }).join('')
+          <span class="badge ${pr.status}"><span class="badge-dot"></span>${STATUS_LABEL[pr.status] || pr.status}</span>
+        </div>
+      </div>`).join('');
   }
 
-  function emptyState(msg) {
-    return `<div class="empty-state">
-      <svg viewBox="0 0 24 24"><path d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2"/><rect x="9" y="3" width="6" height="4" rx="1"/></svg>
-      <p>${msg}</p>
-    </div>`
-  }
-
-  async function logout() { await sb.auth.signOut(); window.location.href = 'index.html' }
-  window.onload = cekLogin;
+  window.onload = muatSemuaData;
 </script>
 </body>
 </html>
