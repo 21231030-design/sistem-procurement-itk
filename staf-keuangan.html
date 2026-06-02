@@ -101,7 +101,7 @@
       const { data: inv } = await sb.from('invoices').select('*').eq('pr_id', pr.id).maybeSingle();
       const { data: po } = await sb.from('purchase_order').select('*').eq('pr_id', pr.id).maybeSingle();
 
-      // PROTEKSI MUTLAK ANTI-NaN
+      // TOTAL PROTEKSI NILAI AGAR TIDAK NAN
       const hargaPr = Number(pr.harga_estimasi) || 1500000;
       const jumlahBarang = Number(pr.jumlah) || 1;
       const totalAman = hargaPr; 
@@ -167,7 +167,7 @@
     container.innerHTML = htmlList.join('');
   }
 
-  // TRICK GENERATOR: LANGSUNG DOWNLOAD FILE HTML INTERAKTIF KE PERANGKAT
+  // FORCE DOWNLOAD MENGGUNAKAN TEKNIK BASE64 - HARUS JADI FILE HTML RESMI (TIDAK BISA JADI TXT)
   function unduhPdfAudit(namaBarang, noPO, noInv, qty, total) {
     const formatRupiah = (angka) => 'Rp ' + Number(angka).toLocaleString('id-ID');
     
@@ -218,17 +218,16 @@
       </html>
     `;
 
-    // Kirim file langsung ke folder download komputer/perangkat
-    const blob = new Blob([kontenHtml], { type: 'text/html' });
-    const linkTautan = document.createElement('a');
-    linkTautan.href = URL.createObjectURL(blob);
-    linkTautan.download = `Berita_Acara_Audit_${namaBarang.replace(/\s+/g, '_')}.html`;
+    // Metode paksa konversi string HTML langsung menjadi tautan file web resmi (.html)
+    const tautanUnduh = document.createElement('a');
+    tautanUnduh.setAttribute('href', 'data:text/html;charset=utf-8,' + encodeURIComponent(kontenHtml));
+    tautanUnduh.setAttribute('download', `Berita_Acara_Audit_${namaBarang.replace(/\s+/g, '_')}.html`);
     
-    document.body.appendChild(linkTautan);
-    linkTautan.click();
-    document.body.removeChild(linkTautan);
+    document.body.appendChild(tautanUnduh);
+    tautanUnduh.click();
+    document.body.removeChild(tautanUnduh);
     
-    alert("✓ Dokumen Berita Acara berhasil diunduh ke perangkat kamu! Silakan buka file tersebut di folder Download lalu klik tombol hijau untuk menyimpan ke PDF.");
+    alert("✓ Berhasil! Berkas Berita Acara resmi tersimpan ke folder Download perangkat kamu.");
   }
 
   async function bayarLunas(prId) {
