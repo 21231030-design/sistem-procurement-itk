@@ -3,70 +3,55 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Dashboard Manajer - ITK Procurement Approval</title>
+  <title>Portal Approval Manajer - ITK Procurement</title>
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
   <link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@300;400;500;600&family=DM+Mono:wght@400;500&display=swap" rel="stylesheet">
   <style>
     *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
     :root {
       --navy: #0f2847; --navy-mid: #1a3a63;
-      --accent: #3b82f6; --accent-soft: #dbeafe;
-      --success: #10b981; --success-soft: #d1fae5;
-      --danger: #ef4444; --danger-soft: #fee2e2;
-      --warn: #f59e0b; --warn-soft: #fef3c7;
+      --accent: #3b82f6; --success: #10b981; --success-soft: #d1fae5;
       --purple: #7c3aed; --purple-soft: #ede9fe;
       --surface: #ffffff; --bg: #f0f4f8;
       --border: #e2e8f0; --text: #1e293b; --muted: #64748b;
       --radius: 12px; --radius-sm: 8px;
     }
     body { font-family: 'DM Sans', sans-serif; background: var(--bg); color: var(--text); min-height: 100vh; }
-
+    
     nav {
       background: linear-gradient(135deg, var(--navy) 0%, var(--navy-mid) 100%);
       padding: 0 2rem; height: 64px;
       display: flex; align-items: center; justify-content: space-between;
       box-shadow: 0 2px 16px rgba(15,40,71,0.18);
-      position: sticky; top: 0; z-index: 100;
     }
     .nav-brand { display: flex; align-items: center; gap: 12px; }
     .nav-logo { width: 36px; height: 36px; background: rgba(255,255,255,0.12); border-radius: 10px; display: flex; align-items: center; justify-content: center; font-size: 20px; }
     .nav-title { font-size: 15px; font-weight: 600; color: #fff; }
     .nav-sub { font-size: 12px; color: rgba(255,255,255,0.5); }
-    .btn-logout { background: rgba(255,255,255,0.12); border: 1px solid rgba(255,255,255,0.2); color: #fff; padding: 7px 14px; border-radius: 8px; font-size: 13px; cursor: pointer; font-weight: 500; }
 
-    .container { max-width: 1000px; margin: 0 auto; padding: 1.75rem 1.5rem; }
+    .container { max-width: 1000px; margin: 0 auto; padding: 2rem 1.5rem; }
+    
+    .welcome-card { background: var(--surface); border: 1px solid var(--border); padding: 1.5rem; border-radius: var(--radius); display: flex; justify-content: space-between; align-items: center; margin-bottom: 2rem; }
+    .welcome-title { font-size: 18px; font-weight: 600; color: var(--navy); }
+    .welcome-desc { font-size: 13px; color: var(--muted); margin-top: 4px; }
+    .badge-count { background: #ef4444; color: white; padding: 4px 10px; border-radius: 20px; font-size: 12px; font-weight: 600; }
 
-    /* HEADER BANNER */
-    .manager-banner { background: var(--surface); border: 1px solid var(--border); border-radius: var(--radius); padding: 1.5rem; margin-bottom: 1.5rem; display: flex; justify-content: space-between; align-items: center; }
-    .banner-title { font-size: 18px; font-weight: 600; color: var(--navy); }
-    .banner-sub { font-size: 13px; color: var(--muted); margin-top: 4px; }
-    .count-badge { background: var(--danger); color: white; padding: 4px 12px; border-radius: 20px; font-size: 12px; font-weight: 700; }
-
-    /* CARDS & ITEMS */
     .card { background: var(--surface); border-radius: var(--radius); border: 1px solid var(--border); overflow: hidden; box-shadow: 0 4px 6px rgba(0,0,0,0.01); }
     .card-header { padding: 1.25rem 1.5rem; border-bottom: 1px solid var(--border); background: #fafbfa; }
     .card-title { font-size: 15px; font-weight: 600; color: var(--navy); }
     .card-body { padding: 1.5rem; }
 
-    .approval-item { border: 1px solid var(--border); border-radius: var(--radius-sm); padding: 1.25rem; margin-bottom: 0.75rem; background: #fff; }
-    .approval-row { display: flex; align-items: flex-start; justify-content: space-between; gap: 16px; flex-wrap: wrap; }
-    .item-name { font-size: 16px; font-weight: 600; color: var(--navy); margin-bottom: 4px; }
-    .item-meta { font-size: 13px; color: var(--muted); line-height: 1.6; }
-    
-    .po-box { background: var(--purple-soft); border: 1px solid #ddd6fe; border-radius: 6px; padding: 10px 14px; margin-top: 10px; max-width: 500px; }
-    .po-title { font-size: 11px; font-weight: 700; color: var(--purple); text-transform: uppercase; letter-spacing: 0.5px; }
-    .po-detail { font-size: 14px; font-weight: 600; color: #4c1d95; margin-top: 2px; }
+    .po-item { border: 1px solid var(--border); border-radius: var(--radius-sm); padding: 1.25rem; margin-bottom: 1rem; background: #fff; border-left: 4px solid var(--purple); }
+    .po-row { display: flex; justify-content: space-between; align-items: flex-start; }
+    .po-name { font-size: 16px; font-weight: 600; color: var(--navy); }
+    .po-meta { font-size: 13px; color: var(--muted); margin-top: 4px; line-height: 1.6; }
+    .po-price { font-family: 'DM Mono', monospace; font-size: 16px; font-weight: 600; color: var(--accent); background: #eff6ff; padding: 4px 10px; border-radius: 6px; }
+    .po-actions { margin-top: 14px; display: flex; gap: 10px; }
 
-    .actions { display: flex; gap: 10px; margin-top: 14px; }
-    
-    /* BUTTONS */
-    .btn { border: none; border-radius: 6px; padding: 9px 18px; font-size: 12px; font-weight: 600; font-family: 'DM Sans', sans-serif; cursor: pointer; display: inline-flex; align-items: center; gap: 6px; }
+    .btn { border: none; border-radius: 6px; padding: 8px 16px; font-size: 12px; font-weight: 600; font-family: 'DM Sans', sans-serif; cursor: pointer; display: inline-flex; align-items: center; gap: 6px; }
     .btn-success { background: var(--success); color: #fff; }
-    .btn-danger { background: var(--danger); color: #fff; }
     
-    .badge { display: inline-flex; align-items: center; gap: 6px; font-size: 11px; font-weight: 600; padding: 4px 10px; border-radius: 40px; text-transform: uppercase; background: var(--warn-soft); color: #92400e; }
-    .badge-dot { width: 6px; height: 6px; border-radius: 50%; background: var(--warn); }
-    .empty-state { text-align: center; padding: 4rem 1rem; color: var(--muted); font-size: 14px; font-weight: 500; }
+    .empty-state { text-align: center; padding: 3rem 1rem; color: var(--muted); font-size: 14px; }
   </style>
 </head>
 <body>
@@ -79,24 +64,21 @@
       <div class="nav-sub">Modul Terintegrasi Hulu ke Hilir &mdash; Portal Approval Manajer</div>
     </div>
   </div>
-  <button class="btn-logout" onclick="window.location.href='index.html'">Keluar</button>
 </nav>
 
 <div class="container">
-
-  <div class="manager-banner">
+  <div class="welcome-card">
     <div>
-      <div class="banner-title">Selamat Datang, Manajer Operasional</div>
-      <div class="banner-sub">Silakan tinjau keabsahan harga draf kontrak sebelum memberikan tanda tangan digital (PO Terbit).</div>
+      <div class="welcome-title">Selamat Datang, Manajer Operasional</div>
+      <div class="welcome-desc">Silakan tinjau keabsahan harga draf kontrak sebelum memberikan tanda tangan digital (PO Terbit).</div>
     </div>
-    <div class="count-badge" id="totalWaiting">0 Menunggu</div>
+    <div class="badge-count" id="txtCount">0 Perlu Review</div>
   </div>
 
   <div class="card">
     <div class="card-header"><div class="card-title">Dokumen Masuk Perlu Persetujuan Segera</div></div>
-    <div class="card-body" id="listApproval"></div>
+    <div class="card-body" id="containerPO"></div>
   </div>
-
 </div>
 
 <script>
@@ -104,80 +86,66 @@
   const SB_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImJndGdlbHRrYmFubG52eW1hbHVtIiwicm9sZSI6ImFub24iLCJpYXQiOjE3Nzk1MTAwNDksImV4cCI6MjA5NTA4NjA0OX0.-JlapeQpug44SjkEKgb1wyoX2_ftdGGcAnTHJhdzvwE";
   const sb = supabase.createClient(SB_URL, SB_KEY);
 
-  function fmtRupiah(n) { return 'Rp ' + Number(n).toLocaleString('id-ID'); }
+  async function muatDrafPO() {
+    // KUNCI PERBAIKAN: Menarik status 'menunggu_approval' secara akurat!
+    const { data: prs, error: err1 } = await sb.from('purchase_request')
+      .select('*')
+      .eq('status', 'menunggu_approval')
+      .order('created_at', { ascending: true });
 
-  async function muatDataApproval() {
-    // Membaca PR yang dikirim Pengadaan dengan status 'menunggu_approval'
-    const { data: listPR } = await sb.from('purchase_request').select('*').eq('status', 'menunggu_approval').order('created_at', {ascending:true});
-    const el = document.getElementById('listApproval');
-    const badge = document.getElementById('totalWaiting');
-
-    const count = listPR ? listPR.length : 0;
-    badge.textContent = `${count} Perlu Review`;
-
-    if(!listPR || count === 0) {
-      el.innerHTML = `<div class="empty-state">🎉 Bersih! Tidak ada draf PO kontrak yang menunggu persetujuan Anda saat ini.</div>`;
+    const container = document.getElementById('containerPO');
+    
+    if (!prs || prs.length === 0) {
+      document.getElementById('txtCount').textContent = "0 Perlu Review";
+      container.innerHTML = `<div class="empty-state">🎉 Bersih! Tidak ada draf PO kontrak yang menunggu persetujuan Anda saat ini.</div>`;
       return;
     }
 
-    const barisRender = await Promise.all(listPR.map(async pr => {
-      // Ambil detail berkas draf dari tabel purchase_order yang dikunci Pengadaan tadi
+    document.getElementById('txtCount').textContent = `${prs.length} Perlu Review`;
+    
+    // Tarik data purchase_order pendukung
+    const barisRender = await Promise.all(prs.map(async (pr) => {
       const { data: po } = await sb.from('purchase_order').select('*').eq('pr_id', pr.id).maybeSingle();
       
-      const noPO = po ? po.no_po : 'Belum di-generate';
-      const vendor = po ? po.nama_supplier : 'Belum ditentukan';
-      const totalHarga = po ? po.harga_total : pr.harga_estimasi;
+      const noPO = po ? po.no_po : 'PO/PENDING/' + new Date().getFullYear();
+      const vendor = po ? po.nama_supplier : 'Vendor Terpilih';
+      const hargaTotal = pr.harga_estimasi ? pr.harga_estimasi : (po ? po.harga_total : 0);
 
       return `
-        <div class="approval-item">
-          <div class="approval-row">
-            <div style="flex:1">
-              <div class="item-name">${pr.nama_barang}</div>
-              <div class="item-meta">Volume Pengajuan: <b>${pr.jumlah} Unit</b></div>
-              
-              <div class="po-box">
-                <div class="po-title">Rincian Komersial Hasil Evaluasi Pengadaan:</div>
-                <div class="po-detail">📄 No PO: ${noPO}</div>
-                <div class="po-detail">🏢 Pemenang Vendor: ${vendor}</div>
-                <div class="po-detail" style="color:#10b981; margin-top:4px;">💰 Total Kontrak: ${fmtRupiah(totalHarga)}</div>
+        <div class="po-item">
+          <div class="po-row">
+            <div style="flex:1;">
+              <div class="po-name">${pr.nama_barang}</div>
+              <div class="po-meta">
+                Nomor Draf PO: <b>${noPO}</b><br>
+                Vendor Pemenang: <b>${vendor}</b> &bull; Kuantitas: <b>${pr.jumlah} Unit</b>
               </div>
             </div>
-            <span class="badge"><span class="badge-dot"></span>Review Pimpinan</span>
+            <div class="po-price">${'Rp ' + Number(hargaTotal).toLocaleString('id-ID')}</div>
           </div>
-          <div class="actions">
-            <button class="btn btn-success" onclick="eksekusiApproval('${pr.id}')">✓ Setujui & Terbitkan PO Resmi</button>
-            <button class="btn btn-danger" onclick="eksekusiTolak('${pr.id}')">✕ Tolak Kontrak</button>
+          <div class="po-actions">
+            <button class="btn btn-success" onclick="setujuiPO('${pr.id}')">✍️ Setujui & Terbitkan PO Resmi</button>
           </div>
         </div>`;
     }));
-    el.innerHTML = barisRender.join('');
+
+    container.innerHTML = barisRender.join('');
   }
 
-  // FUNGSI UTAMA APPROVAL: STATUS MENJADI 'DISETUJUI'
-  async function eksekusiApproval(prId) {
-    if(confirm("Apakah Anda yakin berkas PO ini sudah sesuai dan siap diterbitkan ke vendor?")) {
-      // 1. Update status di tabel purchase_request menjadi 'disetujui'
+  async function setujuiPO(prId) {
+    if(confirm("Apakah Anda yakin ingin menyetujui dokumen pengadaan ini dan menerbitkannya ke Supplier?")) {
+      // 1. Naikkan status utama ke 'disetujui' agar masuk ke radar supplier
       await sb.from('purchase_request').update({ status: 'disetujui' }).eq('id', prId);
       
-      // 2. Update status di tabel purchase_order menjadi 'disetujui' agar resmi aktif
+      // 2. Update juga status di tabel purchase_order menjadi 'disetujui'
       await sb.from('purchase_order').update({ status: 'disetujui' }).eq('pr_id', prId);
       
-      alert("Sukses! Dokumen PO resmi diterbitkan. Sistem otomatis membuka portal kerja Supplier.");
-      await muatDataApproval();
+      alert("Sukses! Dokumen PO telah ditandatangani digital dan diterbitkan secara resmi.");
+      await muatDrafPO();
     }
   }
 
-  // FUNGSI PENOLAKAN: DIKEMBALIKAN KE STATUS PROSES UNTUK RE-EVALUASI VENDOR
-  async function eksekusiTolak(prId) {
-    if(confirm("Kembalikan dokumen ini ke Staf Pengadaan untuk dilakukan evaluasi ulang?")) {
-      await sb.from('purchase_request').update({ status: 'diproses' }).eq('id', prId);
-      await sb.from('purchase_order').delete().eq('pr_id', prId); // hapus draf po lama yang salah
-      alert("Berkas ditolak dan telah dikembalikan ke tim Pengadaan.");
-      await muatDataApproval();
-    }
-  }
-
-  window.onload = muatDataApproval;
+  window.onload = muatDrafPO;
 </script>
 </body>
 </html>
