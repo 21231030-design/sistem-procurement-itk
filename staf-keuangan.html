@@ -1,400 +1,727 @@
 <!DOCTYPE html>
-<html lang="en">
-
+<html lang="id">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Sistem Pengadaan - Dashboard Staf Keuangan</title>
-    <script src="https://cdn.tailwindcss.com"></script>
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.10.1/html2pdf.bundle.min.js"></script>
-    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
-    <style>
-        .modal-overlay {
-            position: fixed;
-            top: 0;
-            left: 0;
-            width: 100%;
-            height: 100%;
-            background-color: rgba(0, 0, 0, 0.6);
-            display: none;
-            justify-content: center;
-            align-items: center;
-            z-index: 99999;
-        }
-    </style>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Dashboard Staf Keuangan</title>
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+<link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@300;400;500;600&family=DM+Mono:wght@400;500&display=swap" rel="stylesheet">
+<style>
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+:root {
+  --navy: #0f2847; --navy-mid: #1a3a63;
+  --accent: #3b82f6; --accent-soft: #dbeafe;
+  --success: #10b981; --success-soft: #d1fae5;
+  --danger: #ef4444; --danger-soft: #fee2e2;
+  --warn: #f59e0b; --warn-soft: #fef3c7;
+  --purple: #7c3aed; --purple-soft: #ede9fe;
+  --teal: #0d9488; --teal-soft: #ccfbf1;
+  --green-dark: #065f46; --emerald: #059669;
+  --surface: #ffffff; --bg: #f0f4f8;
+  --border: #e2e8f0; --text: #1e293b; --muted: #64748b;
+  --radius: 12px; --radius-sm: 8px;
+}
+body { font-family: 'DM Sans', sans-serif; background: var(--bg); color: var(--text); min-height: 100vh; }
+nav {
+  background: linear-gradient(135deg, #052e16 0%, #14532d 100%);
+  padding: 0 2rem; height: 64px;
+  display: flex; align-items: center; justify-content: space-between;
+  box-shadow: 0 2px 16px rgba(5,46,22,0.3);
+  position: sticky; top: 0; z-index: 100;
+}
+.nav-brand { display: flex; align-items: center; gap: 12px; }
+.nav-logo { width: 36px; height: 36px; background: rgba(255,255,255,0.12); border-radius: 10px; display: flex; align-items: center; justify-content: center; }
+.nav-logo svg { width: 20px; height: 20px; stroke: #fff; fill: none; stroke-width: 2; }
+.nav-title { font-size: 15px; font-weight: 600; color: #fff; }
+.nav-sub { font-size: 12px; color: rgba(255,255,255,0.5); }
+.nav-right { display: flex; align-items: center; gap: 10px; }
+.user-chip { display: flex; align-items: center; gap: 8px; background: rgba(255,255,255,0.1); border: 1px solid rgba(255,255,255,0.15); border-radius: 40px; padding: 5px 12px 5px 6px; color: rgba(255,255,255,0.85); font-size: 13px; }
+.avatar-sm { width: 26px; height: 26px; border-radius: 50%; background: var(--emerald); display: flex; align-items: center; justify-content: center; font-size: 11px; font-weight: 600; color: #fff; }
+.btn-logout { background: rgba(255,255,255,0.12); border: 1px solid rgba(255,255,255,0.2); color: #fff; padding: 7px 14px; border-radius: 8px; font-size: 13px; font-family: 'DM Sans', sans-serif; cursor: pointer; }
+.container { max-width: 1050px; margin: 0 auto; padding: 1.75rem 1.5rem; }
+.stat-row { display: grid; grid-template-columns: repeat(4, 1fr); gap: 10px; margin-bottom: 1.5rem; }
+.stat-card { background: var(--surface); border: 1px solid var(--border); border-radius: var(--radius-sm); padding: 1rem; text-align: center; }
+.stat-num { font-size: 22px; font-weight: 600; font-family: 'DM Mono', monospace; }
+.stat-label { font-size: 11px; color: var(--muted); margin-top: 2px; }
+.realtime-dot { display: inline-block; width: 8px; height: 8px; border-radius: 50%; background: var(--success); margin-right: 6px; animation: pulse 2s infinite; }
+@keyframes pulse { 0%,100%{opacity:1} 50%{opacity:0.4} }
+.tabs { display: flex; gap: 4px; background: var(--surface); border: 1px solid var(--border); border-radius: var(--radius-sm); padding: 4px; margin-bottom: 1.5rem; width: fit-content; }
+.tab { padding: 7px 16px; border-radius: 6px; font-size: 13px; font-weight: 500; cursor: pointer; color: var(--muted); border: none; background: none; font-family: 'DM Sans', sans-serif; transition: all 0.15s; white-space: nowrap; }
+.tab.active { background: #14532d; color: #fff; }
+.tab:hover:not(.active) { background: var(--bg); }
+.tab-badge { display: inline-flex; align-items: center; justify-content: center; width: 18px; height: 18px; border-radius: 50%; font-size: 10px; font-weight: 700; margin-left: 6px; background: var(--danger); color: #fff; }
+.tab-panel { display: none; }
+.tab-panel.active { display: block; }
+.card { background: var(--surface); border-radius: var(--radius); border: 1px solid var(--border); overflow: hidden; margin-bottom: 1rem; }
+.card-header { padding: 1rem 1.25rem; border-bottom: 1px solid var(--border); display: flex; align-items: center; gap: 10px; }
+.card-icon { width: 34px; height: 34px; border-radius: 8px; display: flex; align-items: center; justify-content: center; flex-shrink: 0; }
+.card-icon svg { width: 17px; height: 17px; stroke-width: 1.8; fill: none; }
+.card-icon.green { background: var(--success-soft); } .card-icon.green svg { stroke: var(--success); }
+.card-icon.purple { background: var(--purple-soft); } .card-icon.purple svg { stroke: var(--purple); }
+.card-icon.teal { background: var(--teal-soft); } .card-icon.teal svg { stroke: var(--teal); }
+.card-title { font-size: 14px; font-weight: 600; }
+.card-subtitle { font-size: 12px; color: var(--muted); }
+.card-body { padding: 1.25rem; }
+.pr-item { border: 1px solid var(--border); border-radius: var(--radius-sm); padding: 1.1rem; margin-bottom: 0.65rem; }
+.pr-item:last-child { margin-bottom: 0; }
+.pr-row { display: flex; align-items: flex-start; justify-content: space-between; gap: 12px; flex-wrap: wrap; }
+.pr-name { font-size: 14px; font-weight: 600; margin-bottom: 3px; }
+.pr-meta { font-size: 12px; color: var(--muted); line-height: 1.6; }
+.pr-actions { display: flex; gap: 8px; flex-wrap: wrap; margin-top: 10px; }
+.badge { display: inline-flex; align-items: center; gap: 4px; font-size: 11px; font-weight: 600; padding: 3px 9px; border-radius: 40px; white-space: nowrap; }
+.badge-dot { width: 5px; height: 5px; border-radius: 50%; }
+.badge.verifikasi_sj { background: #ffedd5; color: #9a3412; } .badge.verifikasi_sj .badge-dot { background: #ea580c; }
+.badge.matching { background: var(--warn-soft); color: #92400e; } .badge.matching .badge-dot { background: var(--warn); }
+.badge.voucher { background: var(--purple-soft); color: #5b21b6; } .badge.voucher .badge-dot { background: var(--purple); }
+.badge.bayar { background: var(--accent-soft); color: #1e40af; } .badge.bayar .badge-dot { background: var(--accent); }
+.badge.selesai { background: var(--success-soft); color: #065f46; } .badge.selesai .badge-dot { background: var(--success); }
+.btn { border: none; border-radius: 6px; padding: 7px 14px; font-size: 12px; font-weight: 600; font-family: 'DM Sans', sans-serif; cursor: pointer; display: inline-flex; align-items: center; gap: 6px; transition: opacity 0.15s; }
+.btn:hover { opacity: 0.85; }
+.btn svg { width: 13px; height: 13px; stroke-width: 2; fill: none; }
+.btn-success { background: var(--success); color: #fff; }
+.btn-danger { background: var(--danger); color: #fff; }
+.btn-primary { background: var(--accent); color: #fff; }
+.btn-purple { background: var(--purple); color: #fff; }
+.btn-emerald { background: var(--emerald); color: #fff; }
+.btn-outline { background: transparent; color: var(--muted); border: 1px solid var(--border); }
+.modal-overlay { position: fixed; inset: 0; background: rgba(0,0,0,0.45); z-index: 200; display: none; align-items: center; justify-content: center; padding: 1rem; }
+.modal-overlay.show { display: flex; }
+.modal { background: var(--surface); border-radius: var(--radius); width: 100%; max-width: 560px; max-height: 90vh; overflow-y: auto; box-shadow: 0 20px 60px rgba(0,0,0,0.25); }
+.modal-header { padding: 1.25rem 1.5rem; border-bottom: 1px solid var(--border); display: flex; align-items: center; justify-content: space-between; }
+.modal-title { font-size: 16px; font-weight: 600; }
+.modal-close { background: none; border: none; cursor: pointer; color: var(--muted); font-size: 20px; line-height: 1; }
+.modal-body { padding: 1.5rem; }
+.modal-footer { padding: 1rem 1.5rem; border-top: 1px solid var(--border); display: flex; gap: 10px; justify-content: flex-end; }
+.field { margin-bottom: 1rem; }
+.field label { display: block; font-size: 11px; font-weight: 500; color: var(--muted); text-transform: uppercase; letter-spacing: 0.05em; margin-bottom: 5px; }
+.field input, .field textarea, .field select { width: 100%; border: 1.5px solid var(--border); border-radius: var(--radius-sm); padding: 8px 11px; font-size: 14px; font-family: 'DM Sans', sans-serif; color: var(--text); background: var(--bg); outline: none; }
+.field input:focus, .field textarea:focus { border-color: var(--emerald); background: #fff; }
+.field textarea { height: 70px; resize: vertical; }
+.matching-table { width: 100%; border-collapse: collapse; margin-bottom: 1rem; font-size: 13px; }
+.matching-table th { background: var(--bg); padding: 8px 10px; text-align: left; font-weight: 600; font-size: 11px; color: var(--muted); text-transform: uppercase; letter-spacing: 0.04em; border-bottom: 2px solid var(--border); }
+.matching-table td { padding: 8px 10px; border-bottom: 1px solid var(--border); }
+.match-ok { color: var(--success); font-weight: 600; }
+.match-warn { color: var(--warn); font-weight: 600; }
+.match-fail { color: var(--danger); font-weight: 600; }
+.info-box { background: var(--accent-soft); border: 1px solid #bfdbfe; border-radius: var(--radius-sm); padding: 10px 12px; margin-bottom: 1rem; font-size: 13px; color: #1e40af; }
+.success-box { background: var(--success-soft); border: 1px solid #6ee7b7; border-radius: var(--radius-sm); padding: 10px 12px; margin-bottom: 1rem; font-size: 13px; color: #065f46; }
+.warn-box { background: var(--warn-soft); border: 1px solid #fde68a; border-radius: var(--radius-sm); padding: 10px 12px; margin-bottom: 1rem; font-size: 13px; color: #92400e; }
+.three-way-header { font-size: 13px; font-weight: 600; margin-bottom: 8px; display: flex; align-items: center; gap: 6px; }
+.empty-state { text-align: center; padding: 2.5rem 1rem; color: var(--muted); }
+.empty-state svg { width: 40px; height: 40px; stroke: #cbd5e1; fill: none; stroke-width: 1.5; margin-bottom: 10px; }
+.empty-state p { font-size: 13px; }
+.loading { font-size: 13px; color: var(--muted); padding: 1.5rem 0; text-align: center; }
+.toast { position: fixed; bottom: 24px; right: 24px; background: #1e293b; color: #fff; padding: 12px 18px; border-radius: 10px; font-size: 13px; z-index: 999; opacity: 0; transform: translateY(10px); transition: all 0.3s; pointer-events: none; }
+.toast.show { opacity: 1; transform: translateY(0); }
+</style>
 </head>
+<body>
 
-<body class="bg-gray-100 font-sans antialiased">
-    <nav class="bg-green-900 text-white p-5 flex justify-between items-center shadow-md">
-        <div class="flex items-center gap-3">
-            <div class="bg-white/10 p-2 rounded-lg text-xl font-bold">💵</div>
-            <div class="leading-tight">
-                <span class="text-lg font-bold block">Sistem Pengadaan</span>
-                <span class="text-xs text-green-200 opacity-80">Dashboard Staf Keuangan</span>
-            </div>
-        </div>
-        <div class="flex items-center gap-4">
-            <span class="bg-white/10 px-3 py-1.5 rounded-full text-xs font-medium border border-white/20">staf.keuangan@itk.ac.id</span>
-            <button onclick="window.location.href='index.html'" class="bg-green-500 hover:bg-green-600 text-white font-bold px-4 py-2 rounded-lg transition border-0 text-sm shadow-sm cursor-pointer">
-                Keluar
-            </button>
-        </div>
-    </nav>
-
-    <div class="max-w-[1100px] mx-auto my-10 px-5">
-        <div class="grid grid-cols-4 gap-4 text-center">
-            <div onclick="gantiTab('matching')" class="p-5 bg-white border border-gray-200 rounded-2xl shadow-sm cursor-pointer transition hover:bg-gray-50">
-                <span id="count-stat-matching" class="text-3xl font-black text-gray-400 block">0</span>
-                <span class="text-xs text-gray-500 font-bold mt-1 block">Perlu Matching</span>
-            </div>
-            <div onclick="gantiTab('voucher')" class="p-5 bg-white border border-gray-200 rounded-2xl shadow-sm cursor-pointer transition hover:bg-gray-50">
-                <span id="count-stat-voucher" class="text-3xl font-black text-gray-400 block">0</span>
-                <span class="text-xs text-gray-500 font-bold mt-1 block">Terbitkan Voucher</span>
-            </div>
-            <div onclick="gantiTab('bayar')" class="p-5 bg-white border border-gray-200 rounded-2xl shadow-sm cursor-pointer transition hover:bg-gray-50">
-                <span id="count-stat-bayar" class="text-3xl font-black text-gray-400 block">0</span>
-                <span class="text-xs text-gray-500 font-bold mt-1 block">Proses Bayar</span>
-            </div>
-            <div onclick="gantiTab('selesai')" class="p-5 bg-green-50 border border-green-200 rounded-2xl shadow-sm cursor-pointer transition hover:bg-green-100">
-                <span id="count-stat-selesai" class="text-3xl font-black text-green-700 block">0</span>
-                <span class="text-xs text-green-600 font-bold mt-1 block">Selesai</span>
-            </div>
-        </div>
-
-        <div class="flex gap-2 mt-8 border-b border-gray-200 pb-px">
-            <button id="btn-tab-matching" onclick="gantiTab('matching')" class="px-4 py-2 rounded-t-xl font-bold text-xs border-0 cursor-pointer transition bg-gray-200 text-gray-500">
-                3-Way Matching <span id="badge-matching" class="bg-red-500 text-white rounded-full px-1.5 py-0.2 ml-1 text-[10px]">0</span>
-            </button>
-            <button id="btn-tab-voucher" onclick="gantiTab('voucher')" class="px-4 py-2 rounded-t-xl font-bold text-xs border-0 cursor-pointer transition bg-gray-200 text-gray-500">
-                Voucher Pembayaran <span id="badge-voucher" class="bg-red-500 text-white rounded-full px-1.5 py-0.2 ml-1 text-[10px]">0</span>
-            </button>
-            <button id="btn-tab-bayar" onclick="gantiTab('bayar')" class="px-4 py-2 rounded-t-xl font-bold text-xs border-0 cursor-pointer transition bg-gray-200 text-gray-500">
-                Proses Bayar <span id="badge-bayar" class="bg-red-500 text-white rounded-full px-1.5 py-0.2 ml-1 text-[10px]">0</span>
-            </button>
-            <button id="btn-tab-selesai" onclick="gantiTab('selesai')" class="px-5 py-2 rounded-t-xl font-bold text-xs border-0 cursor-pointer transition bg-gray-200 text-gray-500">
-                Selesai
-            </button>
-        </div>
-
-        <div class="bg-white border border-gray-200 rounded-b-2xl rounded-tr-2xl p-6 shadow-sm">
-            <div id="info-banner" class="p-4 bg-orange-50 border border-orange-200 rounded-xl mb-6 flex items-start gap-3">
-                <span class="text-orange-700 text-lg font-bold leading-none">✓</span>
-                <div>
-                    <h4 id="info-title" class="font-bold text-orange-900 text-sm m-0">Antrean 3-Way Matching</h4>
-                    <p id="info-desc" class="text-orange-700 text-xs mt-0.5">Silakan periksa kesesuaian dokumen PO, Surat Jalan, dan Invoice fisik dari Vendor.</p>
-                </div>
-            </div>
-
-            <div id="list-container" class="space-y-4">
-                <div class="text-center text-gray-400 py-10 text-sm">Sedang memuat seluruh data...</div>
-            </div>
-        </div>
+<nav>
+  <div class="nav-brand">
+    <div class="nav-logo">
+      <svg viewBox="0 0 24 24"><line x1="12" y1="1" x2="12" y2="23"/><path d="M17 5H9.5a3.5 3.5 0 000 7h5a3.5 3.5 0 010 7H6"/></svg>
     </div>
-
-    <div id="cetakModal" class="modal-overlay" onclick="tutupModal()">
-        <div class="bg-white rounded-2xl p-6 w-full max-w-[650px] shadow-2xl relative" onclick="event.stopPropagation()">
-            <div class="flex justify-between items-center mb-4 border-b border-gray-100 pb-3">
-                <h3 class="font-bold text-gray-800 text-base m-0">Pratinjau Dokumen Kontrak</h3>
-                <div class="flex items-center gap-2">
-                    <button onclick="unduhSebagaiPDF()" class="bg-emerald-600 hover:bg-emerald-700 text-white font-bold text-xs px-4 py-2 rounded-xl border-0 shadow-md flex items-center gap-1.5 relative z-50 cursor-pointer">
-                        📥 Ambil / Unduh File PDF
-                    </button>
-                    <button onclick="tutupModal()" class="bg-gray-100 hover:bg-gray-200 border-0 rounded-full w-8 h-8 flex items-center justify-center font-bold text-gray-500 relative z-50 text-sm cursor-pointer">✕</button>
-                </div>
-            </div>
-
-            <div id="area-pdf" class="bg-white p-8 border border-gray-200 rounded-xl">
-                <div class="flex justify-between items-start border-b-2 border-gray-200 pb-4">
-                    <div>
-                        <h2 class="text-xl font-black text-green-800 tracking-wide m-0">ITK PROCUREMENT</h2>
-                        <p class="text-[11px] text-gray-400 mt-0.5 font-medium">Institut Teknologi Kalimantan</p>
-                    </div>
-                    <div class="text-right">
-                        <h2 class="text-lg font-black text-gray-800 m-0">INVOICE DIGITAL</h2>
-                        <p id="modal-invoice-num" class="text-[11px] text-gray-500 mt-0.5 font-bold tracking-wider">#INV/2026/001</p>
-                    </div>
-                </div>
-
-                <div class="grid grid-cols-2 gap-4 my-6 text-xs">
-                    <div>
-                        <span class="text-gray-400 font-bold block uppercase tracking-wider text-[10px]">Ditagih Kepada:</span>
-                        <strong class="text-gray-800 block text-sm mt-0.5">Staf Keuangan ITK</strong>
-                        <span class="text-gray-500 block mt-0.5">Kementerian Pendidikan dan Kebudayaan</span>
-                    </div>
-                    <div class="text-right">
-                        <span class="text-gray-400 font-bold block uppercase tracking-wider text-[10px]">Tanggal Dokumen Lunak:</span>
-                        <strong id="modal-tanggal" class="text-gray-800 block text-sm mt-0.5">01 Juni 2026</strong>
-                        <span id="modal-badge-status" class="text-xs text-green-600 font-bold bg-green-50 border border-green-100 px-2 py-0.5 rounded inline-block mt-1">✓ Lunas Terverifikasi</span>
-                    </div>
-                </div>
-
-                <table class="w-full text-left text-xs border-collapse mt-4">
-                    <thead>
-                        <tr class="bg-gray-50 text-gray-500 border-b border-gray-200">
-                            <th class="p-2.5 font-bold">Nama Barang Pasokan</th>
-                            <th class="p-2.5 font-bold text-center">Jumlah</th>
-                            <th class="p-2.5 font-bold text-right">Total Harga</th>
-                        </tr>
-                    </thead>
-                    <tbody>
-                        <tr class="border-b border-gray-100">
-                            <td id="modal-nama-barang" class="p-3 font-medium text-gray-800">-</td>
-                            <td id="modal-jumlah-barang" class="p-3 text-center text-gray-600">-</td>
-                            <td id="modal-total-harga" class="p-3 text-right font-bold text-gray-800">Rp 0</td>
-                        </tr>
-                    </tbody>
-                </table>
-
-                <div class="mt-6 pt-4 border-t-2 border-dashed border-gray-200 flex justify-between items-center">
-                    <span class="text-xs font-black text-gray-700 uppercase tracking-wide">Total Pembayaran Akhir:</span>
-                    <span id="modal-total-final" class="text-xl font-black text-emerald-600">Rp 0</span>
-                </div>
-
-                <div class="text-center mt-8 pt-4 border-t border-gray-100">
-                    <p class="text-[10px] text-gray-400 m-0 italic">Dokumen ini merupakan bukti sah digital yang dihasilkan otomatis oleh Sistem Procurement ITK 2026.</p>
-                </div>
-            </div>
-        </div>
+    <div>
+      <div class="nav-title">Sistem Pengadaan</div>
+      <div class="nav-sub">Dashboard Staf Keuangan</div>
     </div>
+  </div>
+  <div class="nav-right">
+    <div class="user-chip">
+      <div class="avatar-sm" id="avatarInitial">K</div>
+      <span id="userEmail">Loading...</span>
+    </div>
+    <button class="btn-logout" onclick="logout()">Keluar</button>
+  </div>
+</nav>
 
-    <script>
-        const URL_SUPABASE_ASLI = "https://bgtgeltkbanlnvymalum.supabase.co"; 
-        const ANON_KEY_SUPABASE_ASLI = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImJndGdlbHRrYmFubG52eW1hbHVtIiwicm9sZSI6ImFub24iLCJpYXQiOjE3Nzk1MTAwNDksImV4cCI6MjA5NTA4NjA0OX0.-JlapeQpug44SjkEKgb1wyoX2_ftdGGcAnTHJhdzvwE";
+<div id="toast" class="toast"></div>
 
-        const _supabase = supabase.createClient(URL_SUPABASE_ASLI, ANON_KEY_SUPABASE_ASLI);
+<div class="container">
+  <div style="display:flex; align-items:center; gap:8px; margin-bottom:1rem; font-size:12px; color:var(--muted);">
+    <span class="realtime-dot"></span> Realtime aktif — data update otomatis
+  </div>
 
-        let semuaDataPR = [];
-        let tabAktif = 'matching';
-        let dataTerpilihUntukPDF = null;
+  <div class="stat-row">
+    <div class="stat-card">
+      <div class="stat-num" id="sMatching" style="color:#92400e">0</div>
+      <div class="stat-label">Perlu Matching</div>
+    </div>
+    <div class="stat-card">
+      <div class="stat-num" id="sVoucher" style="color:#5b21b6">0</div>
+      <div class="stat-label">Terbitkan Voucher</div>
+    </div>
+    <div class="stat-card">
+      <div class="stat-num" id="sBayar" style="color:#1e40af">0</div>
+      <div class="stat-label">Proses Bayar</div>
+    </div>
+    <div class="stat-card">
+      <div class="stat-num" id="sSelesai" style="color:#065f46">0</div>
+      <div class="stat-label">Selesai</div>
+    </div>
+  </div>
 
-        // Fungsi normalisasi status agar tidak sensitif huruf besar/kecil/spasi
-        function dapatkanKategoriStatus(statusRaw) {
-            if (!statusRaw) return 'matching';
-            const s = statusRaw.toLowerCase().trim().replace(/_/g, ' ');
-            
-            if (s === 'perlu matching' || s === 'barang dikirim' || s === 'verifikasi sj' || s === 'perlu_matching' || s === 'barang_dikirim' || s === 'verifikasi_sj') {
-                return 'matching';
-            }
-            if (s === 'terbitkan voucher' || s === 'voucher pembayaran' || s === 'menunggu po' || s === 'terbitkan_voucher') {
-                return 'voucher';
-            }
-            if (s === 'proses bayar' || s === 'proses_bayar') {
-                return 'bayar';
-            }
-            if (s === 'selesai') {
-                return 'selesai';
-            }
-            return 'matching'; // Default fallback keamanan
-        }
+  <div class="tabs">
+    <button class="tab active" onclick="switchTab('matching', this)">3-Way Matching <span class="tab-badge" id="badgeMatching">0</span></button>
+    <button class="tab" onclick="switchTab('voucher', this)">Voucher Pembayaran <span class="tab-badge" id="badgeVoucher">0</span></button>
+    <button class="tab" onclick="switchTab('bayar', this)">Proses Bayar <span class="tab-badge" id="badgeBayar">0</span></button>
+    <button class="tab" onclick="switchTab('selesai', this)">Selesai</button>
+  </div>
 
-        async function muatDataSupabase() {
-            try {
-                const { data, error } = await _supabase
-                    .from('purchase_requests')
-                    .select('*')
-                    .order('created_at', { ascending: false });
+  <!-- TAB MATCHING -->
+  <div class="tab-panel active" id="tab-matching">
+    <div class="card">
+      <div class="card-header">
+        <div class="card-icon green">
+          <svg viewBox="0 0 24 24"><path d="M9 17H7A5 5 0 017 7h2M15 7h2a5 5 0 010 10h-2M8 12h8"/></svg>
+        </div>
+        <div>
+          <div class="card-title">Antrean 3-Way Matching</div>
+          <div class="card-subtitle">Silakan periksa kesesuaian dokumen PO, Surat Jalan, dan Invoice fisik dari Vendor.</div>
+        </div>
+      </div>
+      <div class="card-body" id="listMatching"><div class="loading">Memuat...</div></div>
+    </div>
+  </div>
 
-                if (error) throw error;
-                semuaDataPR = data || [];
-                
-                hitungStatistik();
-                renderDataKeUI();
-            } catch (err) {
-                console.error("Gagal load data:", err);
-                document.getElementById('list-container').innerHTML = `
-                    <div class="text-center text-red-500 py-10 text-sm font-bold">
-                        ❌ Gagal memuat data dari database Supabase.
-                    </div>`;
-            }
-        }
+  <!-- TAB VOUCHER -->
+  <div class="tab-panel" id="tab-voucher">
+    <div class="card">
+      <div class="card-header">
+        <div class="card-icon purple">
+          <svg viewBox="0 0 24 24"><rect x="1" y="4" width="22" height="16" rx="2" ry="2"/><line x1="1" y1="10" x2="23" y2="10"/></svg>
+        </div>
+        <div>
+          <div class="card-title">Terbitkan Voucher Pembayaran</div>
+          <div class="card-subtitle">3-Way Matching sudah ✓. Terbitkan voucher sebagai bukti pembayaran resmi.</div>
+        </div>
+      </div>
+      <div class="card-body" id="listVoucher"><div class="loading">Memuat...</div></div>
+    </div>
+  </div>
 
-        function hitungStatistik() {
-            let matching = 0, voucher = 0, bayar = 0, selesai = 0;
+  <!-- TAB BAYAR -->
+  <div class="tab-panel" id="tab-bayar">
+    <div class="card">
+      <div class="card-header">
+        <div class="card-icon teal">
+          <svg viewBox="0 0 24 24"><line x1="12" y1="1" x2="12" y2="23"/><path d="M17 5H9.5a3.5 3.5 0 000 7h5a3.5 3.5 0 010 7H6"/></svg>
+        </div>
+        <div>
+          <div class="card-title">Proses Pembayaran</div>
+          <div class="card-subtitle">Voucher sudah terbit. Lakukan transfer ke supplier dan upload bukti bayar.</div>
+        </div>
+      </div>
+      <div class="card-body" id="listBayar"><div class="loading">Memuat...</div></div>
+    </div>
+  </div>
 
-            semuaDataPR.forEach(item => {
-                const kat = dapatkanKategoriStatus(item.status);
-                if (kat === 'matching') matching++;
-                if (kat === 'voucher') voucher++;
-                if (kat === 'bayar') bayar++;
-                if (kat === 'selesai') selesai++;
-            });
+  <!-- TAB SELESAI -->
+  <div class="tab-panel" id="tab-selesai">
+    <div class="card">
+      <div class="card-header">
+        <div class="card-icon green">
+          <svg viewBox="0 0 24 24"><path d="M9 11l3 3L22 4"/><path d="M21 12v7a2 2 0 01-2 2H5a2 2 0 01-2-2V5a2 2 0 012-2h11"/></svg>
+        </div>
+        <div>
+          <div class="card-title">PR Selesai</div>
+          <div class="card-subtitle">Seluruh proses pengadaan sudah tuntas.</div>
+        </div>
+      </div>
+      <div class="card-body" id="listSelesai"><div class="loading">Memuat...</div></div>
+    </div>
+  </div>
+</div>
 
-            document.getElementById('count-stat-matching').innerText = matching;
-            document.getElementById('count-stat-voucher').innerText = voucher;
-            document.getElementById('count-stat-bayar').innerText = bayar;
-            document.getElementById('count-stat-selesai').innerText = selesai;
+<!-- MODAL: 3-WAY MATCHING -->
+<div class="modal-overlay" id="modalMatching">
+  <div class="modal">
+    <div class="modal-header">
+      <span class="modal-title">3-Way Matching</span>
+      <button class="modal-close" onclick="closeModal('modalMatching')">×</button>
+    </div>
+    <div class="modal-body">
+      <div id="matchingContent"></div>
+      <div class="field">
+        <label>Nomor Invoice Supplier *</label>
+        <input id="nomorInvoice" type="text" placeholder="Contoh: INV/2024/00123">
+      </div>
+      <div class="field">
+        <label>Nilai Invoice (Rp) *</label>
+        <input id="nilaiInvoice" type="number" placeholder="Contoh: 15000000">
+      </div>
+      <div class="field">
+        <label>Tanggal Invoice *</label>
+        <input id="tglInvoice" type="date">
+      </div>
+      <div class="field">
+        <label>Catatan Matching</label>
+        <textarea id="catatanMatching" placeholder="Catatan hasil pengecekan..."></textarea>
+      </div>
+    </div>
+    <div class="modal-footer">
+      <button class="btn btn-outline" onclick="closeModal('modalMatching')">Batal</button>
+      <button class="btn btn-success" onclick="eksekusiMatching()">
+        <svg viewBox="0 0 24 24"><path d="M9 11l3 3L22 4"/></svg>Matching OK — Lanjut
+      </button>
+    </div>
+  </div>
+</div>
 
-            document.getElementById('badge-matching').innerText = matching;
-            document.getElementById('badge-voucher').innerText = voucher;
-            document.getElementById('badge-bayar').innerText = bayar;
-        }
+<!-- MODAL: VOUCHER -->
+<div class="modal-overlay" id="modalVoucher">
+  <div class="modal">
+    <div class="modal-header">
+      <span class="modal-title">Terbitkan Voucher Pembayaran</span>
+      <button class="modal-close" onclick="closeModal('modalVoucher')">×</button>
+    </div>
+    <div class="modal-body">
+      <div class="success-box" id="voucherInfo">Detail akan muncul di sini.</div>
+      <div class="field">
+        <label>Nomor Voucher *</label>
+        <input id="nomorVoucher" type="text" placeholder="Contoh: VCH/2024/00045">
+      </div>
+      <div class="field">
+        <label>Catatan Voucher</label>
+        <textarea id="catatanVoucher" placeholder="Keterangan pembayaran..."></textarea>
+      </div>
+    </div>
+    <div class="modal-footer">
+      <button class="btn btn-outline" onclick="closeModal('modalVoucher')">Batal</button>
+      <button class="btn btn-purple" onclick="eksekusiVoucher()">
+        <svg viewBox="0 0 24 24"><rect x="1" y="4" width="22" height="16" rx="2"/><line x1="1" y1="10" x2="23" y2="10"/></svg>Terbitkan Voucher
+      </button>
+    </div>
+  </div>
+</div>
 
-        function renderDataKeUI() {
-            const container = document.getElementById('list-container');
-            container.innerHTML = '';
+<!-- MODAL: BAYAR -->
+<div class="modal-overlay" id="modalBayar">
+  <div class="modal">
+    <div class="modal-header">
+      <span class="modal-title">Proses Pembayaran</span>
+      <button class="modal-close" onclick="closeModal('modalBayar')">×</button>
+    </div>
+    <div class="modal-body">
+      <div class="info-box" id="bayarInfo">Detail akan muncul di sini.</div>
+      <div class="field">
+        <label>Nomor Referensi Transfer *</label>
+        <input id="refTransfer" type="text" placeholder="Contoh: TRF20240315001">
+      </div>
+      <div class="field">
+        <label>Tanggal Bayar *</label>
+        <input id="tglBayar" type="date">
+      </div>
+      <div class="field">
+        <label>Keterangan</label>
+        <textarea id="catatanBayar" placeholder="Contoh: Transfer via BCA ke rekening supplier..."></textarea>
+      </div>
+    </div>
+    <div class="modal-footer">
+      <button class="btn btn-outline" onclick="closeModal('modalBayar')">Batal</button>
+      <button class="btn btn-emerald" onclick="eksekusiBayar()">
+        <svg viewBox="0 0 24 24"><line x1="12" y1="1" x2="12" y2="23"/><path d="M17 5H9.5a3.5 3.5 0 000 7h5a3.5 3.5 0 010 7H6"/></svg>Konfirmasi Bayar
+      </button>
+    </div>
+  </div>
+</div>
 
-            let warnaTemaTab = 'green';
+<script>
+const { createClient } = supabase
+const sb = createClient(
+  'https://bgtgeltkbanlnvymalum.supabase.co',
+  'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImJndGdlbHRrYmFubG52eW1hbHVtIiwicm9sZSI6ImFub24iLCJpYXQiOjE3Nzk1MTAwNDksImV4cCI6MjA5NTA4NjA0OX0.-JlapeQpug44SjkEKgb1wyoX2_ftdGGcAnTHJhdzvwE'
+)
 
-            if (tabAktif === 'matching') {
-                warnaTemaTab = 'orange';
-                aturBanner("Antrean 3-Way Matching", "Silakan periksa kesesuaian dokumen PO, Surat Jalan, dan Invoice fisik dari Vendor.", "bg-orange-50 border-orange-200 text-orange-700 text-orange-900");
-            } else if (tabAktif === 'voucher') {
-                warnaTemaTab = 'blue';
-                aturBanner("Penerbitan Voucher Pembayaran", "Data terverifikasi, siapkan dokumen pengeluaran kas atau kuitansi internal.", "bg-blue-50 border-blue-200 text-blue-700 text-blue-900");
-            } else if (tabAktif === 'bayar') {
-                warnaTemaTab = 'purple';
-                aturBanner("Proses Likuidasi / Pembayaran Bank", "Otorisasi akhir pengiriman dana kepada rekening giro pihak ketiga/Supplier.", "bg-purple-50 border-purple-200 text-purple-700 text-purple-900");
-            } else {
-                warnaTemaTab = 'green';
-                aturBanner("PR Selesai", "Seluruh rangkaian alur proses pengadaan barang saat ini sudah tuntas dan terbayar.", "bg-green-50 border-green-200 text-green-700 text-green-900");
-            }
+// ── STATE ────────────────────────────────────────────────────
+let currentPRId = null
+let currentPO = null
+let currentInvoiceId = null
 
-            // Filter data yang benar-benar sesuai dengan tab aktif saat ini
-            const dataFilter = semuaDataPR.filter(item => dapatkanKategoriStatus(item.status) === tabAktif);
+// ── HELPERS ──────────────────────────────────────────────────
+function switchTab(id, el) {
+  document.querySelectorAll('.tab-panel').forEach(p => p.classList.remove('active'))
+  document.querySelectorAll('.tab').forEach(t => t.classList.remove('active'))
+  document.getElementById('tab-' + id).classList.add('active')
+  el.classList.add('active')
+}
 
-            if (dataFilter.length === 0) {
-                container.innerHTML = `<div class="text-center text-gray-400 py-12 text-xs font-medium">Tidak ada berkas PR pada tahap ini.</div>`;
-                return;
-            }
+function closeModal(id) { document.getElementById(id).classList.remove('show') }
+function openModal(id)  { document.getElementById(id).classList.add('show') }
 
-            dataFilter.forEach(item => {
-                const namaBarang = item.nama_barang || 'Barang Tanpa Nama';
-                const hargaNominal = item.harga || item.total_harga || 0;
-                const formatRupiah = new Intl.NumberFormat('id-ID', { style: 'currency', currency: 'IDR', maximumFractionDigits: 0 }).format(hargaNominal);
-                const formatTgl = item.created_at ? new Date(item.created_at).toLocaleDateString('id-ID', { day: '2-digit', month: 'short', year: 'numeric' }) : '02 Jun 2026';
-                const nomorInvoice = item.invoice_number || item.no_invoice || `INV/2026/0${Math.floor(Math.random() * 80) + 10}`;
-                const statusTeks = item.status ? item.status.replace(/_/g, ' ') : 'Perlu Matching';
+function fmtDate(d) { return new Date(d).toLocaleDateString('id-ID', { day:'2-digit', month:'short', year:'numeric' }) }
+function fmtRupiah(n) { return 'Rp ' + Number(n).toLocaleString('id-ID') }
 
-                const cardHtml = `
-                    <div class="p-5 border border-gray-200 rounded-2xl bg-white hover:border-${warnaTemaTab}-300 shadow-sm transition">
-                        <div class="flex justify-between items-start">
-                            <div>
-                                <h3 class="font-black text-gray-800 text-lg m-0 capitalize">${namaBarang}</h3>
-                                <p class="text-gray-500 text-xs mt-1.5 space-x-2 flex flex-wrap items-center gap-y-1">
-                                    <span>${item.jumlah || item.quantity || 1} unit</span>
-                                    <span class="text-gray-300">•</span>
-                                    <span>Tanggal: ${formatTgl}</span>
-                                    <span class="text-gray-300">•</span>
-                                    <span>Invoice: <strong class="text-gray-700">${nomorInvoice}</strong></span>
-                                    <span class="text-gray-300">•</span>
-                                    <span class="text-emerald-600 font-bold">${formatRupiah}</span>
-                                </p>
-                            </div>
-                            <span class="text-xs font-bold px-3 py-1 bg-${warnaTemaTab}-100 text-${warnaTemaTab}-700 rounded-full border border-${warnaTemaTab}-200 capitalize">
-                                ● ${statusTeks}
-                            </span>
-                        </div>
-                        
-                        <div class="mt-4 pt-4 border-t border-gray-100 flex gap-2">
-                            ${tabAktif === 'selesai' ? 
-                                `<button onclick="bukaModalCetak('${item.id}')" class="bg-green-900 hover:bg-green-800 text-white text-xs font-bold py-2 px-4 rounded-xl border-0 cursor-pointer shadow-sm transition flex items-center gap-1.5">
-                                    📄 View / Print Invoice
-                                </button>` :
-                                `<button onclick="prosesAlurKeuangan('${item.id}', '${item.status || 'perlu_matching'}')" class="bg-blue-600 hover:bg-blue-700 text-white text-xs font-bold py-2 px-4 rounded-xl border-0 cursor-pointer shadow-sm transition">
-                                    Lanjutkan Proses Menuju Tahap Berikutnya →
-                                </button>`
-                            }
-                        </div>
-                    </div>
-                `;
-                container.insertAdjacentHTML('beforeend', cardHtml);
-            });
-        }
+function showToast(msg) {
+  const t = document.getElementById('toast')
+  t.textContent = msg
+  t.classList.add('show')
+  setTimeout(() => t.classList.remove('show'), 3500)
+}
 
-        function gantiTab(namaTab) {
-            tabAktif = namaTab;
-            const listTabs = ['matching', 'voucher', 'bayar', 'selesai'];
-            listTabs.forEach(t => {
-                const btn = document.getElementById(`btn-tab-${t}`);
-                if (t === namaTab) {
-                    if (t === 'selesai') {
-                        btn.className = "px-5 py-2 rounded-t-xl font-bold text-xs border-0 cursor-pointer transition bg-green-900 text-white shadow-sm";
-                    } else {
-                        btn.className = `px-4 py-2 rounded-t-xl font-bold text-xs border-0 cursor-pointer transition bg-blue-900 text-white shadow-sm`;
-                    }
-                } else {
-                    btn.className = "px-4 py-2 rounded-t-xl font-bold text-xs border-0 cursor-pointer transition bg-gray-200 text-gray-500";
-                }
-            });
-            renderDataKeUI();
-        }
+function emptyState(msg) {
+  return `<div class="empty-state">
+    <svg viewBox="0 0 24 24"><path d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2"/><rect x="9" y="3" width="6" height="4" rx="1"/></svg>
+    <p>${msg}</p>
+  </div>`
+}
 
-        function aturBanner(title, desc, classStyle) {
-            document.getElementById('info-title').innerText = title;
-            document.getElementById('info-desc').innerText = desc;
-            document.getElementById('info-banner').className = `p-4 rounded-xl mb-6 flex items-start gap-3 border ${classStyle}`;
-        }
+// ── LOGIN CHECK ──────────────────────────────────────────────
+async function cekLogin() {
+  const { data } = await sb.auth.getSession()
+  if (!data.session) { window.location.href = 'index.html'; return }
+  const email = data.session.user.email
+  document.getElementById('userEmail').textContent = email
+  document.getElementById('avatarInitial').textContent = email.charAt(0).toUpperCase()
+  muatSemua()
+  initRealtime()
+}
 
-        async function prosesAlurKeuangan(prId, statusSekarang) {
-            let statusBaru = 'selesai';
-            const katSkrg = dapatkanKategoriStatus(statusSekarang);
+// ── REALTIME (FIX: subscribe semua perubahan) ────────────────
+function initRealtime() {
+  sb.channel('keuangan-realtime')
+    .on('postgres_changes', { event: '*', schema: 'public', table: 'purchase_requests' },
+      (payload) => {
+        showToast('🔄 Data PR diperbarui secara realtime')
+        muatSemua()
+      })
+    .on('postgres_changes', { event: '*', schema: 'public', table: 'invoices' },
+      () => muatSemua())
+    .subscribe()
+}
 
-            if (katSkrg === 'matching') {
-                statusBaru = 'terbitkan_voucher';
-            } else if (katSkrg === 'voucher') {
-                statusBaru = 'proses_bayar';
-            }
+// ── MUAT SEMUA ───────────────────────────────────────────────
+async function muatSemua() {
+  await Promise.all([muatMatching(), muatVoucher(), muatBayar(), muatSelesai()])
+}
 
-            try {
-                const { error } = await _supabase
-                    .from('purchase_requests')
-                    .update({ status: statusBaru })
-                    .eq('id', prId);
+// ── 3-WAY MATCHING ──────────────────────────────────────────
+// FIX: nama tabel → purchase_requests (dengan s), ambil SEMUA data tanpa .single()
+async function muatMatching() {
+  const { data, error } = await sb
+    .from('purchase_requests')          // ✅ FIX: tambah 's'
+    .select('*')
+    .eq('status', 'verifikasi_sj')
+    .order('created_at', { ascending: true })
 
-                if (error) throw error;
-                alert(`Sukses! Status berkas berhasil diperbarui.`);
-                muatDataSupabase();
-            } catch (err) {
-                alert("Gagal update status: " + err.message);
-            }
-        }
+  if (error) { console.error('muatMatching error:', error); return }
 
-        function bukaModalCetak(idBarang) {
-            const dataItem = semuaDataPR.find(item => item.id === idBarang);
-            if (!dataItem) return;
+  const el = document.getElementById('listMatching')
+  const cnt = data ? data.length : 0
+  document.getElementById('badgeMatching').textContent = cnt
+  document.getElementById('sMatching').textContent = cnt
 
-            dataTerpilihUntukPDF = dataItem;
+  if (!data || cnt === 0) { el.innerHTML = emptyState('Tidak ada berkas PR pada tahap ini.'); return }
 
-            const hargaNominal = dataItem.harga || dataItem.total_harga || 0;
-            const formatRupiah = new Intl.NumberFormat('id-ID', { style: 'currency', currency: 'IDR', maximumFractionDigits: 0 }).format(hargaNominal);
-            const formatTgl = dataItem.created_at ? new Date(dataItem.created_at).toLocaleDateString('id-ID', { day: '2-digit', month: 'long', year: 'numeric' }) : '02 Juni 2026';
-            const nomorInvoice = dataItem.invoice_number || dataItem.no_invoice || `INV/2026/012`;
+  // Ambil semua PO sekaligus (bukan satu per satu) untuk efisiensi
+  const prIds = data.map(pr => pr.id)
+  const { data: semuaPO } = await sb
+    .from('purchase_orders')            // ✅ FIX: nama tabel benar
+    .select('*')
+    .in('pr_id', prIds)
 
-            document.getElementById('modal-invoice-num').innerText = `#${nomorInvoice}`;
-            document.getElementById('modal-tanggal').innerText = formatTgl;
-            document.getElementById('modal-nama-barang').innerText = dataItem.nama_barang || 'Barang';
-            document.getElementById('modal-jumlah-barang').innerText = `${dataItem.jumlah || dataItem.quantity || 1} Unit`;
-            document.getElementById('modal-total-harga').innerText = formatRupiah;
-            document.getElementById('modal-total-final').innerText = formatRupiah;
+  const poMap = {}
+  if (semuaPO) semuaPO.forEach(po => { poMap[po.pr_id] = po })
 
-            document.getElementById('cetakModal').style.display = 'flex';
-        }
+  const rows = data.map(pr => {
+    const po = poMap[pr.id] || null
+    return `
+    <div class="pr-item">
+      <div class="pr-row">
+        <div style="flex:1">
+          <div class="pr-name">${pr.nama_barang}</div>
+          <div class="pr-meta">
+            Jumlah: <b>${pr.jumlah} unit</b> &nbsp;·&nbsp; SJ: <b>${pr.surat_jalan || '-'}</b>
+            ${po ? ` &nbsp;·&nbsp; PO: <b>${fmtRupiah(po.harga_total || po.nilai_kontrak || 0)}</b> ke <b>${po.nama_supplier || po.supplier_name || '-'}</b>` : '<span style="color:var(--danger)"> · PO belum ditemukan</span>'}
+          </div>
+        </div>
+        <span class="badge verifikasi_sj"><span class="badge-dot"></span>Siap Matching</span>
+      </div>
+      <div class="pr-actions">
+        <button class="btn btn-success" onclick="bukaModalMatching('${pr.id}','${pr.nama_barang}','${pr.jumlah}','${pr.surat_jalan || ''}','${po ? po.id : ''}',${po ? (po.harga_total || po.nilai_kontrak || 0) : 0},'${po ? (po.nama_supplier || po.supplier_name || '') : ''}')">
+          <svg viewBox="0 0 24 24"><path d="M9 17H7A5 5 0 017 7h2M15 7h2a5 5 0 010 10h-2M8 12h8"/></svg>Lakukan 3-Way Matching
+        </button>
+      </div>
+    </div>`
+  })
+  el.innerHTML = rows.join('')
+}
 
-        function tutupModal() {
-            document.getElementById('cetakModal').style.display = 'none';
-        }
+function bukaModalMatching(prId, namaBarang, jumlah, noSJ, poId, hargaPO, namaSupplier) {
+  currentPRId = prId
+  currentPO = { id: poId, harga: parseFloat(hargaPO), supplier: namaSupplier }
+  document.getElementById('nomorInvoice').value = ''
+  document.getElementById('nilaiInvoice').value = ''
+  document.getElementById('tglInvoice').value = ''
+  document.getElementById('catatanMatching').value = ''
+  document.getElementById('matchingContent').innerHTML = `
+    <div class="three-way-header">🔍 Pengecekan 3-Way Matching</div>
+    <table class="matching-table">
+      <thead><tr><th>Dokumen</th><th>Detail</th><th>Status</th></tr></thead>
+      <tbody>
+        <tr>
+          <td><b>Purchase Order</b></td>
+          <td>${namaBarang} — ${jumlah} unit<br><span style="color:var(--muted);font-size:11px">${namaSupplier} · ${fmtRupiah(hargaPO)}</span></td>
+          <td><span class="match-ok">✓ Ada</span></td>
+        </tr>
+        <tr>
+          <td><b>Surat Jalan</b></td>
+          <td>${noSJ || 'Terverifikasi Pengadaan'}</td>
+          <td><span class="match-ok">✓ Terverifikasi</span></td>
+        </tr>
+        <tr>
+          <td><b>Invoice</b></td>
+          <td>Input di bawah ↓</td>
+          <td><span class="match-warn">⏳ Perlu diisi</span></td>
+        </tr>
+      </tbody>
+    </table>`
+  openModal('modalMatching')
+}
 
-        function unduhSebagaiPDF() {
-            if (!dataTerpilihUntukPDF) return;
-            const element = document.getElementById('area-pdf');
-            const namaFileClean = (dataTerpilihUntukPDF.nama_barang || 'barang').replace(/\s+/g, '-');
-            
-            const opsi = {
-                margin:       10,
-                filename:     `Invoice-${namaFileClean}.pdf`,
-                image:        { type: 'jpeg', quality: 0.98 },
-                html2canvas:  { scale: 2, useCORS: true },
-                jsPDF:        { unit: 'mm', format: 'a4', orientation: 'portrait' }
-            };
+async function eksekusiMatching() {
+  const noInv    = document.getElementById('nomorInvoice').value.trim()
+  const nilaiInv = parseFloat(document.getElementById('nilaiInvoice').value)
+  const tglInv   = document.getElementById('tglInvoice').value
+  const catatan  = document.getElementById('catatanMatching').value.trim()
 
-            html2pdf().set(opsi).from(element).save().then(() => {
-                alert(`Sukses! Berkas Invoice-${namaFileClean}.pdf berhasil diunduh.`);
-                tutupModal();
-            });
-        }
+  if (!noInv || !nilaiInv || !tglInv) { alert('Isi semua data invoice!'); return }
 
-        window.onload = muatDataSupabase;
-    </script>
+  const selisih = currentPO.harga > 0
+    ? Math.abs(nilaiInv - currentPO.harga) / currentPO.harga
+    : 0
+  const statusMatching = selisih <= 0.05 ? 'ok' : 'selisih'
+
+  // ✅ FIX: INSERT biasa, bukan upsert dengan onConflict pr_id
+  // Cek dulu apakah sudah ada invoice untuk PR ini
+  const { data: existing } = await sb
+    .from('invoices')
+    .select('id')
+    .eq('pr_id', currentPRId)
+    .maybeSingle()
+
+  let invError
+  if (existing) {
+    // Update jika sudah ada
+    const { error } = await sb.from('invoices').update({
+      nomor_invoice: noInv,
+      nilai: nilaiInv,
+      tanggal_invoice: new Date(tglInv).toISOString(),
+      status: 'voucher_pending',
+      status_matching: statusMatching,
+      catatan_matching: catatan
+    }).eq('id', existing.id)
+    invError = error
+  } else {
+    // Insert baru
+    const { error } = await sb.from('invoices').insert({
+      pr_id: currentPRId,
+      nomor_invoice: noInv,
+      nilai: nilaiInv,
+      tanggal_invoice: new Date(tglInv).toISOString(),
+      status: 'voucher_pending',
+      status_matching: statusMatching,
+      catatan_matching: catatan
+    })
+    invError = error
+  }
+
+  if (invError) { alert('Error simpan invoice: ' + invError.message); return }
+
+  const { error: prErr } = await sb
+    .from('purchase_requests')
+    .update({ status: 'matching_ok' })
+    .eq('id', currentPRId)
+
+  if (prErr) { alert('Error update PR: ' + prErr.message); return }
+
+  closeModal('modalMatching')
+  muatSemua()
+  showToast(statusMatching === 'ok'
+    ? '✅ 3-Way Matching berhasil! Nilai cocok.'
+    : `⚠️ Matching OK dengan catatan: selisih ${(selisih*100).toFixed(1)}%.`)
+}
+
+// ── VOUCHER ─────────────────────────────────────────────────
+async function muatVoucher() {
+  const { data, error } = await sb
+    .from('purchase_requests')
+    .select('*')
+    .eq('status', 'matching_ok')
+    .order('created_at', { ascending: true })
+
+  if (error) { console.error('muatVoucher error:', error); return }
+
+  const el  = document.getElementById('listVoucher')
+  const cnt = data ? data.length : 0
+  document.getElementById('badgeVoucher').textContent = cnt
+  document.getElementById('sVoucher').textContent = cnt
+
+  if (!data || cnt === 0) { el.innerHTML = emptyState('Tidak ada yang perlu diterbitkan voucher.'); return }
+
+  // Ambil semua invoice sekaligus
+  const prIds = data.map(pr => pr.id)
+  const { data: semuaInv } = await sb.from('invoices').select('*').in('pr_id', prIds)
+  const invMap = {}
+  if (semuaInv) semuaInv.forEach(inv => { invMap[inv.pr_id] = inv })
+
+  el.innerHTML = data.map(pr => {
+    const inv = invMap[pr.id] || null
+    return `
+    <div class="pr-item">
+      <div class="pr-row">
+        <div style="flex:1">
+          <div class="pr-name">${pr.nama_barang}</div>
+          <div class="pr-meta">
+            ${inv ? `Invoice: <b>${inv.nomor_invoice}</b> · <b style="color:var(--emerald)">${fmtRupiah(inv.nilai)}</b>` : '<span style="color:var(--danger)">Data invoice tidak ditemukan</span>'}
+          </div>
+        </div>
+        <span class="badge voucher"><span class="badge-dot"></span>Perlu Voucher</span>
+      </div>
+      <div class="pr-actions">
+        <button class="btn btn-purple" onclick="bukaModalVoucher('${pr.id}','${pr.nama_barang}','${inv ? inv.nomor_invoice : ''}','${inv ? inv.nilai : 0}','${inv ? inv.id : ''}')">
+          <svg viewBox="0 0 24 24"><rect x="1" y="4" width="22" height="16" rx="2"/><line x1="1" y1="10" x2="23" y2="10"/></svg>Terbitkan Voucher
+        </button>
+      </div>
+    </div>`
+  }).join('')
+}
+
+function bukaModalVoucher(prId, namaBarang, noInv, nilai, invId) {
+  currentPRId = prId
+  currentInvoiceId = invId
+  document.getElementById('nomorVoucher').value = ''
+  document.getElementById('catatanVoucher').value = ''
+  document.getElementById('voucherInfo').innerHTML = `✅ Matching OK<br><b>${namaBarang}</b> · Invoice ${noInv} · <b>${fmtRupiah(nilai)}</b>`
+  openModal('modalVoucher')
+}
+
+async function eksekusiVoucher() {
+  const nomor   = document.getElementById('nomorVoucher').value.trim()
+  const catatan = document.getElementById('catatanVoucher').value.trim()
+  if (!nomor) { alert('Isi nomor voucher!'); return }
+
+  if (currentInvoiceId) {
+    await sb.from('invoices').update({ status: 'voucher_terbit', bukti_bayar: nomor }).eq('id', currentInvoiceId)
+  }
+  const { error } = await sb.from('purchase_requests').update({ status: 'voucher_terbit' }).eq('id', currentPRId)
+  if (error) { alert('Error: ' + error.message); return }
+
+  closeModal('modalVoucher')
+  muatSemua()
+  showToast('🧾 Voucher berhasil diterbitkan!')
+}
+
+// ── PROSES BAYAR ─────────────────────────────────────────────
+async function muatBayar() {
+  const { data, error } = await sb
+    .from('purchase_requests')
+    .select('*')
+    .eq('status', 'voucher_terbit')
+    .order('created_at', { ascending: true })
+
+  if (error) { console.error('muatBayar error:', error); return }
+
+  const el  = document.getElementById('listBayar')
+  const cnt = data ? data.length : 0
+  document.getElementById('badgeBayar').textContent = cnt
+  document.getElementById('sBayar').textContent = cnt
+
+  if (!data || cnt === 0) { el.innerHTML = emptyState('Tidak ada yang perlu diproses pembayaran.'); return }
+
+  const prIds = data.map(pr => pr.id)
+  const { data: semuaPO  } = await sb.from('purchase_orders').select('*').in('pr_id', prIds)
+  const { data: semuaInv } = await sb.from('invoices').select('*').in('pr_id', prIds)
+
+  const poMap  = {}; if (semuaPO)  semuaPO.forEach(po   => { poMap[po.pr_id]   = po })
+  const invMap = {}; if (semuaInv) semuaInv.forEach(inv => { invMap[inv.pr_id] = inv })
+
+  el.innerHTML = data.map(pr => {
+    const po  = poMap[pr.id]  || null
+    const inv = invMap[pr.id] || null
+    return `
+    <div class="pr-item">
+      <div class="pr-row">
+        <div style="flex:1">
+          <div class="pr-name">${pr.nama_barang}</div>
+          <div class="pr-meta">
+            Supplier: <b>${po ? (po.nama_supplier || po.supplier_name || '-') : '-'}</b>
+            ${inv ? ` · Voucher: <b>${inv.bukti_bayar || '-'}</b> · <b style="color:var(--emerald)">${fmtRupiah(inv.nilai)}</b>` : ''}
+          </div>
+        </div>
+        <span class="badge bayar"><span class="badge-dot"></span>Siap Dibayar</span>
+      </div>
+      <div class="pr-actions">
+        <button class="btn btn-emerald" onclick="bukaModalBayar('${pr.id}','${pr.nama_barang}','${po ? (po.nama_supplier || po.supplier_name || '') : ''}','${inv ? inv.nilai : 0}','${inv ? inv.id : ''}')">
+          <svg viewBox="0 0 24 24"><line x1="12" y1="1" x2="12" y2="23"/><path d="M17 5H9.5a3.5 3.5 0 000 7h5a3.5 3.5 0 010 7H6"/></svg>Proses Pembayaran
+        </button>
+      </div>
+    </div>`
+  }).join('')
+}
+
+function bukaModalBayar(prId, namaBarang, supplier, nilai, invId) {
+  currentPRId = prId
+  currentInvoiceId = invId
+  document.getElementById('refTransfer').value = ''
+  document.getElementById('tglBayar').value = ''
+  document.getElementById('catatanBayar').value = ''
+  document.getElementById('bayarInfo').innerHTML = `<b>${namaBarang}</b><br>Supplier: ${supplier} · Nilai: <b>${fmtRupiah(nilai)}</b>`
+  openModal('modalBayar')
+}
+
+async function eksekusiBayar() {
+  const ref     = document.getElementById('refTransfer').value.trim()
+  const tgl     = document.getElementById('tglBayar').value
+  const catatan = document.getElementById('catatanBayar').value.trim()
+  if (!ref || !tgl) { alert('Isi nomor referensi transfer dan tanggal bayar!'); return }
+
+  if (currentInvoiceId) {
+    await sb.from('invoices').update({
+      status: 'lunas',
+      tanggal_bayar: new Date(tgl).toISOString()
+    }).eq('id', currentInvoiceId)
+  }
+
+  const { error } = await sb.from('purchase_requests').update({ status: 'selesai' }).eq('id', currentPRId)
+  if (error) { alert('Error: ' + error.message); return }
+
+  closeModal('modalBayar')
+  muatSemua()
+  showToast('🎉 Pembayaran dikonfirmasi! PR selesai.')
+}
+
+// ── SELESAI ──────────────────────────────────────────────────
+async function muatSelesai() {
+  const { data, error } = await sb
+    .from('purchase_requests')
+    .select('*')
+    .eq('status', 'selesai')
+    .order('created_at', { ascending: false })
+
+  if (error) { console.error('muatSelesai error:', error); return }
+
+  const el = document.getElementById('listSelesai')
+  document.getElementById('sSelesai').textContent = data ? data.length : 0
+
+  if (!data || data.length === 0) { el.innerHTML = emptyState('Belum ada PR yang selesai.'); return }
+
+  el.innerHTML = data.map(pr => `
+    <div class="pr-item">
+      <div class="pr-row">
+        <div style="flex:1">
+          <div class="pr-name">${pr.nama_barang}</div>
+          <div class="pr-meta">${pr.jumlah} unit &nbsp;·&nbsp; Selesai ${fmtDate(pr.updated_at || pr.created_at)}</div>
+        </div>
+        <span class="badge selesai"><span class="badge-dot"></span>Selesai</span>
+      </div>
+    </div>`).join('')
+}
+
+async function logout() { await sb.auth.signOut(); window.location.href = 'index.html' }
+
+cekLogin()
+</script>
 </body>
-
 </html>
