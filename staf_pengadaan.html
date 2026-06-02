@@ -3,47 +3,61 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Sistem Pengadaan ITK — Staf Pengadaan (Simulasi Preview)</title>
+  <title>Sistem Pengadaan ITK — Staf Pengadaan</title>
   <link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600;700&display=swap" rel="stylesheet">
   <style>
     *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
     body { font-family: 'DM Sans', sans-serif; background: #f4f6f9; color: #1e293b; padding: 0; margin: 0; }
+    
+    /* Header Navbar Dashboard */
     nav { background: #0f2847; padding: 0 2rem; height: 70px; display: flex; align-items: center; justify-content: space-between; color: white; box-shadow: 0 2px 10px rgba(0,0,0,0.05); }
     .nav-title { font-size: 20px; font-weight: 700; color: #fff; }
     .btn-keluar { background: rgba(255,255,255,0.15); color: #fff; border: 1px solid rgba(255,255,255,0.2); padding: 8px 24px; border-radius: 6px; cursor: pointer; font-weight: 600; font-size: 14px; }
+    
     .container { max-width: 1200px; margin: 0 auto; padding: 2.5rem 1.5rem; }
     .card { background: white; border-radius: 12px; padding: 2rem; margin-bottom: 2.5rem; box-shadow: 0 4px 6px rgba(0,0,0,0.02); border: 1px solid #e2e8f0; }
-    .card h3 { font-size: 18px; font-weight: 700; color: #0f2847; margin-bottom: 1.5rem; }
-    .form-grid { display: flex; gap: 20px; align-items: flex-end; width: 100%; }
+    .card h3 { font-size: 18px; font-weight: 700; color: #0f2847; margin-bottom: 1.5rem; border-left: 4px solid #2563eb; padding-left: 10px; }
+    
+    /* Layout Form Pembuatan PR */
+    .form-grid { display: flex; gap: 20px; align-items: flex-end; width: 100%; flex-wrap: wrap; }
     .form-group { display: flex; flex-direction: column; gap: 8px; }
-    .form-group.nama { flex: 2; }
-    .form-group.qty { flex: 1; }
-    .form-group.harga { flex: 1.2; }
-    .form-group label { font-size: 14px; font-weight: 500; color: #475569; }
-    input { padding: 12px 16px; border: 1px solid #cbd5e1; border-radius: 8px; font-size: 14px; background: #fff; width: 100%; color: #334155; height: 48px; }
-    .btn-submit { background: #0f2847; color: white; border: none; border-radius: 8px; padding: 0 32px; font-size: 15px; font-weight: 700; cursor: pointer; height: 48px; display: inline-flex; align-items: center; gap: 8px; }
+    .form-group.nama { flex: 2; min-width: 250px; }
+    .form-group.qty { flex: 0.5; min-width: 80px; }
+    .form-group.harga { flex: 1; min-width: 150px; }
+    .form-group label { font-size: 14px; font-weight: 600; color: #475569; }
+    input { padding: 12px 16px; border: 1px solid #cbd5e1; border-radius: 8px; font-size: 14px; background: #fff; width: 100%; color: #334155; height: 48px; outline: none; }
+    input:focus { border-color: #2563eb; }
     
-    table { width: 100%; border-collapse: collapse; margin-top: 0.5rem; }
-    th { text-align: left; font-size: 11px; font-weight: 600; color: #64748b; text-transform: uppercase; padding: 14px 12px; background: #f8fafc; border-bottom: 2px solid #e2e8f0; letter-spacing: 0.5px; }
-    td { padding: 16px 12px; border-bottom: 1px solid #e2e8f0; font-size: 14px; color: #334155; }
+    .btn-submit { background: #0f2847; color: white; border: none; border-radius: 8px; padding: 0 32px; font-size: 15px; font-weight: 700; cursor: pointer; height: 48px; display: inline-flex; align-items: center; gap: 8px; transition: 0.2s; }
+    .btn-submit:hover { background: #173d6b; }
     
-    .badge-status { font-size: 11px; padding: 6px 12px; border-radius: 6px; font-weight: 700; text-transform: uppercase; background: #f1f5f9; color: #475569; display: inline-block; }
+    /* Desain Tabel Utama */
+    .table-responsive { width: 100%; overflow-x: auto; margin-top: 0.5rem; }
+    table { width: 100%; border-collapse: collapse; }
+    th { text-align: left; font-size: 11px; font-weight: 700; color: #64748b; text-transform: uppercase; padding: 14px 12px; background: #f8fafc; border-bottom: 2px solid #e2e8f0; letter-spacing: 0.5px; }
+    td { padding: 16px 12px; border-bottom: 1px solid #e2e8f0; font-size: 14px; color: #334155; vertical-align: middle; }
+    tr:hover { background-color: #f8fafc; }
+    
+    /* Badges Status Warna-warni Pengadaan */
+    .badge-status { font-size: 11px; padding: 6px 12px; border-radius: 6px; font-weight: 700; text-transform: uppercase; display: inline-block; }
     .status-pending { background: #fef3c7; color: #d97706; }
     .status-quotation { background: #e0f2fe; color: #0369a1; }
     .status-evaluasi { background: #f3e8ff; color: #6b21a8; }
     .status-vendor { background: #e2e8f0; color: #334155; }
     .status-manajer { background: #dcfce7; color: #15803d; }
+    .status-lunas { background: #ecfdf5; color: #047857; font-style: italic; }
     
-    .btn-aksi { background: #2563eb; color: white; border: none; padding: 6px 12px; border-radius: 6px; font-size: 12px; font-weight: 600; cursor: pointer; transition: 0.2s; }
+    /* Tombol Aksi Kerja Dinamis */
+    .btn-aksi { background: #2563eb; color: white; border: none; padding: 8px 14px; border-radius: 6px; font-size: 12px; font-weight: 700; cursor: pointer; transition: 0.2s; box-shadow: 0 2px 4px rgba(37,99,235,0.15); }
     .btn-aksi:hover { background: #1d4ed8; }
-    .text-done { color: #10b981; font-weight: 600; font-size: 13px; }
+    .text-done { color: #10b981; font-weight: 700; font-size: 13px; display: inline-flex; align-items: center; gap: 4px; }
   </style>
 </head>
 <body>
 
 <nav>
-  <div class="nav-title">Sistem Pengadaan ITK — Staf Pengadaan (Simulasi Preview)</div>
-  <button class="btn-keluar" onclick="alert('Kembali ke login login')">Keluar</button>
+  <div class="nav-title">Sistem Pengadaan ITK — Staf Pengadaan</div>
+  <button class="btn-keluar" onclick="window.location.href='index.html'">Keluar</button>
 </nav>
 
 <div class="container">
@@ -52,7 +66,7 @@
     <div class="form-grid">
       <div class="form-group nama">
         <label>Nama Barang / Item</label>
-        <input type="text" id="nama_barang" placeholder="Contoh: Busi Motor">
+        <input type="text" id="nama_barang" placeholder="Masukkan nama item baru...">
       </div>
       <div class="form-group qty">
         <label>Jumlah (Qty)</label>
@@ -60,7 +74,7 @@
       </div>
       <div class="form-group harga">
         <label>Harga Satuan (Estimasi)</label>
-        <input type="number" id="harga" placeholder="Contoh: 40000">
+        <input type="number" id="harga" placeholder="Rp 0">
       </div>
       <button class="btn-submit" onclick="simpanPRBaru()">+ Ajukan PR</button>
     </div>
@@ -68,124 +82,142 @@
 
   <div class="card">
     <h3>Daftar Permintaan Pengadaan (PR Log & Procurement Workflow)</h3>
-    <table>
-      <thead>
-        <tr>
-          <th>ID PR</th>
-          <th>Nama Barang</th>
-          <th>Jumlah</th>
-          <th>Harga Satuan</th>
-          <th>Total Estimasi</th>
-          <th>Status Alur</th>
-          <th>Aksi Tahapan Procurement</th>
-        </tr>
-      </thead>
-      <tbody id="tabelPR"></tbody>
-    </table>
+    <div class="table-responsive">
+      <table>
+        <thead>
+          <tr>
+            <th>ID PR</th>
+            <th>Nama Barang</th>
+            <th>Jumlah</th>
+            <th>Harga Satuan</th>
+            <th>Total Estimasi</th>
+            <th>Status Alur</th>
+            <th>Aksi Tahapan Procurement</th>
+          </tr>
+        </thead>
+        <tbody id="tabelPR">
+          <tr><td colspan="7" style="text-align:center; color:#64748b; padding:2rem;">Sedang menyinkronkan data dengan database Supabase...</td></tr>
+        </tbody>
+      </table>
+    </div>
   </div>
 </div>
 
 <script>
-  // Menggunakan LocalStorage browser agar fungsional di HTMLPreview tanpa keblokir CDN
-  function ambilDataLokal() {
-    const data = localStorage.getItem('mock_purchase_requests');
-    if (!data) {
-      // Data awal jika local storage kosong bawaan demo lu yang di screenshot
-      const dataAwal = [
-        { id: "ee3bc", nama_barang: "oli", jumlah: 3, harga_estimasi: 50000, status: "pending" },
-        { id: "22c20", nama_barang: "busi", jumlah: 2, harga_estimasi: 25000, status: "buat_quotation" },
-        { id: "aef15", nama_barang: "pipa", jumlah: 1, harga_estimasi: 120000, status: "evaluasi_pemilihan" }
-      ];
-      localStorage.setItem('mock_purchase_requests', JSON.stringify(dataAwal));
-      return dataAwal;
-    }
-    return JSON.parse(data);
-  }
+  // Konfigurasi Kunci Supabase Lu Asli
+  const SB_URL = "https://bgtgeltkbanlnvymalum.supabase.co/rest/v1/purchase_request";
+  const SB_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImJndGdlbHRrYmFubG52eW1hbHVtIiwicm9sZSI6ImFub24iLCJpYXQiOjE3Nzk1MTAwNDksImV4cCI6MjA5NTA4NjA0OX0.-JlapeQpug44SjkEKgb1wyoX2_ftdGGcAnTHJhdzvwE";
 
-  function simpanDataLokal(data) {
-    localStorage.setItem('mock_purchase_requests', JSON.stringify(data));
-  }
+  // Ambil Data Supabase via REST API murni (Bypass Blokir HTMLPreview)
+  async function muatTabelPengadaan() {
+    try {
+      const response = await fetch(`${SB_URL}?order=created_at.desc`, {
+        method: "GET",
+        headers: { "apikey": SB_KEY, "Authorization": `Bearer ${SB_KEY}`, "Content-Type": "application/json" }
+      });
+      
+      const prs = await response.json();
+      const tbody = document.getElementById('tabelPR');
+      tbody.innerHTML = "";
 
-  function muatTabelPengadaan() {
-    const prs = ambilDataLokal();
-    const tbody = document.getElementById('tabelPR');
-    tbody.innerHTML = "";
-
-    prs.forEach((pr, index) => {
-      const qty = Number(pr.jumlah) || 0;
-      const satuan = Number(pr.harga_estimasi) || 0; 
-      const total = qty * satuan;
-      const statusText = pr.status || 'pending';
-
-      let classBadge = "badge-status";
-      if(statusText === 'pending') classBadge += " status-pending";
-      if(statusText === 'buat_quotation') classBadge += " status-quotation";
-      if(statusText === 'evaluasi_pemilihan') classBadge += " status-evaluasi";
-      if(statusText === 'vendor_baru') classBadge += " status-vendor";
-      if(statusText === 'dikirim_ke_manajer') classBadge += " status-manajer";
-
-      let tombolAksi = "";
-      if (statusText === 'pending') {
-        tombolAksi = `<button class="btn-aksi" onclick="ubahStatusAlur(${index}, 'buat_quotation')">🔍 Cek PR</button>`;
-      } else if (statusText === 'buat_quotation') {
-        tombolAksi = `<button class="btn-aksi" onclick="ubahStatusAlur(${index}, 'evaluasi_pemilihan')">📄 Buat Quotation</button>`;
-      } else if (statusText === 'evaluasi_pemilihan') {
-        tombolAksi = `<button class="btn-aksi" onclick="ubahStatusAlur(${index}, 'vendor_baru')">📊 Evaluasi Pemilihan</button>`;
-      } else if (statusText === 'vendor_baru') {
-        tombolAksi = `<button class="btn-aksi" onclick="ubahStatusAlur(${index}, 'dikirim_ke_manajer')">🤝 Pilih Vendor Baru</button>`;
-      } else if (statusText === 'dikirim_ke_manajer') {
-        tombolAksi = `<span class="text-done">🚀 Sent to Manager</span>`;
-      } else {
-        tombolAksi = `<span class="text-done">✓ Selesai</span>`;
+      if(!prs || prs.length === 0) {
+        tbody.innerHTML = `<tr><td colspan="7" style="text-align:center; color:#64748b; padding:2rem;">Belum ada data permintaan barang di database.</td></tr>`;
+        return;
       }
 
-      tbody.innerHTML += `
-        <tr>
-          <td>#${pr.id}</td>
-          <td><b>${pr.nama_barang}</b></td>
-          <td>${qty} Unit</td>
-          <td>Rp ${satuan.toLocaleString('id-ID')}</td>
-          <td><b>Rp ${total.toLocaleString('id-ID')}</b></td>
-          <td><span class="${classBadge}">${statusText.replace(/_/g, ' ')}</span></td>
-          <td>${tombolAksi}</td>
-        </tr>
-      `;
-    });
+      prs.forEach(pr => {
+        const qty = Number(pr.jumlah) || 0;
+        const satuan = Number(pr.harga_estimasi) || 0; // Fix Harga Estimasi anti Rp 0
+        const total = qty * satuan;
+        const statusText = pr.status || 'pending';
+
+        // Kelas badge warna dinamis
+        let classBadge = "badge-status";
+        if(statusText === 'pending') classBadge += " status-pending";
+        if(statusText === 'buat_quotation') classBadge += " status-quotation";
+        if(statusText === 'evaluasi_pemilihan') classBadge += " status-evaluasi";
+        if(statusText === 'vendor_baru') classBadge += " status-vendor";
+        if(statusText === 'dikirim_ke_manajer') classBadge += " status-manajer";
+        if(statusText === 'lunas') classBadge += " status-lunas";
+
+        // Fitur Alur Kerja Tombol Yang Lu Minta
+        let tombolAksi = "";
+        if (statusText === 'pending') {
+          tombolAksi = `<button class="btn-aksi" onclick="ubahStatusAlur('${pr.id}', 'buat_quotation')">🔍 Cek PR</button>`;
+        } else if (statusText === 'buat_quotation') {
+          tombolAksi = `<button class="btn-aksi" onclick="ubahStatusAlur('${pr.id}', 'evaluasi_pemilihan')">📄 Buat Quotation</button>`;
+        } else if (statusText === 'evaluasi_pemilihan') {
+          tombolAksi = `<button class="btn-aksi" onclick="ubahStatusAlur('${pr.id}', 'vendor_baru')">📊 Evaluasi Pemilihan</button>`;
+        } else if (statusText === 'vendor_baru') {
+          tombolAksi = `<button class="btn-aksi" onclick="ubahStatusAlur('${pr.id}', 'dikirim_ke_manajer')">🤝 Pilih Vendor Baru</button>`;
+        } else if (statusText === 'dikirim_ke_manajer') {
+          tombolAksi = `<span class="text-done">🚀 Sent to Manager</span>`;
+        } else {
+          tombolAksi = `<span class="text-done">✓ Selesai (${statusText})</span>`;
+        }
+
+        tbody.innerHTML += `
+          <tr>
+            <td style="font-family:monospace; color:#64748b;">#${pr.id.substring(0,5)}</td>
+            <td><b>${pr.nama_barang || '—'}</b></td>
+            <td>${qty} Unit</td>
+            <td>Rp ${satuan.toLocaleString('id-ID')}</td>
+            <td><b>Rp ${total.toLocaleString('id-ID')}</b></td>
+            <td><span class="${classBadge}">${statusText.replace(/_/g, ' ')}</span></td>
+            <td>${tombolAksi}</td>
+          </tr>
+        `;
+      });
+    } catch (e) {
+      console.error(e);
+      document.getElementById('tabelPR').innerHTML = `<tr><td colspan="7" style="text-align:center; color:red; padding:2rem;">Gagal memuat koneksi data database.</td></tr>`;
+    }
   }
 
-  function ubahStatusAlur(index, statusBaru) {
-    const prs = ambilDataLokal();
-    prs[index].status = statusBaru;
-    simpanDataLokal(prs);
-    muatTabelPengadaan();
+  // Update Status Alur Kerja Langsung ke Supabase
+  async function ubahStatusAlur(idPR, statusBaru) {
+    try {
+      await fetch(`${SB_URL}?id=eq.${idPR}`, {
+        method: "PATCH",
+        headers: { "apikey": SB_KEY, "Authorization": `Bearer ${SB_KEY}`, "Content-Type": "application/json" },
+        body: JSON.stringify({ status: statusBaru })
+      });
+      await muatTabelPengadaan();
+    } catch (e) {
+      alert("Gagal merubah tahapan alur!");
+    }
   }
 
-  function simpanPRBaru() {
+  // Pengajuan PR Baru Masuk Supabase
+  async function simpanPRBaru() {
     const namaInput = document.getElementById('nama_barang').value.trim();
     const qtyInput = parseInt(document.getElementById('jumlah').value) || 1;
     const hargaInput = parseFloat(document.getElementById('harga').value) || 0;
 
     if(!namaInput || hargaInput <= 0) {
-      alert("Tolong isi nama barang dan nominal harga dengan benar!");
+      alert("Tolong isi kolom nama barang dan nominal harga satuan!");
       return;
     }
 
-    const prs = ambilDataLokal();
-    const acakId = Math.random().toString(16).substr(2, 5);
-    
-    prs.unshift({
-      id: acakId,
-      nama_barang: namaInput,
-      jumlah: qtyInput,
-      harga_estimasi: hargaInput,
-      status: 'pending'
-    });
-
-    simpanDataLokal(prs);
-    alert("Sukses diajukan secara lokal! Silahkan lakukan Cek PR pada tabel.");
-    document.getElementById('nama_barang').value = "";
-    document.getElementById('harga').value = "";
-    muatTabelPengadaan();
+    try {
+      await fetch(SB_URL, {
+        method: "POST",
+        headers: { "apikey": SB_KEY, "Authorization": `Bearer ${SB_KEY}`, "Content-Type": "application/json", "Prefer": "return=representation" },
+        body: JSON.stringify({
+          nama_barang: namaInput,
+          jumlah: qtyInput,
+          harga_estimasi: hargaInput,
+          status: 'pending'
+        })
+      });
+      
+      alert("PR Berhasil Diajukan!");
+      document.getElementById('nama_barang').value = "";
+      document.getElementById('harga').value = "";
+      await muatTabelPengadaan();
+    } catch (e) {
+      alert("Gagal menyimpan data ke database!");
+    }
   }
 
   window.onload = muatTabelPengadaan;
