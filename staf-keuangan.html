@@ -89,7 +89,7 @@
 
     const htmlList = await Promise.all(dataKeuangan.map(async (pr) => {
       const { data: po } = await sb.from('purchase_order').select('*').eq('pr_id', pr.id).maybeSingle();
-      const { data: inv } = await sb.from('invoices').select('*').eq('pr_id', pr.id).maybeSingle();
+      const { data: inv = null } = await sb.from('invoices').select('*').eq('pr_id', pr.id).maybeSingle();
 
       const namaBarang = pr.nama_barang || "Barang Pengadaan";
       const qty = Number(pr.jumlah) || 1;
