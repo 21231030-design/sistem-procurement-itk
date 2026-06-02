@@ -243,7 +243,7 @@
 
   const STATUS_LABEL = {
     menunggu:'Menunggu Cek', diverifikasi:'Mencari Vendor', disetujui:'Disetujui Manajer', 
-    diproses:'Evaluasi Vendor', menunggu_approval:'Menunggu Approval Akhir', po_dibuat:'PO Aktif (Kunci)', 
+    diproses:'Evaluasi Vendor', menunggu_approval:'Menunggu Approval Akhir', po_dibuat:'PO ribbons', 
     barang_diterima:'Barang Sampai Gudang', verifikasi_sj:'Audit Finansial', selesai:'Selesai Lunas'
   };
 
@@ -380,7 +380,7 @@
         tombolAksi = `<span style="font-size:12px; color:var(--purple); font-weight:600;">⏳ Sedang Ditinjau Akhir Oleh Manajer</span>`;
       }
 
-      const vendorInfo = qts && qts.length > 0 ? qts.map(q => `&bull; ${q.nama_supplier} (${fmtRupiah(q.harga)})`).join(' ') : 'Belum diinput (Klik pilih pemenang jika ingin mengisi)';
+      const vendorInfo = qts && qts.length > 0 ? qts.map(q => `&bull; ${q.nama_supplier} (${fmtRupiah(q.harga)})`).join(' ') : 'Belum diinput';
 
       return `
         <div class="pr-item">
@@ -407,7 +407,7 @@
     const listEl = document.getElementById('evalQuotationList');
     
     if(!qts || qts.length === 0) {
-      listEl.innerHTML = `<p style="font-size:12px; color:var(--danger)">Belum ada vendor diinput untuk item ini. Silakan simpan draf PO di bawah langsung atau kembali ke Tab 2.</p>`;
+      listEl.innerHTML = `<p style="font-size:12px; color:var(--danger)">Belum ada vendor diinput untuk item ini.</p>`;
     } else {
       listEl.innerHTML = qts.map((q, i) => `
         <div class="quotation-row" id="qbox_${q.id}" onclick="pilihPemenang('${q.id}')" style="cursor:pointer;">
@@ -451,7 +451,6 @@
       tanggal_po: new Date().toISOString()
     });
 
-    // Perbaikan anti-error cache schema: simpan ke harga_estimasi atau harga dasar jika kolom estimasi_harga tidak ada
     await sb.from('purchase_request').update({ status: 'po_dibuat', harga_estimasi: hargaTotal }).eq('id', currentPRId);
     closeModal('modalEvaluasi');
     await muatSemuaData();
@@ -493,7 +492,7 @@
     muatSemuaData();
   }
 
-  // TAB 5 - SAKTI (ANTI ERROR FOREIGN KEY CONSTRAINT)
+  // TAB 5 - ARSIP (FITUR MENGHAPUS SEMUA DATA SAMPAH)
   async function muatRiwayat() {
     const { data } = await sb.from('purchase_request').select('*').order('created_at', {ascending:false});
     const el = document.getElementById('listRiwayat');
@@ -506,40 +505,52 @@
         <div class="pr-row">
           <div style="flex:1">
             <div class="pr-name" style="font-weight:600;">${pr.nama_barang}</div>
-            <div class="pr-meta">Jumlah: ${pr.jumlah} Unit &nbsp;·&nbsp; Tanggal: ${fmtDate(pr.created_at)}</div>
+            <div class="pr-meta">Jumlah: ${pr.jumlah} Unit &nbsp;·&nbsp; Status Sistem: <b style="color:var(--navy);">${pr.status}</b></div>
           </div>
           <div style="display:flex; align-items:center; gap:10px;">
-            <span class="badge ${pr.status}"><span class="badge-dot"></span>${STATUS_LABEL[pr.status] || pr.status}</span>
-            <button class="btn btn-danger" onclick="hapusPermanenData('${pr.id}', '${pr.nama_barang}')" style="padding: 4px 10px; font-size:11px;">🗑️ Hapus</button>
+            <button class="btn btn-danger" onclick="hapusPermanenData('${pr.id}', '${pr.nama_barang}')" style="padding: 6px 12px; font-size:12px;">🗑️ Paksa Hapus Bersih</button>
           </div>
         </div>
       </div>`).join('');
   }
 
-  // PROSES SAKTI: Hapus dari tabel anak paling bawah dulu, baru hapus tabel induk utama!
+  // FUNGSI SUPER CASCADE: Menghapus paksa semua baris anak di database dari tabel hilir ke hulu!
   async function hapusPermanenData(id, nama) {
-    if(confirm(`Apakah kamu yakin ingin menghapus data "${nama}" ini dari history?`)) {
+    if(confirm(`PERINGATAN KERAS:\nApakah Anda ingin PAKSA HAPUS data "${nama}"? Semua penawaran, PO, surat jalan, dan invoice finansial yang menyangkut akan dihancurkan sampai bersih.`)) {
       try {
-        // 1. Hapus data penawaran harga (quotation)
+        console.log("Memulai pembersihan total untuk PR ID: " + id);
+        
+        // Langkah 1: Hapus data di tabel quotation penawaran harga
         await sb.from('quotation').delete().eq('pr_id', id);
         
-        // 2. Hapus data invoice tagihan (invoices) jika ada
+        // Langkah 2: Hapus data di tabel invoices (Jika ada invoice dari Portal Vendor / Staf Keuangan)
         await sb.from('invoices').delete().eq('pr_id', id);
         
-        // 3. Hapus data ikatan purchase order kontrak yang mengunci data lama tadi
+        // Langkah 3: Hapus ikatan dokumen di tabel purchase_order
         await sb.from('purchase_order').delete().eq('pr_id', id);
         
-        // 4. Setelah relasi bersih, hapus data utama purchase_request
+        // Langkah 4: Terakhir hapus data master utamanya di purchase_request
         const { error } = await sb.from('purchase_request').delete().eq('id', id);
         
         if(!error) {
-          alert(`Sukses! Data "${nama}" berhasil dibersihkan total beserta relasi PO-nya.`);
+          alert(`SUKSES TOTAL! Data "${nama}" dan seluruh invoice/PO yang menyangkut berhasil dibersihkan dari database.`);
           await muatSemuaData();
         } else {
-          alert("Gagal menghapus data utama: " + error.message);
+          // JIKA MASIH BERTAHAN, gunakan trik pemutus relasi NULL-ify status sebelum delete
+          console.log("Memicu metode pemutus relasi darurat...");
+          await sb.from('purchase_request').update({ status: 'menunggu', nomor_invoice: null, surat_jalan: null }).eq('id', id);
+          await sb.from('purchase_order').delete().eq('pr_id', id);
+          
+          const { error: retryError } = await sb.from('purchase_request').delete().eq('id', id);
+          if(!retryError) {
+            alert(`SUKSES (via Jalur Darurat)! Data "${nama}" berhasil dibasmi.`);
+            await muatSemuaData();
+          } else {
+            alert("Sistem Keamanan Database Masih Menolak: " + retryError.message);
+          }
         }
       } catch (err) {
-        alert("Terjadi masalah sistem: " + err.message);
+        alert("Terjadi masalah internal: " + err.message);
       }
     }
   }
