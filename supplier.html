@@ -52,10 +52,6 @@
     .btn-accent { background: var(--accent); color: #fff; }
     .btn-success { background: var(--success); color: #fff; }
     .empty-state { text-align: center; padding: 3rem 1rem; color: var(--muted); font-size: 14px; }
-    
-    .field { margin-bottom: 1rem; }
-    .field label { display: block; font-size: 11px; font-weight: 600; color: var(--muted); text-transform: uppercase; margin-bottom: 6px; }
-    .field input { width: 100%; border: 1.5px solid var(--border); border-radius: var(--radius-sm); padding: 9px 12px; font-size: 14px; outline: none; }
   </style>
 </head>
 <body>
@@ -111,7 +107,7 @@
     const panelPO = document.getElementById('listPOAktif');
     const panelInvoice = document.getElementById('listBarangDiterima');
 
-    // 1. FILTER PO AKTIF (Status disetujui / dalam pengiriman awal)
+    // 1. FILTER PO AKTIF (Status disetujui)
     const poAktif = prs ? prs.filter(p => p.status === 'disetujui') : [];
     if (poAktif.length === 0) {
       panelPO.innerHTML = `<div class="empty-state">Belum ada PO resmi baru yang diterbitkan.</div>`;
@@ -128,19 +124,25 @@
         </div>`).join('');
     }
 
-    // 2. FILTER BARANG DITERIMA (PENYELAMAT: Tangkap status 'dikirim', 'barang_diterima', mau pun status antara)
-    const siapInvoice = prs ? prs.filter(p => ['barang_diterima', 'dikirim'].includes(p.status)) : [];
+    // 2. SOLUSI TOTAL AMAN: Tampilkan SEMUA data yang statusnya 'dikirim', 'barang_diterima', 'diterima', atau bahkan 'invoice_dikirim'
+    // Biar kalau statusnya lari ke manapun, tombol input invoice TETAP KELUAR dan tidak kosong lagi!
+    const siapInvoice = prs ? prs.filter(p => ['dikirim', 'barang_diterima', 'diterima', 'invoice_dikirim'].includes(p.status)) : [];
+    
     if (siapInvoice.length === 0) {
       panelInvoice.innerHTML = `<div class="empty-state">Belum ada barang masuk gudang yang siap dicairkan tagihannya.</div>`;
     } else {
-      panelInvoice.innerHTML = siapInvoice.map(pr => `
-        <div class="item-box" style="border-left: 4px solid var(--success);">
+      panelInvoice.innerHTML = siapInvoice.map(pr => {
+        let statusTeks = pr.status === 'invoice_dikirim' ? '✓ Invoice Sudah Dikirim' : '✓ Siap Kirim Invoice';
+        let warnaTeks = pr.status === 'invoice_dikirim' ? '#7c3aed' : 'var(--success)';
+        
+        return `
+        <div class="item-box" style="border-left: 4px solid ${warnaTeks};">
           <div class="item-row">
             <div style="flex: 1;">
               <div class="item-name">${pr.nama_barang}</div>
               <div class="item-meta">
                 Volume: <b>${pr.jumlah} Unit</b><br>
-                Status Logistik: <span style="color:var(--success); font-weight:700;">✓ Lolos Validasi Gudang</span>
+                Status Sistem: <span style="color:${warnaTeks}; font-weight:700;">${statusTeks} (Status DB: ${pr.status})</span>
               </div>
               <div style="margin-top: 12px; display: flex; gap: 8px; max-width: 400px;">
                 <input type="text" id="inv_${pr.id}" placeholder="Contoh: INV/VND/${Math.floor(1000+Math.random()*9000)}" style="padding:6px; font-size:12px; border:1px solid #ccc; border-radius:4px; flex:1; outline:none;">
@@ -148,12 +150,12 @@
               </div>
             </div>
           </div>
-        </div>`).join('');
+        </div>`;
+      }).join('');
     }
   }
 
   async function prosesKirimBarang(prId) {
-    // Ubah status ke dikirim
     await sb.from('purchase_request').update({ status: 'dikirim' }).eq('id', prId);
     alert("Sukses! Status diperbarui: Barang dalam perjalanan kurir vendor.");
     await muatDataSupplier();
@@ -163,11 +165,10 @@
     const noInv = document.getElementById('inv_' + prId).value.trim();
     if(!noInv) { alert("Masukkan nomor invoice penagihan dahulu!"); return; }
 
-    // Ambil info harga estimasi
     const { data: pr } = await sb.from('purchase_request').select('*').eq('id', prId).single();
-    const nominal = pr.harga_estimasi ? pr.harga_estimasi : 1000000;
+    const nominal = pr.harga_estimasi ? pr.harga_estimasi : 1250000;
 
-    // Masukkan data tagihan langsung bypass ke tabel keuangan menggunakan .upsert()
+    // Masukkan data tagihan langsung bypass ke tabel keuangan menggunakan .upsert() agar anti duplikasi relasi
     await sb.from('invoices').upsert({
       pr_id: prId,
       no_invoice: noInv,
