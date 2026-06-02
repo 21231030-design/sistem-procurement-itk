@@ -158,14 +158,14 @@
     </div>
 
     <script>
-        // Kredensial Asli Milikmu Sudah Ditanam Sempurna Di Sini
+        // Kredensial Asli Milikmu Sudah Diperbaiki 100% Valid Tanpa Typo
         const URL_SUPABASE_ASLI = "https://bgtgeltkbanlnvymalum.supabase.co"; 
-        const ANON_KEY_SUPABASE_ASLI = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImJndGdlbHRrYmFubG52eW1hbHVtIiwicm9sZSI6ImFub24iLCJpYXQiOjE3Nzk1MTAwNDksImV4cCI6Mj9jU29iMjA5NTA4NjA0OX0.-JlapeQpug44SjkEKgb1wyoX2_ftdGGcAnTHJhdzvwE";
+        const ANON_KEY_SUPABASE_ASLI = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImJndGdlbHRrYmFubG52eW1hbHVtIiwicm9sZSI6ImFub24iLCJpYXQiOjE3Nzk1MTAwNDksImV4cCI6MjA5NTA4NjA0OX0.-JlapeQpug44SjkEKgb1wyoX2_ftdGGcAnTHJhdzvwE";
 
         const _supabase = supabase.createClient(URL_SUPABASE_ASLI, ANON_KEY_SUPABASE_ASLI);
 
         let semuaDataPR = [];
-        let tabAktif = 'matching'; // Langsung ngebuka tab Antrean Matching biar pengajuan baru kelihatan
+        let tabAktif = 'matching'; // Membuka tab matching agar pengajuan PR baru langsung terlihat
         let dataTerpilihUntukPDF = null;
 
         async function muatDataSupabase() {
@@ -353,7 +353,7 @@
         }
 
         function unduhSebagaiPDF() {
-            if (!dataTerpilihUntukPDF) return;
+            if (!dataTerpilledUntukPDF) return;
             const element = document.getElementById('area-pdf');
             const namaFileClean = dataTerpilihUntukPDF.nama_barang.replace(/\s+/g, '-');
             
