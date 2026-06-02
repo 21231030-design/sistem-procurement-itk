@@ -5,874 +5,249 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Dashboard Staf Keuangan</title>
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.10.1/html2pdf.bundle.min.js"></script>
 <link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@300;400;500;600&family=DM+Mono:wght@400;500&display=swap" rel="stylesheet">
 <style>
 *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
 :root {
   --green-dark: #064e3b; --green-mid: #065f46; --green: #059669;
   --green-light: #10b981; --green-soft: #d1fae5; --green-border: #6ee7b7;
-  --accent: #0891b2; --accent-soft: #cffafe; --accent-border: #67e8f9;
-  --warn: #d97706; --warn-soft: #fef3c7; --warn-border: #fcd34d;
-  --danger: #dc2626; --danger-soft: #fee2e2; --danger-border: #fca5a5;
-  --purple: #7c3aed; --purple-soft: #ede9fe; --purple-border: #c4b5fd;
-  --navy: #1e3a5f; --navy-soft: #dbeafe;
-  --surface: #ffffff; --bg: #f0fdf4; --bg2: #ecfdf5;
-  --border: #d1fae5; --border2: #e2e8f0;
-  --text: #1e293b; --muted: #64748b;
-  --radius: 12px; --radius-sm: 8px;
+  --surface: #ffffff; --bg: #f8fafc; --border: #e2e8f0;
+  --text: #0f172a; --muted: #64748b; --radius: 16px; --radius-sm: 12px;
 }
-body { font-family: 'DM Sans', sans-serif; background: var(--bg); color: var(--text); min-height: 100vh; }
-
-/* NAV */
-nav {
-  background: linear-gradient(135deg, var(--green-dark) 0%, var(--green-mid) 100%);
-  padding: 0 2rem; height: 64px;
-  display: flex; align-items: center; justify-content: space-between;
-  box-shadow: 0 2px 16px rgba(6,78,59,0.25);
-  position: sticky; top: 0; z-index: 100;
-}
-.nav-brand { display: flex; align-items: center; gap: 12px; }
-.nav-logo { width: 36px; height: 36px; background: rgba(255,255,255,0.15); border-radius: 10px; display: flex; align-items: center; justify-content: center; }
-.nav-logo svg { width: 20px; height: 20px; stroke: #fff; fill: none; stroke-width: 2; }
-.nav-title { font-size: 15px; font-weight: 600; color: #fff; }
-.nav-sub { font-size: 12px; color: rgba(255,255,255,0.55); }
-.nav-right { display: flex; align-items: center; gap: 10px; }
-.user-chip { display: flex; align-items: center; gap: 8px; background: rgba(255,255,255,0.12); border: 1px solid rgba(255,255,255,0.2); border-radius: 40px; padding: 5px 14px 5px 6px; color: rgba(255,255,255,0.9); font-size: 13px; }
-.avatar-sm { width: 26px; height: 26px; border-radius: 50%; background: var(--green-light); display: flex; align-items: center; justify-content: center; font-size: 11px; font-weight: 700; color: #fff; }
-.btn-logout { background: rgba(255,255,255,0.12); border: 1px solid rgba(255,255,255,0.25); color: #fff; padding: 7px 16px; border-radius: 8px; font-size: 13px; font-family: 'DM Sans', sans-serif; cursor: pointer; font-weight: 500; transition: background 0.15s; }
-.btn-logout:hover { background: rgba(255,255,255,0.22); }
-
-/* CONTAINER */
-.container { max-width: 1100px; margin: 0 auto; padding: 1.75rem 1.5rem; }
-
-/* STATS */
-.stat-row { display: grid; grid-template-columns: repeat(4, 1fr); gap: 12px; margin-bottom: 1.5rem; }
-.stat-card { background: var(--surface); border: 1px solid var(--border2); border-radius: var(--radius-sm); padding: 1.1rem; text-align: center; transition: box-shadow 0.15s; }
-.stat-card:hover { box-shadow: 0 4px 12px rgba(0,0,0,0.07); }
-.stat-card.active-stat { border-color: var(--green-border); background: var(--green-soft); }
-.stat-num { font-size: 26px; font-weight: 700; font-family: 'DM Mono', monospace; line-height: 1; margin-bottom: 4px; }
-.stat-label { font-size: 11px; color: var(--muted); font-weight: 500; }
-@media (max-width: 640px) { .stat-row { grid-template-columns: repeat(2,1fr); } }
-
-/* TABS */
-.tabs { display: flex; gap: 4px; background: var(--surface); border: 1px solid var(--border2); border-radius: var(--radius-sm); padding: 4px; margin-bottom: 1.5rem; overflow-x: auto; }
-.tab { padding: 8px 16px; border-radius: 6px; font-size: 13px; font-weight: 500; cursor: pointer; color: var(--muted); border: none; background: none; font-family: 'DM Sans', sans-serif; transition: all 0.15s; white-space: nowrap; display: flex; align-items: center; gap: 6px; }
-.tab.active { background: var(--green-mid); color: #fff; }
-.tab:hover:not(.active) { background: var(--bg2); color: var(--text); }
-.tab-badge { display: inline-flex; align-items: center; justify-content: center; min-width: 18px; height: 18px; border-radius: 9px; font-size: 10px; font-weight: 700; padding: 0 4px; }
-.tab.active .tab-badge { background: rgba(255,255,255,0.25); color: #fff; }
-.tab:not(.active) .tab-badge { background: var(--danger); color: #fff; }
-.tab-panel { display: none; }
-.tab-panel.active { display: block; }
-
-/* CARD */
-.card { background: var(--surface); border-radius: var(--radius); border: 1px solid var(--border2); overflow: hidden; margin-bottom: 1rem; }
-.card-header { padding: 1rem 1.25rem; border-bottom: 1px solid var(--border2); display: flex; align-items: flex-start; gap: 12px; }
-.card-icon { width: 36px; height: 36px; border-radius: 8px; display: flex; align-items: center; justify-content: center; flex-shrink: 0; }
-.card-icon svg { width: 17px; height: 17px; stroke-width: 1.8; fill: none; }
-.card-icon.green { background: var(--green-soft); } .card-icon.green svg { stroke: var(--green); }
-.card-icon.blue { background: var(--accent-soft); } .card-icon.blue svg { stroke: var(--accent); }
-.card-icon.warn { background: var(--warn-soft); } .card-icon.warn svg { stroke: var(--warn); }
-.card-icon.purple { background: var(--purple-soft); } .card-icon.purple svg { stroke: var(--purple); }
-.card-title { font-size: 14px; font-weight: 600; }
-.card-subtitle { font-size: 12px; color: var(--muted); margin-top: 2px; line-height: 1.5; }
-.card-body { padding: 1.25rem; }
-
-/* PR ITEM */
-.pr-item { border: 1px solid var(--border2); border-radius: var(--radius-sm); padding: 1rem 1.1rem; margin-bottom: 0.65rem; transition: border-color 0.15s; }
-.pr-item:last-child { margin-bottom: 0; }
-.pr-item:hover { border-color: var(--green-border); }
-.pr-row { display: flex; align-items: flex-start; justify-content: space-between; gap: 12px; flex-wrap: wrap; }
-.pr-name { font-size: 14px; font-weight: 600; margin-bottom: 3px; }
-.pr-meta { font-size: 12px; color: var(--muted); line-height: 1.7; }
-.pr-actions { display: flex; gap: 8px; flex-wrap: wrap; margin-top: 10px; }
-
-/* BADGES */
-.badge { display: inline-flex; align-items: center; gap: 4px; font-size: 11px; font-weight: 600; padding: 3px 10px; border-radius: 40px; white-space: nowrap; }
-.badge-dot { width: 5px; height: 5px; border-radius: 50%; flex-shrink: 0; }
-.badge.verifikasi_sj { background: var(--warn-soft); color: #92400e; }
-.badge.verifikasi_sj .badge-dot { background: var(--warn); }
-.badge.matched { background: var(--accent-soft); color: #0e7490; }
-.badge.matched .badge-dot { background: var(--accent); }
-.badge.voucher { background: var(--purple-soft); color: #5b21b6; }
-.badge.voucher .badge-dot { background: var(--purple); }
-.badge.dibayar { background: var(--green-soft); color: var(--green-mid); }
-.badge.dibayar .badge-dot { background: var(--green-light); }
-.badge.selesai { background: #f1f5f9; color: #475569; }
-.badge.selesai .badge-dot { background: #94a3b8; }
-
-/* BUTTONS */
-.btn { border: none; border-radius: 6px; padding: 7px 14px; font-size: 12px; font-weight: 600; font-family: 'DM Sans', sans-serif; cursor: pointer; display: inline-flex; align-items: center; gap: 6px; transition: opacity 0.15s, transform 0.1s; }
-.btn:hover { opacity: 0.85; }
-.btn:active { transform: scale(0.97); }
-.btn svg { width: 13px; height: 13px; stroke-width: 2.2; fill: none; }
-.btn-green { background: var(--green); color: #fff; }
-.btn-accent { background: var(--accent); color: #fff; }
-.btn-purple { background: var(--purple); color: #fff; }
-.btn-warn { background: var(--warn); color: #fff; }
-.btn-danger { background: var(--danger); color: #fff; }
-.btn-navy { background: var(--navy); color: #fff; }
-.btn-outline { background: transparent; color: var(--muted); border: 1px solid var(--border2); }
-.btn-outline:hover { background: var(--bg); opacity: 1; }
-
-/* MODAL */
-.modal-overlay { position: fixed; inset: 0; background: rgba(0,0,0,0.5); z-index: 200; display: none; align-items: center; justify-content: center; padding: 1rem; }
-.modal-overlay.show { display: flex; }
-.modal { background: var(--surface); border-radius: var(--radius); width: 100%; max-width: 580px; max-height: 90vh; overflow-y: auto; box-shadow: 0 24px 64px rgba(0,0,0,0.2); }
-.modal-header { padding: 1.25rem 1.5rem; border-bottom: 1px solid var(--border2); display: flex; align-items: center; justify-content: space-between; position: sticky; top: 0; background: var(--surface); z-index: 1; }
-.modal-title { font-size: 15px; font-weight: 600; }
-.modal-close { background: none; border: none; cursor: pointer; color: var(--muted); font-size: 22px; line-height: 1; padding: 2px; }
-.modal-body { padding: 1.5rem; }
-.modal-footer { padding: 1rem 1.5rem; border-top: 1px solid var(--border2); display: flex; gap: 10px; justify-content: flex-end; background: var(--bg); }
-
-/* FORM FIELDS */
-.field { margin-bottom: 1rem; }
-.field:last-child { margin-bottom: 0; }
-.field label { display: block; font-size: 11px; font-weight: 600; color: var(--muted); text-transform: uppercase; letter-spacing: 0.05em; margin-bottom: 5px; }
-.field input, .field textarea, .field select { width: 100%; border: 1.5px solid var(--border2); border-radius: var(--radius-sm); padding: 9px 12px; font-size: 14px; font-family: 'DM Sans', sans-serif; color: var(--text); background: #fff; outline: none; transition: border-color 0.2s; }
-.field input:focus, .field textarea:focus, .field select:focus { border-color: var(--green); box-shadow: 0 0 0 3px rgba(5,150,105,0.1); }
-.field textarea { min-height: 80px; resize: vertical; }
-
-/* INFO BOXES */
-.info-box { background: var(--accent-soft); border: 1px solid var(--accent-border); border-radius: var(--radius-sm); padding: 10px 14px; margin-bottom: 1rem; font-size: 13px; color: #0e7490; }
-.success-box { background: var(--green-soft); border: 1px solid var(--green-border); border-radius: var(--radius-sm); padding: 10px 14px; margin-bottom: 1rem; font-size: 13px; color: var(--green-mid); }
-.warn-box { background: var(--warn-soft); border: 1px solid var(--warn-border); border-radius: var(--radius-sm); padding: 10px 14px; margin-bottom: 1rem; font-size: 13px; color: #92400e; }
-
-/* MATCHING TABLE */
-.match-table { width: 100%; border-collapse: collapse; font-size: 13px; margin-bottom: 1rem; }
-.match-table th { background: var(--bg2); padding: 8px 12px; text-align: left; font-size: 11px; font-weight: 600; color: var(--muted); text-transform: uppercase; letter-spacing: 0.04em; }
-.match-table td { padding: 10px 12px; border-bottom: 1px solid var(--border2); }
-.match-table tr:last-child td { border-bottom: none; }
-.match-ok { color: var(--green); font-weight: 600; }
-.match-warn { color: var(--warn); font-weight: 600; }
-.match-badge { display: inline-flex; align-items: center; gap: 4px; font-size: 11px; font-weight: 700; padding: 3px 8px; border-radius: 4px; }
-.match-badge.ok { background: var(--green-soft); color: var(--green-mid); }
-.match-badge.warn { background: var(--warn-soft); color: #92400e; }
-
-/* DOCUMENT PREVIEW */
-.doc-preview { background: var(--bg2); border: 1px solid var(--border2); border-radius: var(--radius-sm); padding: 1rem; margin-bottom: 1rem; }
-.doc-preview h4 { font-size: 12px; font-weight: 600; color: var(--muted); text-transform: uppercase; letter-spacing: 0.04em; margin-bottom: 8px; }
-.doc-row { display: flex; justify-content: space-between; font-size: 13px; padding: 4px 0; border-bottom: 1px dashed var(--border2); }
-.doc-row:last-child { border-bottom: none; }
-.doc-row span:first-child { color: var(--muted); }
-.doc-row span:last-child { font-weight: 500; }
-
-/* EMPTY & LOADING */
-.empty-state { text-align: center; padding: 2.5rem 1rem; color: var(--muted); }
-.empty-state svg { width: 44px; height: 44px; stroke: #cbd5e1; fill: none; stroke-width: 1.3; margin-bottom: 12px; display: block; margin-left: auto; margin-right: auto; }
-.empty-state p { font-size: 13px; }
-.loading { font-size: 13px; color: var(--muted); padding: 2rem 0; text-align: center; }
-.loading::after { content: ''; animation: dots 1.2s steps(3,end) infinite; }
-@keyframes dots { 0%,20%{content:'.'} 40%{content:'..'} 60%,100%{content:'...'} }
-
-/* SELESAI ITEM */
-.selesai-item { border: 1px solid var(--green-border); background: var(--green-soft); border-radius: var(--radius-sm); padding: 1rem 1.1rem; margin-bottom: 0.65rem; }
-.selesai-item .pr-name { color: var(--green-mid); }
-
-/* INVOICE DETAIL */
-.invoice-detail { background: linear-gradient(135deg, var(--green-dark), var(--green-mid)); border-radius: var(--radius-sm); padding: 1rem; color: #fff; margin-bottom: 1rem; }
-.invoice-detail .label { font-size: 10px; opacity: 0.7; text-transform: uppercase; letter-spacing: 0.05em; }
-.invoice-detail .value { font-size: 14px; font-weight: 600; margin-top: 2px; }
-.invoice-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
-
-/* REALTIME INDICATOR */
-.realtime-dot { width: 8px; height: 8px; border-radius: 50%; background: var(--green-light); box-shadow: 0 0 0 0 rgba(16,185,129,0.4); animation: pulse-green 2s infinite; display: inline-block; margin-left: 6px; }
-@keyframes pulse-green { 0%{box-shadow:0 0 0 0 rgba(16,185,129,0.5)} 70%{box-shadow:0 0 0 6px rgba(16,185,129,0)} 100%{box-shadow:0 0 0 0 rgba(16,185,129,0)} }
+body { font-family: 'DM Sans', sans-serif; background: var(--bg); color: var(--text); padding: 40px 20px; font-size: 14px; }
+.container { max-width: 1040px; margin: 0 auto; }
+header { display: flex; justify-content: space-between; items-center; margin-bottom: 32px; background: white; padding: 20px 24px; border-radius: var(--radius); border: 1px solid var(--border); }
+.user-info { display: flex; items-center; gap: 12px; }
+.avatar { width: 40px; height: 40px; background: var(--green-soft); color: var(--green-dark); border-radius: 50%; display: flex; items-center; justify-content: center; font-weight: 600; font-size: 15px; }
+.nav-tabs { display: flex; gap: 8px; margin-bottom: 24px; background: #e2e8f0; padding: 6px; border-radius: var(--radius); }
+.tab-btn { flex: 1; background: transparent; border: none; padding: 12px; font-family: inherit; font-size: 13px; font-weight: 500; color: var(--muted); border-radius: var(--radius-sm); cursor: pointer; transition: 0.15s; display: flex; items-center; justify-content: center; gap: 6px; }
+.tab-btn.active { background: var(--surface); color: var(--text); box-shadow: 0 4px 6px -1px rgba(0,0,0,0.05); font-weight: 600; }
+.badge-count { background: #cbd5e1; color: var(--text); padding: 2px 7px; border-radius: 10px; font-size: 11px; font-weight: 600; font-family: 'DM Mono', monospace; }
+.tab-btn.active .badge-count { background: var(--text); color: white; }
+.pane { background: var(--surface); border: 1px solid var(--border); border-radius: var(--radius); padding: 32px; min-height: 300px; box-shadow: 0 1px 3px rgba(0,0,0,0.02); }
+.pane-title { font-size: 18px; font-weight: 600; margin-bottom: 8px; }
+.pane-desc { color: var(--muted); font-size: 13px; margin-bottom: 24px; border-bottom: 1px solid var(--border); padding-bottom: 16px; }
+.matching-card { border: 1px solid var(--border); border-radius: var(--radius-sm); padding: 20px; margin-bottom: 16px; background: #fafafa; }
+.btn-verify { background: var(--text); color: white; border: none; padding: 10px 16px; font-weight: 500; border-radius: 8px; cursor: pointer; font-size: 13px; }
+.modal-overlay { position: fixed; top:0; left:0; width:100%; height:100%; background:rgba(0,0,0,0.5); display:none; justify-content:center; align-items:center; z-index:9999; }
 </style>
 </head>
 <body>
 
-<nav>
-  <div class="nav-brand">
-    <div class="nav-logo">
-      <svg viewBox="0 0 24 24"><path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm-1 14H9V8h2v8zm4 0h-2V8h2v8z" stroke="none" fill="white"/><path d="M9 12h6M12 8v8" stroke="white" fill="none"/><rect x="3" y="6" width="18" height="14" rx="2"/><path d="M3 10h18M7 6V4M17 6V4"/></svg>
-    </div>
-    <div>
-      <div class="nav-title">Sistem Pengadaan <span class="realtime-dot"></span></div>
-      <div class="nav-sub">Dashboard Staf Keuangan</div>
-    </div>
-  </div>
-  <div class="nav-right">
-    <div class="user-chip">
-      <div class="avatar-sm" id="avatarInitial">K</div>
-      <span id="userEmail">Memuat...</span>
-    </div>
-    <button class="btn-logout" onclick="logout()">Keluar</button>
-  </div>
-</nav>
-
 <div class="container">
+  <header>
+    <div class="user-info">
+      <div class="avatar">FI</div>
+      <div>
+        <h2 style="font-size:16px; font-weight:600;">Staf Keuangan ITK</h2>
+        <p style="font-size:12px; color:var(--muted)">Kementerian Pendidikan, Kebudayaan, Riset, dan Teknologi</p>
+      </div>
+    </div>
+    <button onclick="window.location.href='index.html'" style="background:#fee2e2; color:#dc2626; border:none; padding:10px 16px; border-radius:8px; font-weight:500; cursor:pointer;">Keluar</button>
+  </header>
 
-  <!-- STATS -->
-  <div class="stat-row">
-    <div class="stat-card">
-      <div class="stat-num" id="sMatching" style="color:#d97706">—</div>
-      <div class="stat-label">Perlu Matching</div>
-    </div>
-    <div class="stat-card">
-      <div class="stat-num" id="sVoucher" style="color:#7c3aed">—</div>
-      <div class="stat-label">Terbitkan Voucher</div>
-    </div>
-    <div class="stat-card">
-      <div class="stat-num" id="sBayar" style="color:#0891b2">—</div>
-      <div class="stat-label">Proses Bayar</div>
-    </div>
-    <div class="stat-card active-stat">
-      <div class="stat-num" id="sSelesai" style="color:#059669">—</div>
-      <div class="stat-label">Selesai</div>
-    </div>
+  <div class="nav-tabs">
+    <button class="tab-btn active" id="tab-matching" onclick="gantiTab('matching')">1. 3-Way Matching <span class="badge-count" id="cMatching">0</span></button>
+    <button class="tab-btn" id="tab-voucher" onclick="gantiTab('voucher')">2. Voucher Pembayaran <span class="badge-count" id="cVoucher">0</span></button>
+    <button class="tab-btn" id="tab-bayar" onclick="gantiTab('bayar')">3. Proses Bayar <span class="badge-count" id="cBayar">0</span></button>
+    <button class="tab-btn" id="tab-selesai" onclick="gantiTab('selesai')">4. Selesai <span class="badge-count" id="cSelesai">0</span></button>
   </div>
 
-  <!-- TABS -->
-  <div class="tabs">
-    <button class="tab active" onclick="switchTab('matching', this)">
-      3-Way Matching <span class="tab-badge" id="badgeMatching">0</span>
-    </button>
-    <button class="tab" onclick="switchTab('voucher', this)">
-      Voucher Pembayaran <span class="tab-badge" id="badgeVoucher">0</span>
-    </button>
-    <button class="tab" onclick="switchTab('bayar', this)">
-      Proses Bayar <span class="tab-badge" id="badgeBayar">0</span>
-    </button>
-    <button class="tab" onclick="switchTab('selesai', this)">Selesai</button>
-  </div>
-
-  <!-- TAB: 3-WAY MATCHING -->
-  <div class="tab-panel active" id="tab-matching">
-    <div class="card">
-      <div class="card-header">
-        <div class="card-icon warn">
-          <svg viewBox="0 0 24 24"><path d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2"/><rect x="9" y="3" width="6" height="4" rx="1"/><path d="M9 12l2 2 4-4"/></svg>
-        </div>
-        <div>
-          <div class="card-title">Antrean 3-Way Matching</div>
-          <div class="card-subtitle">Periksa kesesuaian dokumen PO, Surat Jalan, dan Invoice dari Supplier. Semua PR yang sudah diserahkan invoice-nya akan masuk di sini.</div>
-        </div>
-      </div>
-      <div class="card-body" id="listMatching"><div class="loading">Memuat</div></div>
-    </div>
-  </div>
-
-  <!-- TAB: VOUCHER -->
-  <div class="tab-panel" id="tab-voucher">
-    <div class="card">
-      <div class="card-header">
-        <div class="card-icon purple">
-          <svg viewBox="0 0 24 24"><path d="M14 2H6a2 2 0 00-2 2v16a2 2 0 002 2h12a2 2 0 002-2V8z"/><polyline points="14,2 14,8 20,8"/><line x1="16" y1="13" x2="8" y2="13"/><line x1="16" y1="17" x2="8" y2="17"/><polyline points="10,9 9,9 8,9"/></svg>
-        </div>
-        <div>
-          <div class="card-title">Penerbitan Voucher Pembayaran</div>
-          <div class="card-subtitle">3-Way Matching selesai. Terbitkan voucher sebagai dokumen internal otorisasi pembayaran.</div>
-        </div>
-      </div>
-      <div class="card-body" id="listVoucher"><div class="loading">Memuat</div></div>
-    </div>
-  </div>
-
-  <!-- TAB: PROSES BAYAR -->
-  <div class="tab-panel" id="tab-bayar">
-    <div class="card">
-      <div class="card-header">
-        <div class="card-icon blue">
-          <svg viewBox="0 0 24 24"><rect x="1" y="4" width="22" height="16" rx="2"/><line x1="1" y1="10" x2="23" y2="10"/></svg>
-        </div>
-        <div>
-          <div class="card-title">Proses Pembayaran</div>
-          <div class="card-subtitle">Voucher sudah diterbitkan. Lakukan transfer pembayaran ke supplier dan konfirmasi.</div>
-        </div>
-      </div>
-      <div class="card-body" id="listBayar"><div class="loading">Memuat</div></div>
-    </div>
-  </div>
-
-  <!-- TAB: SELESAI -->
-  <div class="tab-panel" id="tab-selesai">
-    <div class="card">
-      <div class="card-header">
-        <div class="card-icon green">
-          <svg viewBox="0 0 24 24"><path d="M22 11.08V12a10 10 0 11-5.93-9.14"/><polyline points="22,4 12,14.01 9,11.01"/></svg>
-        </div>
-        <div>
-          <div class="card-title">Transaksi Selesai</div>
-          <div class="card-subtitle">Riwayat semua PR yang sudah selesai diproses keuangan.</div>
-        </div>
-      </div>
-      <div class="card-body" id="listSelesai"><div class="loading">Memuat</div></div>
-    </div>
-  </div>
-
-</div>
-
-<!-- MODAL: 3-WAY MATCHING -->
-<div class="modal-overlay" id="modalMatching">
-  <div class="modal">
-    <div class="modal-header">
-      <span class="modal-title">3-Way Matching</span>
-      <button class="modal-close" onclick="closeModal('modalMatching')">×</button>
-    </div>
-    <div class="modal-body">
-      <div class="info-box">📋 Cocokkan 3 dokumen: <strong>Purchase Order</strong>, <strong>Surat Jalan</strong>, dan <strong>Invoice</strong> dari supplier.</div>
-
-      <!-- PO Info -->
-      <div class="doc-preview" id="matchPOInfo">
-        <h4>📄 Purchase Order</h4>
-        <div class="loading">Memuat data PO</div>
-      </div>
-
-      <!-- Invoice Info -->
-      <div class="doc-preview" id="matchInvoiceInfo">
-        <h4>🧾 Invoice Supplier</h4>
-        <div class="loading">Memuat data invoice</div>
-      </div>
-
-      <!-- Matching Result Table -->
-      <div id="matchResultArea" style="display:none">
-        <p style="font-size:12px;font-weight:600;color:var(--muted);text-transform:uppercase;letter-spacing:0.04em;margin-bottom:8px">Hasil Pencocokan</p>
-        <table class="match-table">
-          <thead>
-            <tr>
-              <th>Dokumen</th>
-              <th>Data PO</th>
-              <th>Data Invoice</th>
-              <th>Status</th>
-            </tr>
-          </thead>
-          <tbody id="matchTableBody"></tbody>
-        </table>
-      </div>
-
-      <div class="field">
-        <label>Catatan Matching</label>
-        <textarea id="catatanMatching" placeholder="Catatan hasil verifikasi dokumen..."></textarea>
-      </div>
-    </div>
-    <div class="modal-footer">
-      <button class="btn btn-outline" onclick="closeModal('modalMatching')">Batal</button>
-      <button class="btn btn-warn" onclick="eksekusiMatching('tolak')" id="btnMatchTolak">
-        <svg viewBox="0 0 24 24"><path d="M18 6L6 18M6 6l12 12"/></svg>Ada Ketidaksesuaian
-      </button>
-      <button class="btn btn-green" onclick="eksekusiMatching('ok')" id="btnMatchOk">
-        <svg viewBox="0 0 24 24"><path d="M9 11l3 3L22 4"/></svg>Matching OK
-      </button>
-    </div>
+  <div class="pane">
+    <h3 class="pane-title" id="pTitle">3-Way Matching Verification</h3>
+    <p class="pane-desc" id="pDesc">Mencocokkan Berkas Pengajuan (PR), Hasil Fisik Pengiriman (Surat Jalan), dan Berkas Penagihan (Invoice Supplier).</p>
+    <div id="contentArea">Memuat data transaksi...</div>
   </div>
 </div>
 
-<!-- MODAL: TERBITKAN VOUCHER -->
-<div class="modal-overlay" id="modalVoucher">
-  <div class="modal">
-    <div class="modal-header">
-      <span class="modal-title">Terbitkan Voucher Pembayaran</span>
-      <button class="modal-close" onclick="closeModal('modalVoucher')">×</button>
-    </div>
-    <div class="modal-body">
-      <div class="success-box">✓ 3-Way Matching telah diverifikasi. Terbitkan voucher sebagai otorisasi pembayaran resmi.</div>
-
-      <div class="invoice-detail">
-        <div class="invoice-grid">
-          <div>
-            <div class="label">Nama Barang</div>
-            <div class="value" id="vNamaBarang">—</div>
+<div id="modalCetak" class="modal-overlay" onclick="tutupCetak()">
+  <div style="background:white; padding:30px; border-radius:12px; width:100%; max-width:540px;" onclick="event.stopPropagation()">
+      <div style="display:flex; justify-content:space-between; margin-bottom:20px; border-bottom:1px solid #eee; padding-bottom:10px;">
+          <h3 style="font-weight:600; font-size:15px;">📄 Berkas Invoice Lunas (Sah)</h3>
+          <div style="display:flex; gap:8px;">
+            <button onclick="unduhPDF()" style="background:#059669; color:white; border:none; padding:6px 14px; border-radius:6px; cursor:pointer; font-weight:bold; font-size:12px;">📥 Simpan ke PDF</button>
+            <button onclick="tutupCetak()" style="background:#e2e8f0; border:none; padding:6px 12px; border-radius:6px; cursor:pointer; font-size:12px;">Tutup</button>
           </div>
-          <div>
-            <div class="label">Supplier</div>
-            <div class="value" id="vSupplier">—</div>
+      </div>
+      
+      <div id="pdfArea" style="background:white; padding:25px; border:1px solid #e2e8f0; font-family:'DM Sans', sans-serif; border-radius:8px;">
+          <div style="display:flex; justify-content:space-between; border-bottom:2px solid #064e3b; padding-bottom:12px; margin-bottom:20px;">
+            <div>
+              <h2 style="color:#064e3b; margin:0; font-size:16px; font-weight:bold;">ITK PROCUREMENT</h2>
+              <p style="font-size:11px; color:#64748b; margin-top:2px;">Institut Teknologi Kalimantan</p>
+            </div>
+            <div style="text-align:right;">
+              <h4 style="margin:0; font-size:12px; color:#0f172a;">BERKAS INVOICE</h4>
+              <p id="mInv" style="font-size:11px; color:#64748b; font-weight:bold; margin-top:2px;">-</p>
+            </div>
           </div>
-          <div>
-            <div class="label">Nilai PO</div>
-            <div class="value" id="vNilai">—</div>
+          
+          <div style="margin-bottom:20px; font-size:12px;">
+            <p style="margin:4px 0; color:#64748b;">Nama Barang Pengadaan:</p>
+            <strong id="mNama" style="font-size:14px; color:#0f172a; display:block; margin-bottom:10px;">-</strong>
+            
+            <p style="margin:4px 0; color:#64748b;">Mitra Supplier Resmi:</p>
+            <strong id="mSupplier" style="font-size:13px; color:#0f172a; display:block; margin-bottom:10px;">-</strong>
           </div>
-          <div>
-            <div class="label">No. Invoice</div>
-            <div class="value" id="vInvoice">—</div>
+          
+          <div style="background:#f0fdf4; padding:15px; border-radius:6px; display:flex; justify-content:space-between; align-items:center; border:1px solid #bbf7d0;">
+            <span style="font-size:12px; font-weight:600; color:#166534;">TOTAL LIKUIDASI KAS:</span>
+            <strong id="mHarga" style="font-size:16px; color:#059669; font-family:'DM Mono', monospace;">Rp 0</strong>
           </div>
-        </div>
+          
+          <div style="margin-top:25px; padding-top:12px; border-top:1px dashed #e2e8f0; text-align:center;">
+            <p style="font-size:10px; color:#94a3b8; font-style:italic; margin:0;">Dokumen ini merupakan arsip pengeluaran dana resmi yang sah di lingkungan ITK.</p>
+          </div>
       </div>
-
-      <div class="field">
-        <label>Nomor Voucher *</label>
-        <input id="nomorVoucher" type="text" placeholder="Contoh: VCH/2026/001">
-      </div>
-      <div class="field">
-        <label>Tanggal Voucher</label>
-        <input id="tglVoucher" type="date">
-      </div>
-      <div class="field">
-        <label>Catatan Voucher</label>
-        <textarea id="catatanVoucher" placeholder="Catatan internal pembayaran..."></textarea>
-      </div>
-    </div>
-    <div class="modal-footer">
-      <button class="btn btn-outline" onclick="closeModal('modalVoucher')">Batal</button>
-      <button class="btn btn-purple" onclick="eksekusiVoucher()">
-        <svg viewBox="0 0 24 24"><path d="M14 2H6a2 2 0 00-2 2v16a2 2 0 002 2h12a2 2 0 002-2V8z"/><polyline points="14,2 14,8 20,8"/></svg>
-        Terbitkan Voucher
-      </button>
-    </div>
-  </div>
-</div>
-
-<!-- MODAL: KONFIRMASI BAYAR -->
-<div class="modal-overlay" id="modalBayar">
-  <div class="modal">
-    <div class="modal-header">
-      <span class="modal-title">Konfirmasi Pembayaran</span>
-      <button class="modal-close" onclick="closeModal('modalBayar')">×</button>
-    </div>
-    <div class="modal-body">
-      <div class="warn-box">⚠️ Pastikan transfer sudah dilakukan ke rekening supplier sebelum mengkonfirmasi.</div>
-
-      <div class="doc-preview" id="bayarInfo">
-        <div class="loading">Memuat data</div>
-      </div>
-
-      <div class="field">
-        <label>Nomor Referensi Transfer *</label>
-        <input id="noTransfer" type="text" placeholder="Contoh: TRF/BCA/20260602/001">
-      </div>
-      <div class="field">
-        <label>Tanggal Transfer</label>
-        <input id="tglTransfer" type="date">
-      </div>
-      <div class="field">
-        <label>Bank / Metode Pembayaran</label>
-        <select id="bankBayar">
-          <option value="">Pilih bank...</option>
-          <option>BCA</option>
-          <option>BNI</option>
-          <option>BRI</option>
-          <option>Mandiri</option>
-          <option>BSI</option>
-          <option>Transfer Tunai</option>
-        </select>
-      </div>
-      <div class="field">
-        <label>Catatan</label>
-        <textarea id="catatanBayar" placeholder="Catatan tambahan pembayaran..."></textarea>
-      </div>
-    </div>
-    <div class="modal-footer">
-      <button class="btn btn-outline" onclick="closeModal('modalBayar')">Batal</button>
-      <button class="btn btn-accent" onclick="eksekusiBayar()">
-        <svg viewBox="0 0 24 24"><path d="M9 11l3 3L22 4"/></svg>
-        Konfirmasi Dibayar
-      </button>
-    </div>
   </div>
 </div>
 
 <script>
-const { createClient } = supabase
-const sb = createClient(
-  'https://bgtgeltkbanlnvymalum.supabase.co',
-  'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImJndGdlbHRrYmFubG52eW1hbHVtIiwicm9sZSI6ImFub24iLCJpYXQiOjE3Nzk1MTAwNDksImV4cCI6MjA5NTA4NjA0OX0.-JlapeQpug44SjkEKgb1wyoX2_ftdGGcAnTHJhdzvwE'
-)
+const SB_URL = "https://bgtgeltkbanlnvymalum.supabase.co";
+const SB_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImJndGdlbHRrYmFubG52eW1hbHVtIiwicm9sZSI6ImFub24iLCJpYXQiOjE3Nzk1MTAwNDksImV4cCI6MjA5NTA4NjA0OX0.-JlapeQpug44SjkEKgb1wyoX2_ftdGGcAnTHJhdzvwE";
+const sb = supabase.createClient(SB_URL, SB_KEY);
 
-let currentPRId = null
-let currentPOData = null
-let currentPRData = null
+let semuaData = [];
+let tabAktif = 'matching';
+let itemTerpilih = null;
 
-// ── UTILS ──────────────────────────────────────────
-function fmtDate(d) {
-  if (!d) return '—'
-  return new Date(d).toLocaleDateString('id-ID', { day:'2-digit', month:'short', year:'numeric' })
-}
-function fmtRupiah(n) {
-  if (!n) return '—'
-  return 'Rp ' + Number(n).toLocaleString('id-ID')
-}
-function emptyState(msg) {
-  return `<div class="empty-state">
-    <svg viewBox="0 0 24 24"><path d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2"/><rect x="9" y="3" width="6" height="4" rx="1"/></svg>
-    <p>${msg}</p>
-  </div>`
-}
-function switchTab(id, el) {
-  document.querySelectorAll('.tab-panel').forEach(p => p.classList.remove('active'))
-  document.querySelectorAll('.tab').forEach(t => t.classList.remove('active'))
-  document.getElementById('tab-' + id).classList.add('active')
-  el.classList.add('active')
-}
-function closeModal(id) { document.getElementById(id).classList.remove('show') }
-function openModal(id) { document.getElementById(id).classList.add('show') }
-
-// ── AUTH ───────────────────────────────────────────
-async function cekLogin() {
-  const { data } = await sb.auth.getSession()
-  if (!data.session) { window.location.href = 'index.html'; return }
-  const email = data.session.user.email
-  document.getElementById('userEmail').textContent = email
-  document.getElementById('avatarInitial').textContent = email.charAt(0).toUpperCase()
-  await muatSemua()
-  setupRealtime()
+async function dapatkanData() {
+  const { data, error } = await sb.from('purchase_requests').select('*').order('created_at', { ascending: false });
+  if (error) { console.error(error); return; }
+  semuaData = data || [];
+  updateCounters();
+  renderTab();
 }
 
-async function logout() { await sb.auth.signOut(); window.location.href = 'index.html' }
+function updateCounters() {
+  const matching = semuaData.filter(i => !i.status || i.status === 'verifikasi_sj' || i.status === 'perlu_matching').length;
+  const voucher = semuaData.filter(i => i.status === 'terbitkan_voucher').length;
+  const bayar = semuaData.filter(i => i.status === 'proses_bayar').length;
+  const selesai = semuaData.filter(i => i.status === 'selesai').length;
 
-// ── REALTIME ───────────────────────────────────────
-function setupRealtime() {
-  sb.channel('keuangan-realtime')
-    .on('postgres_changes', { event: '*', schema: 'public', table: 'purchase_request' }, () => muatSemua())
-    .on('postgres_changes', { event: '*', schema: 'public', table: 'purchase_order' }, () => muatSemua())
-    .subscribe()
+  document.getElementById('cMatching').textContent = matching;
+  document.getElementById('cVoucher').textContent = voucher;
+  document.getElementById('cBayar').textContent = bayar;
+  document.getElementById('cSelesai').textContent = selesai;
 }
 
-// ── LOAD ALL ───────────────────────────────────────
-async function muatSemua() {
-  await Promise.all([muatMatching(), muatVoucher(), muatBayar(), muatSelesai()])
-}
+function renderTab() {
+  const container = document.getElementById('contentArea');
+  container.innerHTML = '';
 
-// ── TAB 1: 3-WAY MATCHING ─────────────────────────
-// Status masuk: 'verifikasi_sj' (SJ sudah diverifikasi staf pengadaan DAN invoice sudah diserahkan supplier)
-async function muatMatching() {
-  // Ambil SEMUA PR yang statusnya verifikasi_sj
-  const { data, error } = await sb
-    .from('purchase_request')
-    .select('*')
-    .eq('status', 'verifikasi_sj')
-    .order('created_at', { ascending: true })
-
-  const el = document.getElementById('listMatching')
-  const count = data ? data.length : 0
-  document.getElementById('badgeMatching').textContent = count
-  document.getElementById('sMatching').textContent = count
-
-  if (error) { el.innerHTML = `<p style="color:red;font-size:13px">Error: ${error.message}</p>`; return }
-  if (!data || data.length === 0) { el.innerHTML = emptyState('Tidak ada berkas PR pada tahap ini.'); return }
-
-  // Untuk setiap PR, ambil PO-nya
-  const renders = await Promise.all(data.map(async pr => {
-    const { data: po } = await sb.from('purchase_order').select('*').eq('pr_id', pr.id).maybeSingle()
-
-    const namaSupplier = po ? po.nama_supplier : '—'
-    const nilaiPO = po ? fmtRupiah(po.harga_total) : '—'
-    const noInvoice = pr.nomor_invoice || '—'
-    const noSJ = pr.surat_jalan || '—'
-
-    const invoiceAda = pr.nomor_invoice && pr.nomor_invoice.trim() !== ''
-    const sjAda = pr.surat_jalan && pr.surat_jalan.trim() !== ''
-
-    return `
-    <div class="pr-item">
-      <div class="pr-row">
-        <div style="flex:1">
-          <div class="pr-name">${pr.nama_barang}</div>
-          <div class="pr-meta">
-            Jumlah: <b>${pr.jumlah} unit</b> &nbsp;·&nbsp; Supplier: <b>${namaSupplier}</b> &nbsp;·&nbsp; Nilai: <b>${nilaiPO}</b>
-          </div>
-          <div class="pr-meta" style="margin-top:4px">
-            📋 PO: ${po ? (po.nomor_po || po.id.slice(0,8).toUpperCase()) : '—'} &nbsp;|&nbsp;
-            🚛 SJ: <span style="color:${sjAda ? 'var(--green)' : 'var(--warn);font-weight:600'}">${noSJ}</span> &nbsp;|&nbsp;
-            🧾 Invoice: <span style="color:${invoiceAda ? 'var(--green)' : 'var(--warn);font-weight:600'}">${noInvoice}</span>
-          </div>
-        </div>
-        <span class="badge verifikasi_sj"><span class="badge-dot"></span>Siap Matching</span>
-      </div>
-      ${!invoiceAda ? `<div class="warn-box" style="margin-top:10px;margin-bottom:0">⏳ Menunggu supplier menyerahkan nomor invoice.</div>` : `
-      <div class="pr-actions">
-        <button class="btn btn-warn" onclick="bukaModalMatching('${pr.id}')">
-          <svg viewBox="0 0 24 24"><path d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2"/><rect x="9" y="3" width="6" height="4" rx="1"/><path d="M9 12l2 2 4-4"/></svg>
-          Lakukan 3-Way Matching
-        </button>
-      </div>`}
-    </div>`
-  }))
-
-  el.innerHTML = renders.join('')
-}
-
-async function bukaModalMatching(prId) {
-  currentPRId = prId
-
-  // Ambil data PR
-  const { data: pr } = await sb.from('purchase_request').select('*').eq('id', prId).single()
-  // Ambil data PO
-  const { data: po } = await sb.from('purchase_order').select('*').eq('pr_id', prId).maybeSingle()
-
-  currentPRData = pr
-  currentPOData = po
-
-  // Render PO info
-  const poInfo = document.getElementById('matchPOInfo')
-  poInfo.innerHTML = `<h4>📄 Purchase Order</h4>
-    <div class="doc-row"><span>No. PO</span><span>${po ? (po.nomor_po || po.id.slice(0,8).toUpperCase()) : '—'}</span></div>
-    <div class="doc-row"><span>Nama Barang</span><span>${pr.nama_barang}</span></div>
-    <div class="doc-row"><span>Jumlah</span><span>${pr.jumlah} unit</span></div>
-    <div class="doc-row"><span>Supplier</span><span>${po ? po.nama_supplier : '—'}</span></div>
-    <div class="doc-row"><span>Nilai PO</span><span style="font-weight:700;color:var(--green-mid)">${po ? fmtRupiah(po.harga_total) : '—'}</span></div>
-    <div class="doc-row"><span>Tanggal PO</span><span>${po ? fmtDate(po.tanggal_po) : '—'}</span></div>`
-
-  // Render Invoice info
-  const invInfo = document.getElementById('matchInvoiceInfo')
-  invInfo.innerHTML = `<h4>🧾 Invoice Supplier</h4>
-    <div class="doc-row"><span>No. Invoice</span><span style="font-weight:700">${pr.nomor_invoice || '—'}</span></div>
-    <div class="doc-row"><span>No. Surat Jalan</span><span>${pr.surat_jalan || '—'}</span></div>
-    <div class="doc-row"><span>Diserahkan</span><span>${pr.invoice_diserahkan_at ? fmtDate(pr.invoice_diserahkan_at) : 'oleh Supplier'}</span></div>`
-
-  // Render matching table
-  const tbody = document.getElementById('matchTableBody')
-  const namaMatch = pr.nama_barang === (po ? pr.nama_barang : '')
-  const supplierMatch = po && po.nama_supplier
-  const invoiceAda = pr.nomor_invoice && pr.nomor_invoice.trim() !== ''
-  const sjAda = pr.surat_jalan && pr.surat_jalan.trim() !== ''
-
-  tbody.innerHTML = `
-    <tr>
-      <td>Nama Barang</td>
-      <td>${pr.nama_barang}</td>
-      <td>${pr.nama_barang}</td>
-      <td><span class="match-badge ok">✓ Sesuai</span></td>
-    </tr>
-    <tr>
-      <td>Supplier</td>
-      <td>${po ? po.nama_supplier : '—'}</td>
-      <td>${po ? po.nama_supplier : '—'}</td>
-      <td><span class="match-badge ${supplierMatch ? 'ok' : 'warn'}">${supplierMatch ? '✓ Sesuai' : '⚠ Periksa'}</span></td>
-    </tr>
-    <tr>
-      <td>Surat Jalan</td>
-      <td>Diperlukan</td>
-      <td>${pr.surat_jalan || '—'}</td>
-      <td><span class="match-badge ${sjAda ? 'ok' : 'warn'}">${sjAda ? '✓ Ada' : '⚠ Belum'}</span></td>
-    </tr>
-    <tr>
-      <td>Invoice</td>
-      <td>Diperlukan</td>
-      <td>${pr.nomor_invoice || '—'}</td>
-      <td><span class="match-badge ${invoiceAda ? 'ok' : 'warn'}">${invoiceAda ? '✓ Ada' : '⚠ Belum'}</span></td>
-    </tr>`
-
-  document.getElementById('matchResultArea').style.display = 'block'
-  document.getElementById('catatanMatching').value = ''
-  openModal('modalMatching')
-}
-
-async function eksekusiMatching(hasil) {
-  const catatan = document.getElementById('catatanMatching').value.trim()
-  if (hasil === 'ok') {
-    const { error } = await sb.from('purchase_request').update({
-      status: 'matched',
-      catatan_matching: catatan || 'Dokumen lengkap dan sesuai.'
-    }).eq('id', currentPRId)
-    if (!error) { closeModal('modalMatching'); muatSemua(); alert('✅ 3-Way Matching berhasil! PR lanjut ke penerbitan voucher.') }
-    else alert('Error: ' + error.message)
+  let listFiltered = [];
+  if (tabAktif === 'matching') {
+    listFiltered = semuaData.filter(i => !i.status || i.status === 'verifikasi_sj' || i.status === 'perlu_matching');
+  } else if (tabAktif === 'voucher') {
+    listFiltered = semuaData.filter(i => i.status === 'terbitkan_voucher');
+  } else if (tabAktif === 'bayar') {
+    listFiltered = semuaData.filter(i => i.status === 'proses_bayar');
   } else {
-    if (!catatan) { alert('Tuliskan catatan ketidaksesuaian!'); return }
-    const { error } = await sb.from('purchase_request').update({
-      status: 'matching_gagal',
-      catatan_matching: catatan
-    }).eq('id', currentPRId)
-    if (!error) { closeModal('modalMatching'); muatSemua(); alert('⚠️ Matching ditandai ada ketidaksesuaian. Koordinasikan dengan supplier.') }
-    else alert('Error: ' + error.message)
+    listFiltered = semuaData.filter(i => i.status === 'selesai');
   }
-}
 
-// ── TAB 2: VOUCHER ────────────────────────────────
-async function muatVoucher() {
-  // Ambil SEMUA PR status 'matched'
-  const { data, error } = await sb
-    .from('purchase_request')
-    .select('*')
-    .eq('status', 'matched')
-    .order('created_at', { ascending: true })
+  if (listFiltered.length === 0) {
+    container.innerHTML = `<p style="color:var(--muted); font-size:13px; text-align:center; padding:40px 0;">Tidak ada berkas transaksi di tahap ini.</p>`;
+    return;
+  }
 
-  const el = document.getElementById('listVoucher')
-  const count = data ? data.length : 0
-  document.getElementById('badgeVoucher').textContent = count
-  document.getElementById('sVoucher').textContent = count
+  listFiltered.forEach(item => {
+    let btnText = "Verifikasi & Teruskan ke Voucher →";
+    let nextStatus = "terbitkan_voucher";
 
-  if (error) { el.innerHTML = `<p style="color:red;font-size:13px">Error: ${error.message}</p>`; return }
-  if (!data || data.length === 0) { el.innerHTML = emptyState('Tidak ada voucher yang perlu diterbitkan.'); return }
+    if (tabAktif === 'voucher') { btnText = "Terbitkan Kas & Setujui Pembayaran →"; nextStatus = "proses_bayar"; }
+    else if (tabAktif === 'bayar') { btnText = "Eksekusi Dana (Selesai Terbayar) →"; nextStatus = "selesai"; }
 
-  const renders = await Promise.all(data.map(async pr => {
-    const { data: po } = await sb.from('purchase_order').select('*').eq('pr_id', pr.id).maybeSingle()
-    return `
-    <div class="pr-item">
-      <div class="pr-row">
-        <div style="flex:1">
-          <div class="pr-name">${pr.nama_barang}</div>
-          <div class="pr-meta">
-            Supplier: <b>${po ? po.nama_supplier : '—'}</b> &nbsp;·&nbsp;
-            Nilai: <b>${po ? fmtRupiah(po.harga_total) : '—'}</b> &nbsp;·&nbsp;
-            Invoice: <b>${pr.nomor_invoice || '—'}</b>
-          </div>
-          ${pr.catatan_matching ? `<div class="pr-meta" style="color:var(--green-mid);margin-top:4px">✓ ${pr.catatan_matching}</div>` : ''}
-        </div>
-        <span class="badge matched"><span class="badge-dot"></span>Matched</span>
+    let actionHtml = `<button class="btn-verify" onclick="updateStatus('${item.id}', '${nextStatus}')">${btnText}</button>`;
+    
+    if (tabAktif === 'selesai') {
+      actionHtml = `<button class="btn-verify" style="background:#065f46;" onclick="bukaCetak('${item.id}')">📄 Simpan / Unduh Berkas Kontrak</button>`;
+    }
+
+    container.innerHTML += `
+      <div class="matching-card">
+        <h4 style="font-size:16px; font-weight:600; margin-bottom:6px;">${item.nama_barang || 'Barang Pengadaan'}</h4>
+        <p style="font-size:13px; color:var(--muted); margin-bottom:14px;">
+          Nominal: <b>Rp ${Number(item.harga || 0).toLocaleString('id-ID')}</b> &bull; 
+          No Invoice: <span style="color:var(--text); font-weight:500;">${item.invoice_number || 'Belum Dilampirkan'}</span>
+        </p>
+        ${actionHtml}
       </div>
-      <div class="pr-actions">
-        <button class="btn btn-purple" onclick="bukaModalVoucher('${pr.id}','${pr.nama_barang}','${po ? po.nama_supplier : ''}','${po ? po.harga_total : 0}','${pr.nomor_invoice || ''}')">
-          <svg viewBox="0 0 24 24"><path d="M14 2H6a2 2 0 00-2 2v16a2 2 0 002 2h12a2 2 0 002-2V8z"/><polyline points="14,2 14,8 20,8"/></svg>
-          Terbitkan Voucher
-        </button>
-      </div>
-    </div>`
-  }))
-
-  el.innerHTML = renders.join('')
+    `;
+  });
 }
 
-function bukaModalVoucher(prId, namaBarang, supplier, nilai, invoice) {
-  currentPRId = prId
-  document.getElementById('vNamaBarang').textContent = namaBarang
-  document.getElementById('vSupplier').textContent = supplier || '—'
-  document.getElementById('vNilai').textContent = fmtRupiah(nilai)
-  document.getElementById('vInvoice').textContent = invoice || '—'
-
-  // Auto-generate nomor voucher
-  const now = new Date()
-  const autoNo = `VCH/${now.getFullYear()}/${String(now.getMonth()+1).padStart(2,'0')}/${String(Math.floor(Math.random()*900)+100)}`
-  document.getElementById('nomorVoucher').value = autoNo
-  document.getElementById('tglVoucher').value = now.toISOString().split('T')[0]
-  document.getElementById('catatanVoucher').value = ''
-  openModal('modalVoucher')
+async function updateStatus(id, statusTarget) {
+  const { error } = await sb.from('purchase_requests').update({ status: statusTarget }).eq('id', id);
+  if (error) { alert('Gagal memperbarui alur: ' + error.message); }
+  else { alert('Sukses memperbarui tahapan berkas!'); dapatkanData(); }
 }
 
-async function eksekusiVoucher() {
-  const nomor = document.getElementById('nomorVoucher').value.trim()
-  if (!nomor) { alert('Isi nomor voucher!'); return }
-  const tgl = document.getElementById('tglVoucher').value
-  const catatan = document.getElementById('catatanVoucher').value.trim()
-
-  const { error } = await sb.from('purchase_request').update({
-    status: 'voucher_diterbitkan',
-    nomor_voucher: nomor,
-    tanggal_voucher: tgl || new Date().toISOString(),
-    catatan_voucher: catatan
-  }).eq('id', currentPRId)
-
-  if (!error) { closeModal('modalVoucher'); muatSemua(); alert('✅ Voucher berhasil diterbitkan!') }
-  else alert('Error: ' + error.message)
+function gantiTab(namaTab) {
+  tabAktif = namaTab;
+  document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
+  document.getElementById('tab-' + namaTab).classList.add('active');
+  
+  if(namaTab === 'matching') {
+    document.getElementById('pTitle').textContent = "3-Way Matching Verification";
+    document.getElementById('pDesc').textContent = "Mencocokkan Berkas Pengajuan (PR), Hasil Fisik Pengiriman (Surat Jalan), dan Berkas Penagihan (Invoice Supplier).";
+  } else if(namaTab === 'voucher') {
+    document.getElementById('pTitle').textContent = "Penerbitan Voucher Pembayaran Kas";
+    document.getElementById('pDesc').textContent = "Membuat nota pengeluaran kas kuitansi internal ITK berdasarkan tagihan klop.";
+  } else if(namaTab === 'bayar') {
+    document.getElementById('pTitle').textContent = "Proses Transfer Bank / Likuidasi";
+    document.getElementById('pDesc').textContent = "Otorisasi pengiriman uang nyata via Pemindahbukuan perbankan kepada vendor rekanan.";
+  } else {
+    document.getElementById('pTitle').textContent = "Arsip Transaksi Selesai";
+    document.getElementById('pDesc').textContent = "Daftar seluruh pengadaan yang telah lunas dibayarkan dan berkas dokumen digitalnya.";
+  }
+  renderTab();
 }
 
-// ── TAB 3: PROSES BAYAR ───────────────────────────
-async function muatBayar() {
-  // Ambil SEMUA PR status 'voucher_diterbitkan'
-  const { data, error } = await sb
-    .from('purchase_request')
-    .select('*')
-    .eq('status', 'voucher_diterbitkan')
-    .order('created_at', { ascending: true })
+async function bukaCetak(id) {
+  const item = semuaData.find(i => i.id === id);
+  if (!item) return;
+  itemTerpilih = item;
 
-  const el = document.getElementById('listBayar')
-  const count = data ? data.length : 0
-  document.getElementById('badgeBayar').textContent = count
-  document.getElementById('sBayar').textContent = count
+  // 1. Ambil nama supplier resmi dari tabel purchase_order
+  const { data: poData } = await sb.from('purchase_order').select('nama_supplier, harga_total').eq('pr_id', item.id).maybeSingle();
+  
+  // 2. Ambil invoice resmi alternatif dari tabel invoices untuk jaminan data klop
+  const { data: invData } = await sb.from('invoices').select('nomor_invoice, nilai').eq('pr_id', item.id).maybeSingle();
 
-  if (error) { el.innerHTML = `<p style="color:red;font-size:13px">Error: ${error.message}</p>`; return }
-  if (!data || data.length === 0) { el.innerHTML = emptyState('Tidak ada pembayaran yang perlu diproses.'); return }
+  const namaVendor = poData ? poData.nama_supplier : "Mitra Penyedia Barang ITK";
+  const nomorInvoice = invData?.nomor_invoice || item.invoice_number || 'INV-ARSIP-DIGITAL';
+  const totalHarga = poData?.harga_total || invData?.nilai || item.harga || 0;
 
-  const renders = await Promise.all(data.map(async pr => {
-    const { data: po } = await sb.from('purchase_order').select('*').eq('pr_id', pr.id).maybeSingle()
-    return `
-    <div class="pr-item">
-      <div class="pr-row">
-        <div style="flex:1">
-          <div class="pr-name">${pr.nama_barang}</div>
-          <div class="pr-meta">
-            Supplier: <b>${po ? po.nama_supplier : '—'}</b> &nbsp;·&nbsp;
-            Nilai: <b style="color:var(--green-mid)">${po ? fmtRupiah(po.harga_total) : '—'}</b>
-          </div>
-          <div class="pr-meta" style="margin-top:4px">
-            📑 Voucher: <b>${pr.nomor_voucher || '—'}</b> &nbsp;·&nbsp;
-            🧾 Invoice: <b>${pr.nomor_invoice || '—'}</b>
-          </div>
-        </div>
-        <span class="badge voucher"><span class="badge-dot"></span>Voucher Terbit</span>
-      </div>
-      <div class="pr-actions">
-        <button class="btn btn-accent" onclick="bukaModalBayar('${pr.id}', '${pr.nama_barang}', '${po ? po.nama_supplier : ''}', '${po ? po.harga_total : 0}', '${pr.nomor_voucher || ''}')">
-          <svg viewBox="0 0 24 24"><rect x="1" y="4" width="22" height="16" rx="2"/><line x1="1" y1="10" x2="23" y2="10"/></svg>
-          Proses Pembayaran
-        </button>
-      </div>
-    </div>`
-  }))
-
-  el.innerHTML = renders.join('')
+  document.getElementById('mNama').textContent = item.nama_barang;
+  document.getElementById('mInv').textContent = `NO. ${nomorInvoice}`;
+  document.getElementById('mSupplier').textContent = namaVendor;
+  document.getElementById('mHarga').textContent = "Rp " + Number(totalHarga).toLocaleString('id-ID');
+  
+  document.getElementById('modalCetak').style.display = 'flex';
 }
 
-function bukaModalBayar(prId, namaBarang, supplier, nilai, voucher) {
-  currentPRId = prId
-  const today = new Date().toISOString().split('T')[0]
-  document.getElementById('tglTransfer').value = today
-  document.getElementById('noTransfer').value = ''
-  document.getElementById('bankBayar').value = ''
-  document.getElementById('catatanBayar').value = ''
-  document.getElementById('bayarInfo').innerHTML = `
-    <h4>💳 Detail Pembayaran</h4>
-    <div class="doc-row"><span>Nama Barang</span><span>${namaBarang}</span></div>
-    <div class="doc-row"><span>Supplier</span><span>${supplier}</span></div>
-    <div class="doc-row"><span>Jumlah Tagihan</span><span style="font-weight:700;color:var(--green-mid)">${fmtRupiah(nilai)}</span></div>
-    <div class="doc-row"><span>No. Voucher</span><span>${voucher}</span></div>`
-  openModal('modalBayar')
+function tutupCetak() { document.getElementById('modalCetak').style.display = 'none'; }
+
+function unduhPDF() {
+  const el = document.getElementById('pdfArea');
+  const namaFileClean = (itemTerpilih.nama_barang || 'Invoice').replace(/\s+/g, '-');
+  
+  const opsi = {
+    margin: 10,
+    filename: `Invoice-Lunas-${namaFileClean}.pdf`,
+    image: { type: 'jpeg', quality: 0.98 },
+    html2canvas: { scale: 2, useCORS: true },
+    jsPDF: { unit: 'mm', format: 'a4', orientation: 'portrait' }
+  };
+  
+  html2pdf().set(opsi).from(el).save().then(() => {
+    tutupCetak();
+  });
 }
 
-async function eksekusiBayar() {
-  const noTransfer = document.getElementById('noTransfer').value.trim()
-  if (!noTransfer) { alert('Isi nomor referensi transfer!'); return }
-  const tgl = document.getElementById('tglTransfer').value
-  const bank = document.getElementById('bankBayar').value
-  const catatan = document.getElementById('catatanBayar').value.trim()
-
-  const { error } = await sb.from('purchase_request').update({
-    status: 'selesai',
-    no_transfer: noTransfer,
-    tgl_transfer: tgl,
-    bank_pembayaran: bank,
-    catatan_bayar: catatan
-  }).eq('id', currentPRId)
-
-  if (!error) {
-    closeModal('modalBayar')
-    muatSemua()
-    alert('✅ Pembayaran dikonfirmasi! Proses pengadaan selesai.')
-  } else alert('Error: ' + error.message)
-}
-
-// ── TAB 4: SELESAI ────────────────────────────────
-async function muatSelesai() {
-  // Ambil SEMUA PR status 'selesai'
-  const { data, error } = await sb
-    .from('purchase_request')
-    .select('*')
-    .eq('status', 'selesai')
-    .order('created_at', { ascending: false })
-
-  const el = document.getElementById('listSelesai')
-  const count = data ? data.length : 0
-  document.getElementById('sSelesai').textContent = count
-
-  if (error) { el.innerHTML = `<p style="color:red;font-size:13px">Error: ${error.message}</p>`; return }
-  if (!data || data.length === 0) { el.innerHTML = emptyState('Belum ada transaksi yang selesai.'); return }
-
-  const renders = await Promise.all(data.map(async pr => {
-    const { data: po } = await sb.from('purchase_order').select('*').eq('pr_id', pr.id).maybeSingle()
-    return `
-    <div class="selesai-item">
-      <div class="pr-row">
-        <div style="flex:1">
-          <div class="pr-name">✓ ${pr.nama_barang}</div>
-          <div class="pr-meta">
-            Supplier: <b>${po ? po.nama_supplier : '—'}</b> &nbsp;·&nbsp;
-            Nilai: <b>${po ? fmtRupiah(po.harga_total) : '—'}</b>
-          </div>
-          <div class="pr-meta" style="margin-top:4px">
-            🧾 Invoice: ${pr.nomor_invoice || '—'} &nbsp;·&nbsp;
-            💳 ${pr.bank_pembayaran || '—'}: ${pr.no_transfer || '—'} &nbsp;·&nbsp;
-            📅 ${fmtDate(pr.updated_at)}
-          </div>
-        </div>
-        <span class="badge selesai"><span class="badge-dot"></span>Selesai</span>
-      </div>
-    </div>`
-  }))
-
-  el.innerHTML = renders.join('')
-}
-
-// ── INIT ───────────────────────────────────────────
-cekLogin()
+window.onload = dapatkanData;
 </script>
 </body>
 </html>
