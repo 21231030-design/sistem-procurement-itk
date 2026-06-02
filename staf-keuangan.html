@@ -22,7 +22,6 @@
     
     .container { max-width: 1200px; margin: 0 auto; padding: 2rem 1.5rem; }
     
-    /* STYLE TAB MENU SESUAI AWAL */
     .tab-container { display: flex; gap: 10px; margin-bottom: 1.5rem; }
     .tab-btn { padding: 12px 24px; border-radius: 8px; font-weight: 600; font-size: 14px; border: 1px solid #e2e8f0; cursor: pointer; transition: all 0.2s; background: #fff; color: #475569; }
     .tab-btn.active { background: #0f2847; color: #fff; border-color: #0f2847; }
@@ -43,7 +42,6 @@
     
     .badge-match { background: #d1fae5; color: #065f46; padding: 6px 10px; border-radius: 6px; font-weight: 600; font-size: 13px; display: inline-flex; align-items: center; gap: 4px; }
     
-    /* BUTTONS STYLE BANGET */
     .btn-actions { display: flex; gap: 12px; margin-top: 1rem; }
     .btn { border: none; border-radius: 6px; padding: 12px 20px; font-size: 14px; font-weight: 600; cursor: pointer; display: inline-flex; align-items: center; gap: 8px; transition: opacity 0.2s; }
     .btn:hover { opacity: 0.9; }
@@ -82,7 +80,6 @@
     const { data: prs } = await sb.from('purchase_request').select('*').order('created_at', { ascending: false });
     const container = document.getElementById('containerAudit');
 
-    // Memuat berkas tagihan aktif (yang berstatus invoice_dikirim, disetujui, dll, tapi belum lunas)
     const dataKeuangan = prs ? prs.filter(p => ['invoice_dikirim', 'barang_diterima', 'dikirim', 'disetujui'].includes(p.status)) : [];
 
     if (dataKeuangan.length === 0) {
@@ -97,7 +94,6 @@
       const namaBarang = pr.nama_barang || "Barang Pengadaan";
       const qty = Number(pr.jumlah) || 1;
 
-      // Perhitungan Harga Otomatis Realtime
       let totalHarga = 0;
       if (po && po.total_harga && Number(po.total_harga) > 0) {
         totalHarga = Number(po.total_harga);
@@ -171,14 +167,12 @@
     const doc = new jsPDF();
     const formatRupiah = (angka) => 'Rp ' + Number(angka).toLocaleString('id-ID');
 
-    // Kop Surat Resmi Kampus
     doc.setFont("times", "bold"); doc.setFontSize(16);
     doc.text("INSTITUT TEKNOLOGI KALIMANTAN", 105, 20, { align: "center" });
     doc.setFont("times", "normal"); doc.setFontSize(10);
     doc.text("Sistem Integrasi Pengadaan Barang & Jasa Digital Kampus Terpadu", 105, 26, { align: "center" });
     doc.line(15, 30, 195, 30); doc.line(15, 31, 195, 31);
 
-    // Judul Dokumen Berita Acara
     doc.setFont("times", "bold"); doc.setFontSize(13);
     doc.text("BERITA ACARA AUDIT & VERIFIKASI PEMBAYARAN", 105, 45, { align: "center" });
 
@@ -186,7 +180,6 @@
     let intro = "Berdasarkan hasil pencocokan sistem otomatis finansial (3-Way Matching System), Tim Audit menyatakan dokumen pengadaan berikut telah dinyatakan valid dan sesuai:";
     doc.text(doc.splitTextToSize(intro, 175), 15, 55);
 
-    // Render Tabel Manual Sesuai Struktur Asli Awal
     let y = 70;
     const barisData = [
       ["Komponen Dokumen", "Detail Informasi Kontrak", "Status Validasi"],
@@ -209,7 +202,6 @@
     let closing = "Demikian berita acara audit ini diterbitkan secara sah oleh sistem manajemen keuangan untuk dipergunakan sebagai landasan utama pencairan dana korporat.";
     doc.text(doc.splitTextToSize(closing, 175), 15, y + 15);
 
-    // Tanda Tangan
     let ttdY = y + 35;
     doc.text("Balikpapan, " + new Date().toLocaleDateString('id-ID'), 140, ttdY);
     doc.setFont("times", "bold"); doc.text("Kepala Bagian Keuangan ITK", 140, ttdY + 6);
@@ -221,15 +213,12 @@
 
   async function bayarLunas(prId) {
     if(confirm("Apakah Anda ingin memvalidasi pembayaran ini? Dana transaksi akan langsung dialokasikan ke rekening vendor terpilih.")) {
-      
-      // FIXED FORMAT: Menggunakan sintaks .eq('id', prId) murni tanpa bungkus objek {} agar Supabase sukses membaca update datanya!
       const { error } = await sb.from('purchase_request').update({ status: 'lunas' }).eq('id', prId);
-      
       if(error) {
         alert("Eror update database: " + error.message);
       } else {
         alert("Sukses! Pembayaran Berhasil Terverifikasi Lunas.");
-        await muatEvaluasiKeuangan(); // Refresh halaman otomatis
+        await muatEvaluasiKeuangan();
       }
     }
   }
