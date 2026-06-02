@@ -9,8 +9,8 @@
 <style>
 *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
 :root {
-  --pink: #d946ef; --pink-dark: #c026d3; --pink-soft: #fdf4ff;
-  --emerald: #059669; --emerald-soft: #d1fae5;
+  --pink: #0f2847; --pink-dark: #1a3a63; --pink-soft: #f0f4f8;
+  --emerald: #10b981; --emerald-soft: #d1fae5;
   --amber: #f59e0b; --amber-soft: #fef3c7;
   --blue: #3b82f6; --blue-soft: #dbeafe;
   --danger: #ef4444; --danger-soft: #fee2e2;
@@ -18,86 +18,144 @@
   --border: #e5e7eb; --text: #111827; --muted: #6b7280;
   --radius: 16px; --radius-sm: 10px;
 }
-body { font-family: 'DM Sans', sans-serif; background: var(--bg); color: var(--text); padding: 40px 20px; line-height: 1.5; }
-.container { max-width: 1000px; margin: 0 auto; }
-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 32px; }
-h1 { font-size: 24px; font-weight: 600; color: #111827; }
-.btn-logout { background: #fee2e2; color: #dc2626; border: none; padding: 10px 18px; font-weight: 500; border-radius: var(--radius-sm); cursor: pointer; transition: 0.2s; font-size: 14px; }
-.btn-logout:hover { background: #fca5a5; }
-.card { background: var(--surface); border: 1px solid var(--border); border-radius: var(--radius); padding: 24px; margin-bottom: 24px; box-shadow: 0 1px 3px rgba(0,0,0,0.05); }
-.card-title { font-size: 16px; font-weight: 600; margin-bottom: 16px; display: flex; align-items: center; gap: 8px; }
-.po-item { border: 1px solid var(--border); padding: 18px; border-radius: var(--radius-sm); margin-bottom: 12px; display: flex; justify-content: space-between; align-items: center; transition: 0.2s; }
-.po-item:hover { border-color: #cbd5e1; background: #f8fafc; }
-.po-name { font-weight: 600; font-size: 15px; margin-bottom: 4px; }
-.po-meta { font-size: 13px; color: var(--muted); }
-.badge { padding: 4px 10px; border-radius: 20px; font-size: 12px; font-weight: 500; text-transform: capitalize; }
-.badge-aktif { background: var(--blue-soft); color: var(--blue); }
-.badge-proses { background: var(--amber-soft); color: var(--amber); }
-.btn-action { background: var(--text); color: white; border: none; padding: 8px 14px; border-radius: var(--radius-sm); font-size: 13px; font-weight: 500; cursor: pointer; }
-.btn-action:hover { opacity: 0.9; }
-.modal { display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.4); justify-content: center; align-items: center; z-index: 1000; }
-.modal-content { background: white; padding: 28px; border-radius: var(--radius); width: 100%; max-width: 440px; box-shadow: 0 20px 25px -5px rgba(0,0,0,0.1); }
-.form-group { margin-bottom: 16px; }
-.form-group label { display: block; font-size: 13px; font-weight: 500; margin-bottom: 6px; color: var(--text); }
-.form-group input { width: 100%; padding: 10px 12px; border: 1px solid var(--border); border-radius: var(--radius-sm); font-family: inherit; font-size: 14px; }
-.modal-actions { display: flex; justify-content: flex-end; gap: 10px; margin-top: 24px; }
-.btn-cancel { background: #f3f4f6; border: none; padding: 10px 16px; border-radius: var(--radius-sm); cursor: pointer; font-size: 13px; }
+body { font-family: 'DM Sans', sans-serif; background: var(--bg); color: var(--text); min-height: 100vh; padding-bottom: 40px; }
+
+nav {
+  background: var(--pink); padding: 0 2rem; height: 70px;
+  display: flex; align-items: center; justify-content: space-between;
+  box-shadow: 0 4px 20px rgba(0,0,0,0.08); position: sticky; top: 0; z-index: 100;
+}
+.nav-brand { display: flex; align-items: center; gap: 14px; }
+.nav-logo { width: 40px; height: 40px; background: rgba(255,255,255,0.1); border-radius: 12px; display: flex; align-items: center; justify-content: center; font-weight: 700; color: #fff; font-size: 18px; border: 1px solid rgba(255,255,255,0.15); }
+.nav-title { font-size: 16px; font-weight: 600; color: #fff; }
+.nav-sub { font-size: 12px; color: rgba(255,255,255,0.5); margin-top: 1px; }
+.btn-logout { background: rgba(255,255,255,0.1); border: 1px solid rgba(255,255,255,0.15); color: #fff; padding: 8px 16px; border-radius: 10px; font-size: 13px; cursor: pointer; font-weight: 500; font-family: inherit; transition: all 0.2s; }
+.btn-logout:hover { background: rgba(255,255,255,0.2); }
+
+.container { max-width: 1040px; margin: 2rem auto 0; padding: 0 1.5rem; }
+
+.header-panel { display: flex; align-items: center; justify-content: space-between; margin-bottom: 1.5rem; gap: 16px; flex-wrap: wrap; }
+.welcome-title { font-size: 22px; font-weight: 600; letter-spacing: -0.02em; }
+.welcome-desc { font-size: 13px; color: var(--muted); margin-top: 2px; }
+
+.card { background: var(--surface); border-radius: var(--radius); border: 1px solid var(--border); box-shadow: 0 1px 3px rgba(0,0,0,0.02); overflow: hidden; }
+.card-header { padding: 1.25rem 1.5rem; border-bottom: 1px solid var(--border); display: flex; align-items: center; justify-content: space-between; background: #fafafa; }
+.card-title { font-size: 14px; font-weight: 600; text-transform: uppercase; letter-spacing: 0.05em; color: var(--muted); }
+
+.po-list { display: flex; flex-direction: column; }
+.po-item { padding: 1.5rem; border-bottom: 1px solid var(--border); display: flex; align-items: center; justify-content: space-between; gap: 20px; transition: background 0.15s; }
+.po-item:last-child { border-bottom: none; }
+.po-item:hover { background: #fafafb; }
+.po-name { font-size: 16px; font-weight: 600; color: var(--text); margin-bottom: 4px; }
+.po-meta { font-size: 13px; color: var(--muted); display: flex; align-items: center; gap: 8px; flex-wrap: wrap; }
+
+.badge { display: inline-flex; align-items: center; padding: 4px 10px; border-radius: 30px; font-size: 11px; font-weight: 600; text-transform: uppercase; letter-spacing: 0.03em; }
+.badge-proses { background: var(--blue-soft); color: var(--blue); }
+.badge-aktif { background: var(--emerald-soft); color: var(--emerald); }
+
+.btn-action { border: none; padding: 9px 18px; border-radius: 10px; font-size: 13px; font-weight: 600; color: #fff; background: var(--blue); cursor: pointer; font-family: inherit; transition: all 0.2s; white-space: nowrap; box-shadow: 0 2px 8px rgba(59,130,246,0.2); }
+.btn-action:hover { opacity: 0.9; transform: translateY(-1px); }
+
+/* MODAL */
+.modal-overlay { position: fixed; inset: 0; background: rgba(17,24,39,0.4); backdrop-filter: blur(4px); z-index: 200; display: none; align-items: center; justify-content: center; padding: 1rem; }
+.modal-overlay.show { display: flex; }
+.modal { background: var(--surface); border-radius: var(--radius); width: 100%; max-width: 460px; box-shadow: 0 20px 25px -5px rgba(0,0,0,0.1), 0 10px 10px -5px rgba(0,0,0,0.04); overflow: hidden; animation: modalIn 0.2s ease-out; }
+@keyframes modalIn { from { transform: scale(0.95); opacity: 0; } to { transform: scale(1); opacity: 1; } }
+.modal-header { padding: 1.25rem 1.5rem; border-bottom: 1px solid var(--border); display: flex; align-items: center; justify-content: space-between; }
+.modal-title { font-size: 16px; font-weight: 600; }
+.modal-close { background: none; border: none; font-size: 22px; cursor: pointer; color: var(--muted); line-height: 1; }
+.modal-body { padding: 1.5rem; }
+.modal-footer { padding: 1rem 1.5rem; border-top: 1px solid var(--border); background: #fafafa; display: flex; justify-content: flex-end; gap: 10px; }
+
+.form-group { margin-bottom: 1.25rem; }
+.form-group:last-child { margin-bottom: 0; }
+.form-group label { display: block; font-size: 12px; font-weight: 500; color: var(--muted); margin-bottom: 6px; text-transform: uppercase; letter-spacing: 0.02em; }
+.form-group input { width: 100%; border: 1px solid var(--border); border-radius: var(--radius-sm); padding: 10px 14px; font-size: 14px; font-family: inherit; outline: none; transition: all 0.2s; background: #f9fafb; }
+.form-group input:focus { border-color: var(--blue); background: #fff; box-shadow: 0 0 0 3px rgba(59,130,246,0.1); }
+
+.btn-flat { border: none; padding: 9px 16px; border-radius: 8px; font-size: 13px; font-weight: 500; cursor: pointer; font-family: inherit; }
+.btn-flat-submit { background: var(--blue); color: #fff; font-weight: 600; }
+.btn-flat-cancel { background: transparent; color: var(--muted); border: 1px solid var(--border); }
+.btn-flat-cancel:hover { background: #f3f4f6; }
 </style>
 </head>
 <body>
 
-<div class="container">
-  <header>
+<nav>
+  <div class="nav-brand">
+    <div class="nav-logo">S</div>
     <div>
-      <h1>Dashboard Supplier Portal</h1>
-      <p style="color: var(--muted); font-size: 14px; margin-top: 2px;">ITK Procurement System &bull; Mitra Vendor Resmi</p>
+      <div class="nav-title">Portal Rekanan Vendor</div>
+      <div class="nav-sub">Dashboard Eksternal Supplier ITK</div>
     </div>
-    <button class="btn-logout" onclick="window.location.href='index.html'">Keluar Aplikasi</button>
-  </header>
+  </div>
+  <button class="btn-logout" onclick="window.location.href='index.html'">Keluar Sistem</button>
+</nav>
+
+<div class="container">
+  <div class="header-panel">
+    <div>
+      <h1 class="welcome-title">Selamat Datang, Rekanan Pengadaan</h1>
+      <p class="welcome-desc">Silakan proses logistik Surat Jalan barang dan input berkas Invoice tagihan resmi di bawah ini.</p>
+    </div>
+  </div>
 
   <div class="card">
-    <div class="card-title">📦 Pesanan Pembelian & Berkas Penagihan (PO)</div>
-    <div id="listPO"><p style="color:var(--muted); font-size:13px;">Sedang sinkronisasi database...</p></div>
-  </div>
-</div>
-
-<div class="modal" id="modalInvoice">
-  <div class="modal-content">
-    <h3 style="margin-bottom:16px; font-weight:600;">Penyerahan Berkas Tagihan</h3>
-    <p style="font-size:13px; color:var(--muted); margin-bottom:20px;">Masukkan nomor invoice resmi sebagai dokumen bukti untuk dicocokkan pada proses 3-Way Matching keuangan.</p>
-    
-    <div class="form-group">
-      <label>Nomor Invoice Tagihan</label>
-      <input type="text" id="invNomor" placeholder="Contoh: INV/ITK/2026/0049">
+    <div class="card-header">
+      <div class="card-title">Daftar Kontrak Purchase Order (PO) Aktif</div>
     </div>
-    
-    <div class="form-group">
-      <label>Nilai Nominal Penagihan (Rp)</label>
-      <input type="number" id="invNilai" placeholder="Masukkan total nominal angka">
-    </div>
-
-    <div class="form-group">
-      <label>Tanggal Invoice</label>
-      <input type="date" id="invTanggal">
-    </div>
-
-    <div class="modal-actions">
-      <button class="btn-cancel" onclick="tutupModal('modalInvoice')">Batal</button>
-      <button class="btn-action" onclick="submitTagihanInvoice()">Kirim Berkas Tagihan</button>
+    <div class="po-list" id="listPO">
+      <p style="padding:2rem; text-align:center; color:var(--muted); font-size:13px;">Menghubungkan ke secure server...</p>
     </div>
   </div>
 </div>
 
-<div class="modal" id="modalSJ">
-  <div class="modal-content">
-    <h3 style="margin-bottom:16px; font-weight:600;">Kirim Barang & Surat Jalan</h3>
-    <div class="form-group">
-      <label>Nomor Surat Jalan</label>
-      <input type="text" id="nomorSJ" placeholder="Contoh: SJ-001">
+<div class="modal-overlay" id="modalSJ">
+  <div class="modal">
+    <div class="modal-header">
+      <h3 class="modal-title">Input Dokumen Pengiriman (Surat Jalan)</h3>
+      <button class="modal-close" onclick="tutupModal('modalSJ')">×</button>
     </div>
-    <div class="modal-actions">
-      <button class="btn-cancel" onclick="tutupModal('modalSJ')">Batal</button>
-      <button class="btn-action" onclick="submitSuratJalan()">Kirim Surat Jalan</button>
+    <div class="modal-body">
+      <div class="form-group">
+        <label>Nomor Surat Jalan Ekspedisi</label>
+        <input type="text" id="sjNomor" placeholder="Contoh: SJ/ITK/2026/001">
+      </div>
+      <div class="form-group">
+        <label>Tanggal Pengiriman Fisik</label>
+        <input type="date" id="sjTanggal">
+      </div>
+    </div>
+    <div class="modal-footer">
+      <button class="btn-flat btn-flat-cancel" onclick="tutupModal('modalSJ')">Batal</button>
+      <button class="btn-flat btn-flat-submit" onclick="submitSuratJalan()">Konfirmasi Kirim Barang</button>
+    </div>
+  </div>
+</div>
+
+<div class="modal-overlay" id="modalInvoice">
+  <div class="modal">
+    <div class="modal-header">
+      <h3 class="modal-title" style="color:var(--amber)">Penerbitan Dokumen Invoice Tagihan</h3>
+      <button class="modal-close" onclick="tutupModal('modalInvoice')">×</button>
+    </div>
+    <div class="modal-body">
+      <div class="form-group">
+        <label>Nomor Invoice / Kuitansi</label>
+        <input type="text" id="invNomor" placeholder="Contoh: INV-9982-ITK">
+      </div>
+      <div class="form-group">
+        <label>Nilai Nominal Tagihan (Rp)</label>
+        <input type="number" id="invNilai" placeholder="Masukkan total nominal tagihan">
+      </div>
+      <div class="form-group">
+        <label>Tanggal Invoice Terbit</label>
+        <input type="date" id="invTanggal">
+      </div>
+    </div>
+    <div class="modal-footer">
+      <button class="btn-flat btn-flat-cancel" onclick="tutupModal('modalInvoice')">Batal</button>
+      <button class="btn-flat btn-flat-submit" style="background:var(--amber)" onclick="submitTagihanInvoice()">Kirim Invoice Ke Keuangan</button>
     </div>
   </div>
 </div>
@@ -109,23 +167,29 @@ const sb = supabase.createClient(SB_URL, SB_KEY);
 
 let aktivePRId = null;
 let aktivePOId = null;
-let activeSJPR = null;
 
+function upModal(id) { document.getElementById(id).classList.add('show'); }
+function tutupModal(id) { document.getElementById(id).classList.remove('show'); }
+function fmtRupiah(n) { return 'Rp ' + Number(n).toLocaleString('id-ID'); }
+
+// LOADING MASTER DATA PURCHASE ORDER BERDASARKAN ALUR YANG KETAT
 async function muatDataPO() {
   const el = document.getElementById('listPO');
 
+  // Mengambil data yang statusnya minimal sudah disetujui Manajer (po_dibuat dan seterusnya)
   const { data: prData, error: prErr } = await sb
     .from('purchase_request')
     .select('*')
+    .not('status', 'in', '("diajukan","verifikasi_pr","pencarian_vendor","menunggu","menunggu_approval","ditolak")')
     .order('created_at', { ascending: false });
 
   if (prErr) {
-    el.innerHTML = `<p style="color:red; font-size:13px">${prErr.message}</p>`;
+    el.innerHTML = `<p style="color:red; padding:2rem; font-size:13px">${prErr.message}</p>`;
     return;
   }
 
   if (!prData || prData.length === 0) {
-    el.innerHTML = `<p style="color:var(--muted); font-size:13px">Belum ada Purchase Order (PO) aktif.</p>`;
+    el.innerHTML = `<p style="color:var(--muted); padding:2rem; text-align:center; font-size:13px">Belum ada kontrak Purchase Order (PO) aktif dari Manajer.</p>`;
     return;
   }
 
@@ -138,30 +202,33 @@ async function muatDataPO() {
       .eq('pr_id', pr.id)
       .maybeSingle();
 
-    const { data: invoice } = await sb
-      .from('invoices')
-      .select('*')
-      .eq('po_id', po?.id)
-      .maybeSingle();
-
-    const sudahInvoice = !!invoice || !!pr.nomor_invoice;
     let buttonHtml = '';
 
-    // Perbaikan Logika Kondisional Alur Tombol Berjenjang (If-Else)
-    if (!pr.surat_jalan && (pr.status === 'po_dibuat' || pr.status === 'perlu_matching')) {
+    // LOGIKA KONDISIONAL TOMBOL BERDASARKAN PROGRESS STATUS REAL-TIME
+    if (pr.status === 'po_dibuat') {
+      // Kondisi 1: PO baru terbit, supplier harus kirim barang dan surat jalan dulu
       buttonHtml = `
-        <button class="btn-action" onclick="kirimSuratJalan('${pr.id}')">
+        <button class="btn-action" onclick="bukaModalSJ('${pr.id}')">
           Kirim Barang + SJ
         </button>`;
     } 
-    else if (pr.surat_jalan && !sudahInvoice) {
+    else if (pr.status === 'barang_dikirim') {
+      // Kondisi 2: Logistik dikirim, menunggu verifikasi fisik oleh user/gudang sebelum bisa tagih uang
       buttonHtml = `
-        <button class="btn-action" style="background:var(--amber)" onclick="bukaModalTagihan('${pr.id}','${po ? po.id : ''}')">
+        <span style="color:var(--muted); font-size:13px; font-style:italic; font-weight:500;">
+          ⏳ Menunggu Barang Diterima User/Gudang
+        </span>`;
+    } 
+    else if (pr.status === 'barang_diterima') {
+      // Kondisi 3: Barang sudah dipastikan sampai aman oleh gudang, tombol invoice menyala kuning
+      buttonHtml = `
+        <button class="btn-action" style="background:var(--amber); box-shadow: 0 2px 8px rgba(245,158,11,0.2)" onclick="bukaModalTagihan('${pr.id}','${po ? po.id : ''}', ${pr.estimasi_harga || 0})">
           Kirim Invoice
         </button>`;
     } 
     else {
-      buttonHtml = `<span style="color:var(--emerald);font-weight:600;font-size:13px;">✓ Berkas Selesai dikirim</span>`;
+      // Kondisi 4: Berkas tagihan sudah komplit masuk ke sistem keuangan (status verifikasi_sj atau selesai)
+      buttonHtml = `<span style="color:var(--emerald); font-weight:600; font-size:13px;">✓ Berkas Selesai dikirim</span>`;
     }
 
     el.innerHTML += `
@@ -171,15 +238,17 @@ async function muatDataPO() {
           <div class="po-meta">
             Jumlah: <b>${pr.jumlah || 0} unit</b>
             &bull;
+            Kontrak PO: <b style="color:var(--text)">${po ? po.no_po : 'PO-PENDING'}</b>
+            &bull;
             Surat Jalan: <b style="color:var(--text)">${pr.surat_jalan || 'Belum Dikirim'}</b>
             &bull;
             Invoice: <b style="color:var(--text)">${pr.nomor_invoice || 'Belum Diinput'}</b>
           </div>
         </div>
 
-        <div style="display:flex;align-items:center;gap:16px;">
+        <div style="display:flex; align-items:center; gap:16px;">
           <span class="badge ${pr.status === 'selesai' ? 'badge-aktif' : 'badge-proses'}">
-            ${(pr.status || 'po_dibuat').replace(/_/g, ' ')}
+            ${pr.status.replace(/_/g, ' ')}
           </span>
           ${buttonHtml}
         </div>
@@ -187,48 +256,50 @@ async function muatDataPO() {
   }
 }
 
-function bukaModalTagihan(prId, poId) {
+// AKSI 1: KIRIM BARANG & SURAT JALAN
+function bukaModalSJ(prId) {
   aktivePRId = prId;
-  aktivePOId = poId;
-  document.getElementById('modalInvoice').style.display = 'flex';
-  document.getElementById('invTanggal').valueAsDate = new Date();
-}
-
-function kirimSuratJalan(prId) {
-  activeSJPR = prId;
-  document.getElementById('nomorSJ').value = '';
-  document.getElementById('modalSJ').style.display = 'flex';
-}
-
-function tutupModal(id) {
-  document.getElementById(id).style.display = 'none';
+  document.getElementById('sjNomor').value = '';
+  document.getElementById('sjTanggal').value = new Date().toISOString().split('T')[0];
+  upModal('modalSJ');
 }
 
 async function submitSuratJalan() {
-  const nomorSJ = document.getElementById('nomorSJ').value.trim();
+  const noSJ = document.getElementById('sjNomor').value.trim();
+  const tgl = document.getElementById('sjTanggal').value;
 
-  if (!nomorSJ) {
-    alert('Nomor Surat Jalan wajib diisi!');
+  if (!noSJ || !tgl) {
+    alert('Harap masukkan nomor surat jalan dan tanggal pengiriman!');
     return;
   }
 
+  // Naikkan status ke barang_dikirim
   const { error } = await sb
     .from('purchase_request')
     .update({
-      surat_jalan: nomorSJ,
-      status_surat_jalan: 'terkirim',
-      status: 'verifikasi_sj' // Mengubah status agar masuk antrean matching keuangan
+      surat_jalan: noSJ,
+      status: 'barang_dikirim'
     })
-    .eq('id', activeSJPR);
+    .eq('id', aktivePRId);
 
   if (error) {
-    alert('Gagal simpan Surat Jalan: ' + error.message);
+    alert('Gagal mengirim Surat Jalan: ' + error.message);
     return;
   }
 
-  alert('Sukses! Fisik barang dan nomor Surat Jalan berhasil diverifikasi.');
+  alert('Sukses! Status logistik diperbarui menjadi Barang Dikirim. Menunggu konfirmasi penerimaan dari pihak Gudang.');
   tutupModal('modalSJ');
   muatDataPO();
+}
+
+// AKSI 2: KIRIM INVOICE TAGIHAN (SETELAH BARANG SAMPAI)
+function bukaModalTagihan(prId, poId, estimasiHarga) {
+  aktivePRId = prId;
+  aktivePOId = poId;
+  document.getElementById('invNomor').value = '';
+  document.getElementById('invNilai').value = estimasiHarga; // Mengisi otomatis nilai kontrak dari sistem pengadaan
+  document.getElementById('invTanggal').value = new Date().toISOString().split('T')[0];
+  upModal('modalInvoice');
 }
 
 async function submitTagihanInvoice() {
@@ -241,7 +312,7 @@ async function submitTagihanInvoice() {
     return;
   }
 
-  // Masukkan data berkas tagihan secara aman ke dalam tabel invoices
+  // Masukkan log kuitansi ke tabel invoices
   const { error: invErr } = await sb
     .from('invoices')
     .insert({
@@ -261,7 +332,7 @@ async function submitTagihanInvoice() {
     return;
   }
 
-  // Perbarui master data di purchase_request agar nomor invoice dan status singkron ke staf keuangan
+  // Naikkan status final berkas pengadaan ke verifikasi_sj agar dibaca dashboard Keuangan
   const { error: prErr } = await sb
     .from('purchase_request')
     .update({
@@ -271,17 +342,16 @@ async function submitTagihanInvoice() {
     .eq('id', aktivePRId);
 
   if (prErr) {
-    alert('Gagal memperbarui status dokumen utama: ' + prErr.message);
+    alert('Gagal update status berkas: ' + prErr.message);
     return;
   }
 
-  alert('Sukses! Berkas tagihan invoice resmi telah terkirim.');
+  alert('Berhasil! Invoice tagihan resmi dikirim ke Bagian Keuangan untuk proses pencocokan 3-Way Matching.');
   tutupModal('modalInvoice');
   muatDataPO();
 }
 
 window.onload = muatDataPO;
 </script>
-
 </body>
 </html>
