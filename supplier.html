@@ -20,18 +20,19 @@
 }
 body { font-family: 'DM Sans', sans-serif; background: var(--bg); color: var(--text); padding: 40px 20px; line-height: 1.5; }
 .container { max-width: 1000px; margin: 0 auto; }
-header { display: flex; justify-content: space-between; items-center; margin-bottom: 32px; }
+header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 32px; }
 h1 { font-size: 24px; font-weight: 600; color: #111827; }
 .btn-logout { background: #fee2e2; color: #dc2626; border: none; padding: 10px 18px; font-weight: 500; border-radius: var(--radius-sm); cursor: pointer; transition: 0.2s; font-size: 14px; }
 .btn-logout:hover { background: #fca5a5; }
 .card { background: var(--surface); border: 1px solid var(--border); border-radius: var(--radius); padding: 24px; margin-bottom: 24px; box-shadow: 0 1px 3px rgba(0,0,0,0.05); }
-.card-title { font-size: 16px; font-weight: 600; margin-bottom: 16px; display: flex; items-center; gap: 8px; }
-.po-item { border: 1px solid var(--border); padding: 18px; border-radius: var(--radius-sm); margin-bottom: 12px; display: flex; justify-content: space-between; items-center; transition: 0.2s; }
+.card-title { font-size: 16px; font-weight: 600; margin-bottom: 16px; display: flex; align-items: center; gap: 8px; }
+.po-item { border: 1px solid var(--border); padding: 18px; border-radius: var(--radius-sm); margin-bottom: 12px; display: flex; justify-content: space-between; align-items: center; transition: 0.2s; }
 .po-item:hover { border-color: #cbd5e1; background: #f8fafc; }
 .po-name { font-weight: 600; font-size: 15px; margin-bottom: 4px; }
 .po-meta { font-size: 13px; color: var(--muted); }
 .badge { padding: 4px 10px; border-radius: 20px; font-size: 12px; font-weight: 500; text-transform: capitalize; }
 .badge-aktif { background: var(--blue-soft); color: var(--blue); }
+.badge-proses { background: var(--amber-soft); color: var(--amber); }
 .btn-action { background: var(--text); color: white; border: none; padding: 8px 14px; border-radius: var(--radius-sm); font-size: 13px; font-weight: 500; cursor: pointer; }
 .btn-action:hover { opacity: 0.9; }
 .modal { display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.4); justify-content: center; align-items: center; z-index: 1000; }
@@ -64,14 +65,22 @@ h1 { font-size: 24px; font-weight: 600; color: #111827; }
   <div class="modal-content">
     <h3 style="margin-bottom:16px; font-weight:600;">Penyerahan Berkas Tagihan</h3>
     <p style="font-size:13px; color:var(--muted); margin-bottom:20px;">Masukkan nomor invoice resmi sebagai dokumen bukti untuk dicocokkan pada proses 3-Way Matching keuangan.</p>
+    
     <div class="form-group">
       <label>Nomor Invoice Tagihan</label>
       <input type="text" id="invNomor" placeholder="Contoh: INV/ITK/2026/0049">
     </div>
+    
     <div class="form-group">
       <label>Nilai Nominal Penagihan (Rp)</label>
       <input type="number" id="invNilai" placeholder="Masukkan total nominal angka">
     </div>
+
+    <div class="form-group">
+      <label>Tanggal Invoice</label>
+      <input type="date" id="invTanggal">
+    </div>
+
     <div class="modal-actions">
       <button class="btn-cancel" onclick="tutupModal('modalInvoice')">Batal</button>
       <button class="btn-action" onclick="submitTagihanInvoice()">Kirim Berkas Tagihan</button>
@@ -90,38 +99,35 @@ let aktivePOId = null;
 async function muatDataPO() {
   const el = document.getElementById('listPO');
   
-  // Mengambil data dari purchase_requests
-  const { data: prData, error: prErr } = await sb.from('purchase_requests').select('*').order('created_at', { ascending: false });
+  // FIXED: Menggunakan nama tabel 'purchase_request' tunggal sesuai skema aslimu
+  const { data: prData, error: prErr } = await sb.from('purchase_request').select('*').order('created_at', { ascending: false });
+  
   if (prErr) { el.innerHTML = `<p style="color:red; font-size:13px;">Gagal memuat: ${prErr.message}</p>`; return; }
-
-  if (!prData || prData.length === 0) {
-    el.innerHTML = `<p style="color:var(--muted); font-size:13px;">Belum ada Purchase Order (PO) yang diterbitkan.</p>`;
-    return;
-  }
+  if (!prData || prData.length === 0) { el.innerHTML = `<p style="color:var(--muted); font-size:13px;">Belum ada Purchase Order (PO) yang tersedia.</p>`; return; }
 
   el.innerHTML = '';
   
   for (const pr of prData) {
-    // Ambil data PO pendukung dari tabel purchase_order untuk mendapatkan id PO-nya
-    const { data: po } = await sb.from('purchase_order').select('id').eq('pr_id', pr.id).maybeSingle();
+    const { data: po } = await sb.from('purchase_order').select('*').eq('pr_id', pr.id).maybeSingle();
     
-    let statusDisplay = pr.status || 'Perlu Matching';
+    let statusDisplay = pr.status || 'po_dibuat';
     let buttonHtml = '';
 
-    if (!pr.status || pr.status === 'perlu_matching' || pr.status === 'verifikasi_sj') {
-      buttonHtml = `<button class="btn-action" onclick="bukaModalTagihan('${pr.id}', '${po ? po.id : ''}')">Kirim Berkas Tagihan</button>`;
+    // Menampilkan tombol kirim invoice jika statusnya masih po_dibuat atau perlu_matching
+    if (statusDisplay === 'po_dibuat' || statusDisplay === 'perlu_matching' || statusDisplay === 'verifikasi_sj' && !pr.nomor_invoice) {
+      buttonHtml = `<button class="btn-action" onclick="bukaModalTagihan('${pr.id}', '${po ? po.id : ''}')">Kirim Invoice</button>`;
     } else {
-      buttonHtml = `<span style="font-size:13px; color:var(--emerald); font-weight:500;">✓ Tagihan Terkirim</span>`;
+      buttonHtml = `<span style="font-size:13px; color:var(--emerald); font-weight:600;">✓ Invoice Terkirim</span>`;
     }
 
     el.innerHTML += `
       <div class="po-item">
         <div>
           <div class="po-name">${pr.nama_barang || 'Barang Pengadaan'}</div>
-          <div class="po-meta">Jumlah: <b>${pr.jumlah || 1} unit</b> &bull; Invoice: <b>${pr.invoice_number || 'Belum diinput'}</b></div>
+          <div class="po-meta">Jumlah: <b>${pr.jumlah || 1} unit</b> &bull; Invoice: <b>${pr.nomor_invoice || 'Belum diinput'}</b></div>
         </div>
         <div style="display:flex; align-items:center; gap:16px;">
-          <span class="badge badge-aktif">${statusDisplay.replace(/_/g, ' ')}</span>
+          <span class="badge ${pr.status === 'selesai' ? 'badge-aktif' : 'badge-proses'}">${statusDisplay.replace(/_/g, ' ')}</span>
           ${buttonHtml}
         </div>
       </div>
@@ -133,6 +139,7 @@ function bukaModalTagihan(prId, poId) {
   aktivePRId = prId;
   aktivePOId = poId || null;
   document.getElementById('modalInvoice').style.display = 'flex';
+  document.getElementById('invTanggal').valueAsDate = new Date();
 }
 
 function tutupModal(id) {
@@ -140,37 +147,37 @@ function tutupModal(id) {
 }
 
 async function submitTagihanInvoice() {
-  const num = document.getElementById('invNomor').value.trim();
-  const val = document.getElementById('invNilai').value.trim();
+  const noInv = document.getElementById('invNomor').value.trim();
+  const nilai = document.getElementById('invNilai').value.trim();
+  const tgl = document.getElementById('invTanggal').value;
 
-  if(!num || !val) { alert('Harap isi semua kolom nomor invoice dan nominal harga!'); return; }
+  if (!noInv || !nilai || !tgl) { alert('Harap lengkapi semua input berkas!'); return; }
 
-  // 1. Simpan/Insert ke tabel invoices
+  // 1. Simpan data ke tabel invoices
   const { error: invErr } = await sb.from('invoices').insert({
     pr_id: aktivePRId,
     po_id: aktivePOId,
-    nomor_invoice: num,
-    nilai: parseInt(val),
-    tanggal_invoice: new Date().toISOString(),
+    nomor_invoice: noInv,
+    nilai: parseInt(nilai),
+    tanggal_invoice: new Date(tgl).toISOString(),
     status: 'menunggu_matching'
   });
 
   if (invErr && invErr.code !== '23505') {
-    alert('Gagal menyimpan invoice ke tabel invoices: ' + invErr.message);
+    alert('Gagal simpan ke tabel invoices: ' + invErr.message);
     return;
   }
 
-  // 2. Update data kolom ke tabel purchase_requests agar sinkron dibaca oleh staf keuangan
-  const { error: prErr } = await sb.from('purchase_requests').update({
-    invoice_number: num,
-    harga: parseInt(val),
-    status: 'verifikasi_sj'
+  // 2. FIXED: Update tabel tunggal 'purchase_request' agar terbaca real-time di staf keuangan
+  const { error: prErr } = await sb.from('purchase_request').update({
+    status: 'verifikasi_sj',
+    nomor_invoice: noInv
   }).eq('id', aktivePRId);
 
   if (prErr) {
-    alert('Gagal memperbarui berkas PR: ' + prErr.message);
+    alert('Gagal memperbarui data berkas: ' + prErr.message);
   } else {
-    alert('Sukses! Berkas invoice tagihan resmi telah terdaftar di Supabase.');
+    alert('Sukses! Berkas invoice tagihan resmi telah terdaftar.');
     tutupModal('modalInvoice');
     muatDataPO();
   }
