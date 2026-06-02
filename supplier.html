@@ -9,31 +9,30 @@
 <style>
 *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
 :root {
-  --pink: #0f2847; --pink-dark: #1a3a63; --pink-soft: #f0f4f8;
+  --navy-vendor: #0f2847;
   --emerald: #10b981; --emerald-soft: #d1fae5;
   --amber: #f59e0b; --amber-soft: #fef3c7;
   --blue: #3b82f6; --blue-soft: #dbeafe;
-  --danger: #ef4444; --danger-soft: #fee2e2;
   --surface: #ffffff; --bg: #f3f4f6;
   --border: #e5e7eb; --text: #111827; --muted: #6b7280;
   --radius: 16px; --radius-sm: 10px;
 }
 body { font-family: 'DM Sans', sans-serif; background: var(--bg); color: var(--text); min-height: 100vh; padding-bottom: 40px; }
 
+/* NAVBAR FIX: Teks & Logo menggunakan warna putih (#ffffff) agar tidak mati/gelap */
 nav {
-  background: var(--pink); padding: 0 2rem; height: 70px;
+  background: var(--navy-vendor); padding: 0 2rem; height: 70px;
   display: flex; align-items: center; justify-content: space-between;
   box-shadow: 0 4px 20px rgba(0,0,0,0.08); position: sticky; top: 0; z-index: 100;
 }
 .nav-brand { display: flex; align-items: center; gap: 14px; }
-.nav-logo { width: 40px; height: 40px; background: rgba(255,255,255,0.1); border-radius: 12px; display: flex; align-items: center; justify-content: center; font-weight: 700; color: #fff; font-size: 18px; border: 1px solid rgba(255,255,255,0.15); }
-.nav-title { font-size: 16px; font-weight: 600; color: #fff; }
-.nav-sub { font-size: 12px; color: rgba(255,255,255,0.5); margin-top: 1px; }
-.btn-logout { background: rgba(255,255,255,0.1); border: 1px solid rgba(255,255,255,0.15); color: #fff; padding: 8px 16px; border-radius: 10px; font-size: 13px; cursor: pointer; font-weight: 500; font-family: inherit; transition: all 0.2s; }
-.btn-logout:hover { background: rgba(255,255,255,0.2); }
+.nav-logo { width: 40px; height: 40px; background: rgba(255,255,255,0.15); border-radius: 12px; display: flex; align-items: center; justify-content: center; font-weight: 700; color: #ffffff; font-size: 18px; border: 1px solid rgba(255,255,255,0.2); }
+.nav-title { font-size: 16px; font-weight: 600; color: #ffffff; }
+.nav-sub { font-size: 12px; color: rgba(255,255,255,0.6); margin-top: 1px; }
+.btn-logout { background: rgba(255,255,255,0.1); border: 1px solid rgba(255,255,255,0.2); color: #ffffff; padding: 8px 16px; border-radius: 10px; font-size: 13px; cursor: pointer; font-weight: 500; font-family: inherit; transition: all 0.2s; }
+.btn-logout:hover { background: rgba(255,255,255,0.2); color: #ffffff; }
 
 .container { max-width: 1040px; margin: 2rem auto 0; padding: 0 1.5rem; }
-
 .header-panel { display: flex; align-items: center; justify-content: space-between; margin-bottom: 1.5rem; gap: 16px; flex-wrap: wrap; }
 .welcome-title { font-size: 22px; font-weight: 600; letter-spacing: -0.02em; }
 .welcome-desc { font-size: 13px; color: var(--muted); margin-top: 2px; }
@@ -56,11 +55,10 @@ nav {
 .btn-action { border: none; padding: 9px 18px; border-radius: 10px; font-size: 13px; font-weight: 600; color: #fff; background: var(--blue); cursor: pointer; font-family: inherit; transition: all 0.2s; white-space: nowrap; box-shadow: 0 2px 8px rgba(59,130,246,0.2); }
 .btn-action:hover { opacity: 0.9; transform: translateY(-1px); }
 
-/* MODAL */
+/* MODAL STYLING */
 .modal-overlay { position: fixed; inset: 0; background: rgba(17,24,39,0.4); backdrop-filter: blur(4px); z-index: 200; display: none; align-items: center; justify-content: center; padding: 1rem; }
 .modal-overlay.show { display: flex; }
-.modal { background: var(--surface); border-radius: var(--radius); width: 100%; max-width: 460px; box-shadow: 0 20px 25px -5px rgba(0,0,0,0.1), 0 10px 10px -5px rgba(0,0,0,0.04); overflow: hidden; animation: modalIn 0.2s ease-out; }
-@keyframes modalIn { from { transform: scale(0.95); opacity: 0; } to { transform: scale(1); opacity: 1; } }
+.modal { background: var(--surface); border-radius: var(--radius); width: 100%; max-width: 460px; box-shadow: 0 20px 25px -5px rgba(0,0,0,0.1); overflow: hidden; }
 .modal-header { padding: 1.25rem 1.5rem; border-bottom: 1px solid var(--border); display: flex; align-items: center; justify-content: space-between; }
 .modal-title { font-size: 16px; font-weight: 600; }
 .modal-close { background: none; border: none; font-size: 22px; cursor: pointer; color: var(--muted); line-height: 1; }
@@ -68,15 +66,13 @@ nav {
 .modal-footer { padding: 1rem 1.5rem; border-top: 1px solid var(--border); background: #fafafa; display: flex; justify-content: flex-end; gap: 10px; }
 
 .form-group { margin-bottom: 1.25rem; }
-.form-group:last-child { margin-bottom: 0; }
-.form-group label { display: block; font-size: 12px; font-weight: 500; color: var(--muted); margin-bottom: 6px; text-transform: uppercase; letter-spacing: 0.02em; }
-.form-group input { width: 100%; border: 1px solid var(--border); border-radius: var(--radius-sm); padding: 10px 14px; font-size: 14px; font-family: inherit; outline: none; transition: all 0.2s; background: #f9fafb; }
-.form-group input:focus { border-color: var(--blue); background: #fff; box-shadow: 0 0 0 3px rgba(59,130,246,0.1); }
+.form-group label { display: block; font-size: 12px; font-weight: 500; color: var(--muted); margin-bottom: 6px; text-transform: uppercase; }
+.form-group input { width: 100%; border: 1px solid var(--border); border-radius: var(--radius-sm); padding: 10px 14px; font-size: 14px; font-family: inherit; outline: none; background: #f9fafb; }
+.form-group input:focus { border-color: var(--blue); background: #fff; }
 
 .btn-flat { border: none; padding: 9px 16px; border-radius: 8px; font-size: 13px; font-weight: 500; cursor: pointer; font-family: inherit; }
 .btn-flat-submit { background: var(--blue); color: #fff; font-weight: 600; }
 .btn-flat-cancel { background: transparent; color: var(--muted); border: 1px solid var(--border); }
-.btn-flat-cancel:hover { background: #f3f4f6; }
 </style>
 </head>
 <body>
@@ -170,13 +166,11 @@ let aktivePOId = null;
 
 function upModal(id) { document.getElementById(id).classList.add('show'); }
 function tutupModal(id) { document.getElementById(id).classList.remove('show'); }
-function fmtRupiah(n) { return 'Rp ' + Number(n).toLocaleString('id-ID'); }
 
-// LOADING MASTER DATA PURCHASE ORDER BERDASARKAN ALUR YANG KETAT
 async function muatDataPO() {
   const el = document.getElementById('listPO');
 
-  // Mengambil data yang statusnya minimal sudah disetujui Manajer (po_dibuat dan seterusnya)
+  // CRITICAL FILTER: Mengesampingkan status draf internal (hanya menampilkan data po_dibuat ke atas)
   const { data: prData, error: prErr } = await sb
     .from('purchase_request')
     .select('*')
@@ -189,7 +183,7 @@ async function muatDataPO() {
   }
 
   if (!prData || prData.length === 0) {
-    el.innerHTML = `<p style="color:var(--muted); padding:2rem; text-align:center; font-size:13px">Belum ada kontrak Purchase Order (PO) aktif dari Manajer.</p>`;
+    el.innerHTML = `<p style="color:var(--muted); padding:2rem; text-align:center; font-size:13px">Belum ada Purchase Order (PO) aktif untuk Anda proses saat ini.</p>`;
     return;
   }
 
@@ -204,30 +198,17 @@ async function muatDataPO() {
 
     let buttonHtml = '';
 
-    // LOGIKA KONDISIONAL TOMBOL BERDASARKAN PROGRESS STATUS REAL-TIME
+    // Penentuan Tombol Berdasarkan Alur Logistik yang Ketat
     if (pr.status === 'po_dibuat') {
-      // Kondisi 1: PO baru terbit, supplier harus kirim barang dan surat jalan dulu
-      buttonHtml = `
-        <button class="btn-action" onclick="bukaModalSJ('${pr.id}')">
-          Kirim Barang + SJ
-        </button>`;
+      buttonHtml = `<button class="btn-action" onclick="bukaModalSJ('${pr.id}')">Kirim Barang + SJ</button>`;
     } 
     else if (pr.status === 'barang_dikirim') {
-      // Kondisi 2: Logistik dikirim, menunggu verifikasi fisik oleh user/gudang sebelum bisa tagih uang
-      buttonHtml = `
-        <span style="color:var(--muted); font-size:13px; font-style:italic; font-weight:500;">
-          ⏳ Menunggu Barang Diterima User/Gudang
-        </span>`;
+      buttonHtml = `<span style="color:var(--muted); font-size:13px; font-style:italic; font-weight:500;">⏳ Menunggu Konfirmasi Diterima Gudang</span>`;
     } 
     else if (pr.status === 'barang_diterima') {
-      // Kondisi 3: Barang sudah dipastikan sampai aman oleh gudang, tombol invoice menyala kuning
-      buttonHtml = `
-        <button class="btn-action" style="background:var(--amber); box-shadow: 0 2px 8px rgba(245,158,11,0.2)" onclick="bukaModalTagihan('${pr.id}','${po ? po.id : ''}', ${pr.estimasi_harga || 0})">
-          Kirim Invoice
-        </button>`;
+      buttonHtml = `<button class="btn-action" style="background:var(--amber)" onclick="bukaModalTagihan('${pr.id}','${po ? po.id : ''}', ${pr.estimasi_harga || 0})">Kirim Invoice</button>`;
     } 
     else {
-      // Kondisi 4: Berkas tagihan sudah komplit masuk ke sistem keuangan (status verifikasi_sj atau selesai)
       buttonHtml = `<span style="color:var(--emerald); font-weight:600; font-size:13px;">✓ Berkas Selesai dikirim</span>`;
     }
 
@@ -238,16 +219,15 @@ async function muatDataPO() {
           <div class="po-meta">
             Jumlah: <b>${pr.jumlah || 0} unit</b>
             &bull;
-            Kontrak PO: <b style="color:var(--text)">${po ? po.no_po : 'PO-PENDING'}</b>
+            PO: <b style="color:var(--text)">${po ? po.no_po : 'PO-PENDING'}</b>
             &bull;
             Surat Jalan: <b style="color:var(--text)">${pr.surat_jalan || 'Belum Dikirim'}</b>
             &bull;
             Invoice: <b style="color:var(--text)">${pr.nomor_invoice || 'Belum Diinput'}</b>
           </div>
         </div>
-
         <div style="display:flex; align-items:center; gap:16px;">
-          <span class="badge ${pr.status === 'selesai' ? 'badge-aktif' : 'badge-proses'}">
+          <span class="badge badge-proses" style="background:var(--blue-soft); color:var(--blue)">
             ${pr.status.replace(/_/g, ' ')}
           </span>
           ${buttonHtml}
@@ -256,7 +236,6 @@ async function muatDataPO() {
   }
 }
 
-// AKSI 1: KIRIM BARANG & SURAT JALAN
 function bukaModalSJ(prId) {
   aktivePRId = prId;
   document.getElementById('sjNomor').value = '';
@@ -267,37 +246,20 @@ function bukaModalSJ(prId) {
 async function submitSuratJalan() {
   const noSJ = document.getElementById('sjNomor').value.trim();
   const tgl = document.getElementById('sjTanggal').value;
+  if (!noSJ || !tgl) { alert('Harap isi nomor surat jalan!'); return; }
 
-  if (!noSJ || !tgl) {
-    alert('Harap masukkan nomor surat jalan dan tanggal pengiriman!');
-    return;
-  }
+  const { error } = await sb.from('purchase_request').update({ surat_jalan: noSJ, status: 'barang_dikirim' }).eq('id', aktivePRId);
+  if (error) { alert(error.message); return; }
 
-  // Naikkan status ke barang_dikirim
-  const { error } = await sb
-    .from('purchase_request')
-    .update({
-      surat_jalan: noSJ,
-      status: 'barang_dikirim'
-    })
-    .eq('id', aktivePRId);
-
-  if (error) {
-    alert('Gagal mengirim Surat Jalan: ' + error.message);
-    return;
-  }
-
-  alert('Sukses! Status logistik diperbarui menjadi Barang Dikirim. Menunggu konfirmasi penerimaan dari pihak Gudang.');
   tutupModal('modalSJ');
   muatDataPO();
 }
 
-// AKSI 2: KIRIM INVOICE TAGIHAN (SETELAH BARANG SAMPAI)
-function bukaModalTagihan(prId, poId, estimasiHarga) {
+function bukaModalTagihan(prId, poId, price) {
   aktivePRId = prId;
   aktivePOId = poId;
   document.getElementById('invNomor').value = '';
-  document.getElementById('invNilai').value = estimasiHarga; // Mengisi otomatis nilai kontrak dari sistem pengadaan
+  document.getElementById('invNilai').value = price;
   document.getElementById('invTanggal').value = new Date().toISOString().split('T')[0];
   upModal('modalInvoice');
 }
@@ -306,47 +268,15 @@ async function submitTagihanInvoice() {
   const noInv = document.getElementById('invNomor').value.trim();
   const nilai = document.getElementById('invNilai').value.trim();
   const tgl = document.getElementById('invTanggal').value;
+  if (!noInv || !nilai) { alert('Lengkapi data invoice!'); return; }
 
-  if (!noInv || !nilai || !tgl) {
-    alert('Lengkapi seluruh kolom data invoice tagihan!');
-    return;
-  }
+  await sb.from('invoices').insert({
+    po_id: aktivePOId || null, pr_id: aktivePRId, nomor_invoice: noInv,
+    nama_supplier: 'Mitra Supplier ITK', jumlah_tagihan: parseInt(nilai),
+    status_bayar: 'belum_bayar', status: 'aktif', status_matching: 'menunggu_matching', tanggal_invoice: tgl
+  });
 
-  // Masukkan log kuitansi ke tabel invoices
-  const { error: invErr } = await sb
-    .from('invoices')
-    .insert({
-      po_id: aktivePOId || null,
-      pr_id: aktivePRId,
-      nomor_invoice: noInv,
-      nama_supplier: 'Mitra Supplier ITK',
-      jumlah_tagihan: parseInt(nilai),
-      status_bayar: 'belum_bayar',
-      status: 'aktif',
-      status_matching: 'menunggu_matching',
-      tanggal_invoice: tgl
-    });
-
-  if (invErr && invErr.code !== '23505') {
-    alert('Gagal input ke tabel invoices: ' + invErr.message);
-    return;
-  }
-
-  // Naikkan status final berkas pengadaan ke verifikasi_sj agar dibaca dashboard Keuangan
-  const { error: prErr } = await sb
-    .from('purchase_request')
-    .update({
-      nomor_invoice: noInv,
-      status: 'verifikasi_sj'
-    })
-    .eq('id', aktivePRId);
-
-  if (prErr) {
-    alert('Gagal update status berkas: ' + prErr.message);
-    return;
-  }
-
-  alert('Berhasil! Invoice tagihan resmi dikirim ke Bagian Keuangan untuk proses pencocokan 3-Way Matching.');
+  await sb.from('purchase_request').update({ nomor_invoice: noInv, status: 'verifikasi_sj' }).eq('id', aktivePRId);
   tutupModal('modalInvoice');
   muatDataPO();
 }
