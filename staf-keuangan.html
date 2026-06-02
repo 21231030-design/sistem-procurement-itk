@@ -170,7 +170,7 @@
 
         async function muatDataSupabase() {
             try {
-                // Menarik data tanpa penyaringan .eq('user_id') agar nilai NULL tetap ikut terbaca
+                // Diperbaiki: memanggil ke tabel 'purchase_requests' dengan akhiran s
                 const { data, error } = await _supabase
                     .from('purchase_requests')
                     .select('*')
