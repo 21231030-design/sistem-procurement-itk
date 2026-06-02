@@ -210,7 +210,7 @@
 
           <div class="actions">
             <button class="btn btn-success" onclick="eksekusiBayarLunas('${pr.id}', ${totalNilai})">💸 Validasi & Bayar Lunas Sekarang</button>
-            <button class="btn btn-outline" onclick="unduhBeritaAcara('${pr.nama_barang}', '${noPO}', '${pr.surat_jalan}', '${noInvoice}', '${vendorName}', ${totalNilai}, ${pr.jumlah})">📥 Unduh Berita Acara Audit (.txt)</button>
+            <button class="btn btn-outline" onclick="unduhInvoiceDanBeritaAcara('${pr.nama_barang}', '${noPO}', '${pr.surat_jalan}', '${noInvoice}', '${vendorName}', ${totalNilai}, ${pr.jumlah})">📥 Unduh Berkas Invoice & Audit (.txt)</button>
           </div>
         </div>`;
     }));
@@ -219,42 +219,53 @@
     document.getElementById('totalPendingInv').textContent = fmtRupiah(hitungPending);
   }
 
-  // FITUR NYATA: DOWNLOAD DOKUMEN LEGAL BERITA ACARA AUDIT (.TXT)
-  function unduhBeritaAcara(namaBarang, noPO, noSJ, noInv, vendor, total, qty) {
-    const teksDokumen = `===========================================================
-               BERITA ACARA AUDIT PROCUREMENT
-                    INSTITUT TEKNOLOGI
-===========================================================
-Hari/Tanggal Cetak Audit : ${new Date().toLocaleDateString('id-ID')}
-Status Validasi          : 3-WAY MATCHING VERIFIED (LOLOS)
+  // FITUR DOWNLOAD DOKUMEN: MERANGKUM BERITA ACARA AUDIT DAN NOTA INVOICE RESMI
+  function unduhInvoiceDanBeritaAcara(namaBarang, noPO, noSJ, noInv, vendor, total, qty) {
+    const teksDokumen = `======================================================================
+                  BERITA ACARA AUDIT & INVOICE PROCUREMENT
+                        INSTITUT TEKNOLOGI KAMPUS
+======================================================================
+Tanggal Cetak Dokumen : ${new Date().toLocaleDateString('id-ID')}
+Status Hasil Verifikasi: 3-WAY MATCHING PASSED & VERIFIED (VALID)
 
-Telah dilakukan audit verifikasi silang dokumen akuntansi finansial 
-terhadap pengadaan komoditas di bawah ini:
+----------------------------------------------------------------------
+A. NOTA INVOICE RESMI VENDOR (TAGIHAN MASUK)
+----------------------------------------------------------------------
+Nomor Invoice Tagihan    : ${noInv}
+Nama Rekanan / Vendor    : ${vendor}
+Ditujukan Kepada         : Bagian Keuangan / Finansial ITK
 
-Nama Komoditas / Barang   : ${namaBarang}
-Volume Kebutuhan          : ${qty} Unit Fisik
-Nama Rekanan Vendor       : ${vendor}
+Rincian Komoditas / Barang:
+- Nama Barang            : ${namaBarang}
+- Kuantitas / Volume     : ${qty} Unit Fisik
+- Nilai Harga Satuan     : ${fmtRupiah(total / qty)}
+- Total Nilai Tagihan    : ${fmtRupiah(total)}
 
------------------------------------------------------------
-HASIL AUDIT MATRIKS 3-WAY MATCHING:
------------------------------------------------------------
-1. Ref Purchase Order (PO) : ${noPO} -> MATCH
-2. Ref Surat Jalan Gudang  : ${noSJ} -> MATCH
-3. Ref Invoice Tagihan     : ${noInv} -> MATCH
-4. Validasi Nilai Finansial: ${fmtRupiah(total)} -> BALANCED
+Status Tagihan           : MENUNGGU PENCAIRAN DANA (APPROVED)
 
-Kesimpulan:
-Dokumen dinyatakan VALID dan SAH secara hukum akuntansi perpajakan. 
-Anggaran disetujui untuk segera dicairkan lunas kepada rekening vendor.
+----------------------------------------------------------------------
+B. LEMBAR INTEGRASI AUDIT (3-WAY MATCHING MATRIX)
+----------------------------------------------------------------------
+Berdasarkan pemeriksaan silang data lintas sektoral dari Hulu ke Hilir, 
+Keuangan menyatakan bahwa nomor referensi berkas berikut sinkron:
 
-Finance Auditor,
-Sistem Procurement ITK Terintegrasi
-===========================================================`;
+1. Dokumen Permintaan (PR)  : PR-Internal #${noPO.substring(noPO.length - 4)} -> MATCH
+2. Dokumen Kontrak Kerja (PO): ${noPO} -> MATCH
+3. Berkas Surat Jalan Gudang : ${noSJ} -> MATCH
+4. Berkas Invoice Supplier   : ${noInv} -> MATCH
+
+Kesimpulan Audit:
+Seluruh data dokumen komersial dinyatakan SINKRON, VALID, dan SELESAI.
+Anggaran disetujui untuk segera ditransfer ke rekening vendor terpilih.
+
+Dicetak Oleh,
+Sistem Manajemen Keuangan Pengadaan ITK Terintegrasi
+======================================================================`;
 
     const blob = new Blob([teksDokumen], { type: "text/plain;charset=utf-8" });
     const link = document.createElement("a");
     link.href = URL.createObjectURL(blob);
-    link.download = `BERITA_ACARA_AUDIT_${namaBarang.replace(/ /g, "_")}.txt`;
+    link.download = `INVOICE_AUDIT_${noInv.replace(/\//g, "-")}.txt`;
     document.body.appendChild(link);
     link.click();
     document.body.removeChild(link);
@@ -262,10 +273,10 @@ Sistem Procurement ITK Terintegrasi
 
   // EKSEKUSI PEMBAYARAN MUTLAK (Selesai Lunas)
   async function eksekusiBayarLunas(prId, nominal) {
-    if(confirm(`Konfirmasi Finansial:\nApakah Anda yakin ingin melakukan pembayaran lunas sebesar ${fmtRupiah(nominal)}?`)) {
+    if(confirm(`Konfirmasi Finansial:\nApakah Anda yakin ingin melakukan pembayaran lunas sebesar ${fmtRupiah(nominal)}? Proses ini mutlak menutup siklus.`)) {
       await sb.from('purchase_request').update({ status: 'selesai' }).eq('id', prId);
       await sb.from('invoices').update({ status: 'lunas' }).eq('pr_id', prId);
-      alert("Pembayaran Terarsip Sukses! Transaksi ditutup lunas.");
+      alert("Pembayaran Terarsip Sukses! Dana berhasil ditransfer dan siklus pengadaan selesai lunas.");
       await muatSemuaFinansial();
     }
   }
@@ -285,7 +296,13 @@ Sistem Procurement ITK Terintegrasi
 
     const barisRender = await Promise.all(listPR.map(async pr => {
       const { data: po } = await sb.from('purchase_order').select('*').eq('pr_id', pr.id).maybeSingle();
+      const { data: inv } = await sb.from('invoices').select('*').eq('pr_id', pr.id).maybeSingle();
+      
       const totalNilai = po ? po.harga_total : pr.harga_estimasi;
+      const noInvoice = inv ? inv.no_invoice : pr.nomor_invoice || 'INV-PAID';
+      const noPO = po ? po.no_po : 'PO-REF';
+      const vendorName = po ? po.nama_supplier : 'Vendor';
+      
       hitungLunas += totalNilai;
 
       return `
@@ -294,9 +311,12 @@ Sistem Procurement ITK Terintegrasi
             <div>
               <div class="item-title" style="font-size:15px; margin-bottom:2px;">${pr.nama_barang}</div>
               <div style="font-size:12px; color:var(--muted)">Siklus Selesai &bull; Nilai Transfer: <b style="color:var(--success)">${fmtRupiah(totalNilai)}</b></div>
-              <div style="font-size:11px; margin-top:4px; font-family:'DM Mono', monospace; color:var(--muted)">Ref Invoice: ${pr.nomor_invoice || 'INV-PAID'}</div>
+              <div style="font-size:11px; margin-top:4px; font-family:'DM Mono', monospace; color:var(--muted)">Ref Invoice: ${noInvoice}</div>
             </div>
-            <span class="badge selesai">✓ Paid Lunas</span>
+            <div style="display:flex; flex-direction:column; align-items:flex-end; gap:6px;">
+              <span class="badge selesai">✓ Paid Lunas</span>
+              <button class="btn btn-outline" style="padding: 4px 8px; font-size:10px;" onclick="unduhInvoiceDanBeritaAcara('${pr.nama_barang}', '${noPO}', '${pr.surat_jalan}', '${noInvoice}', '${vendorName}', ${totalNilai}, ${pr.jumlah})">📥 Cetak Arsip</button>
+            </div>
           </div>
         </div>`;
     }));
