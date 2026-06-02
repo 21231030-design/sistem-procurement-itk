@@ -413,36 +413,41 @@
     document.getElementById('qbox_' + qId).classList.add('quotation-selected');
   }
 
-  async function simpanDrafPO() {
-    const noPo = document.getElementById('draftNoPO').value.trim();
-    if(!noPo) { alert("Nomor urut draf PO wajib diisi!"); return; }
+async function simpanDrafPO() {
+  const noPo = document.getElementById('draftNoPO').value.trim();
+  if(!noPo) { alert("Nomor urut draf PO wajib diisi!"); return; }
 
-    let supplierTerpilih = "Mitra Logistik Utama";
-    let hargaPemenang = 250000;
+  let supplierTerpilih = "Mitra Logistik Utama";
+  let hargaPemenang = 250000;
 
-    if(selectedQuotationId) {
-      const { data: q } = await sb.from('quotation').select('*').eq('id', selectedQuotationId).single();
-      supplierTerpilih = q.nama_supplier;
-      hargaPemenang = q.harga;
-      await sb.from('quotation').update({ status: 'dipilih' }).eq('id', selectedQuotationId);
-    }
-    
-    await sb.from('purchase_order').delete().eq('pr_id', currentPRId);
-    await sb.from('purchase_order').insert({
-      pr_id: currentPRId,
-      no_po: noPo,
-      nama_supplier: supplierTerpilih,
-      harga_total: hargaPemenang,
-      total_harga: hargaPemenang,
-      status: 'draf',
-      tanggal_po: new Date().toISOString()
-    });
-
-    await sb.from('purchase_request').update({ status: 'po_dibuat', harga_estimasi: hargaPemenang }).eq('id', currentPRId);
-    closeModal('modalEvaluasi');
-    await muatSemuaData();
-    alert("Draf PO berhasil dikunci! Silakan klik tombol '🚀 Kirim Berkas Kontrak ke Manajer'.");
+  if(selectedQuotationId) {
+    const { data: q } = await sb.from('quotation').select('*').eq('id', selectedQuotationId).single();
+    supplierTerpilih = q.nama_supplier;
+    hargaPemenang = q.harga;
+    await sb.from('quotation').update({ status: 'dipilih' }).eq('id', selectedQuotationId);
   }
+  
+  // 1. Bersihkan draf lama jika ada, lalu masukkan draf PO baru
+  await sb.from('purchase_order').delete().eq('pr_id', currentPRId);
+  await sb.from('purchase_order').insert({
+    pr_id: currentPRId,
+    no_po: noPo,
+    nama_supplier: supplierTerpilih,
+    harga_total: hargaPemenang,
+    total_harga: hargaPemenang,
+    status: 'draf',
+    tanggal_po: new Date().toISOString()
+  });
+
+  // 2. UPDATE STATUS UTAMA MENJADI 'po_dibuat' (Ini yang bikin tombolnya muncul!)
+  await sb.from('purchase_request').update({ status: 'po_dibuat', harga_estimasi: hargaPemenang }).eq('id', currentPRId);
+  
+  // 3. Tutup modal dan paksa sistem memuat ulang data ke layar
+  closeModal('modalEvaluasi');
+  await muatSemuaData(); 
+  
+  alert("Draf PO berhasil dikunci! Sila cek list Evaluasi, tombol '🚀 Kirim Berkas Kontrak ke Manajer' sekarang sudah muncul.");
+}
 
   async function ajukanKeManajer(prId) {
     await sb.from('purchase_request').update({ status: 'menunggu_approval' }).eq('id', prId);
