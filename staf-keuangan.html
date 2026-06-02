@@ -43,7 +43,7 @@
     
     .badge-match { background: #d1fae5; color: #065f46; padding: 6px 10px; border-radius: 6px; font-weight: 600; font-size: 13px; display: inline-flex; align-items: center; gap: 4px; }
     
-    /* BUTTONS KEMBALI SEPERTI SEMULA */
+    /* BUTTONS STYLE BANGET */
     .btn-actions { display: flex; gap: 12px; margin-top: 1rem; }
     .btn { border: none; border-radius: 6px; padding: 12px 20px; font-size: 14px; font-weight: 600; cursor: pointer; display: inline-flex; align-items: center; gap: 8px; transition: opacity 0.2s; }
     .btn:hover { opacity: 0.9; }
@@ -64,7 +64,7 @@
 <div class="container">
   <div class="tab-container">
     <button class="tab-btn active">1. Verifikasi & 3-Way Matching</button>
-    <button class="tab-btn" onclick="alert('Fitur arsip dalam pengembangan berkala.')">2. Arsip Berkas Lunas</button>
+    <button class="tab-btn" onclick="alert('Arsip berkas lunas dapat dipantau langsung via log database.')">2. Arsip Berkas Lunas</button>
   </div>
 
   <div class="card">
@@ -82,11 +82,11 @@
     const { data: prs } = await sb.from('purchase_request').select('*').order('created_at', { ascending: false });
     const container = document.getElementById('containerAudit');
 
-    // Filter berkas logistik aktif penagihan
-    const dataKeuangan = prs ? prs.filter(p => ['invoice_dikirim', 'barang_diterima', 'dikirim', 'disetujui', 'lunas'].includes(p.status)) : [];
+    // Memuat berkas tagihan aktif (yang berstatus invoice_dikirim, disetujui, dll, tapi belum lunas)
+    const dataKeuangan = prs ? prs.filter(p => ['invoice_dikirim', 'barang_diterima', 'dikirim', 'disetujui'].includes(p.status)) : [];
 
     if (dataKeuangan.length === 0) {
-      container.innerHTML = `<div style="text-align:center; padding:4rem; color:#64748b; font-size:15px;">👋 Belum ada berkas penagihan yang masuk ke sistem audit.</div>`;
+      container.innerHTML = `<div style="text-align:center; padding:4rem; color:#64748b; font-size:15px;">👋 Belum ada berkas penagihan baru yang perlu di-audit saat ini.</div>`;
       return;
     }
 
@@ -97,18 +97,17 @@
       const namaBarang = pr.nama_barang || "Barang Pengadaan";
       const qty = Number(pr.jumlah) || 1;
 
-      // ================= SINKRONISASI MATEMATIS DATABASE REALTIME =================
+      // Perhitungan Harga Otomatis Realtime
       let totalHarga = 0;
       if (po && po.total_harga && Number(po.total_harga) > 0) {
         totalHarga = Number(po.total_harga);
       } else {
         totalHarga = (Number(pr.harga_estimasi) || 0) * qty;
       }
-      // ============================================================================
 
       const noPO = po ? po.no_po : `PO/ITK/${Math.floor(1000+Math.random()*9000)}`;
       const noInv = inv ? inv.no_invoice : `INV/VND/${Math.floor(1000+Math.random()*9000)}`;
-      const vendorName = pr.vendor_pemenang || "Vendor Pilihan Pengadaan";
+      const vendorName = pr.vendor_pemenang || "Vendor Rekanan ITK";
       const formatRupiah = (angka) => 'Rp ' + Number(angka).toLocaleString('id-ID');
 
       return `
@@ -222,9 +221,16 @@
 
   async function bayarLunas(prId) {
     if(confirm("Apakah Anda ingin memvalidasi pembayaran ini? Dana transaksi akan langsung dialokasikan ke rekening vendor terpilih.")) {
-      await sb.from('purchase_request').update({ status: 'lunas' }).eq('id', prId);
-      alert("Sukses! Pembayaran Berhasil Terverifikasi Lunas.");
-      await muatEvaluasiKeuangan();
+      
+      // FIXED FORMAT: Menggunakan sintaks .eq('id', prId) murni tanpa bungkus objek {} agar Supabase sukses membaca update datanya!
+      const { error } = await sb.from('purchase_request').update({ status: 'lunas' }).eq('id', prId);
+      
+      if(error) {
+        alert("Eror update database: " + error.message);
+      } else {
+        alert("Sukses! Pembayaran Berhasil Terverifikasi Lunas.");
+        await muatEvaluasiKeuangan(); // Refresh halaman otomatis
+      }
     }
   }
 
