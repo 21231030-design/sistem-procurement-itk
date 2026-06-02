@@ -158,18 +158,19 @@
     </div>
 
     <script>
-        // Kredensial Asli Milikmu Sudah Diperbaiki 100% Valid Tanpa Typo
+        // Memastikan Project ID Menggunakan bgtgeltkbanlnvymalum Sesuai Database Anda
         const URL_SUPABASE_ASLI = "https://bgtgeltkbanlnvymalum.supabase.co"; 
         const ANON_KEY_SUPABASE_ASLI = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImJndGdlbHRrYmFubG52eW1hbHVtIiwicm9sZSI6ImFub24iLCJpYXQiOjE3Nzk1MTAwNDksImV4cCI6MjA5NTA4NjA0OX0.-JlapeQpug44SjkEKgb1wyoX2_ftdGGcAnTHJhdzvwE";
 
         const _supabase = supabase.createClient(URL_SUPABASE_ASLI, ANON_KEY_SUPABASE_ASLI);
 
         let semuaDataPR = [];
-        let tabAktif = 'matching'; // Membuka tab matching agar pengajuan PR baru langsung terlihat
+        let tabAktif = 'matching';
         let dataTerpilihUntukPDF = null;
 
         async function muatDataSupabase() {
             try {
+                // Mengambil seluruh data tanpa memfilter user_id agar data bernilai NULL tetap terbaca secara global
                 const { data, error } = await _supabase
                     .from('purchase_requests')
                     .select('*')
@@ -185,13 +186,13 @@
                 document.getElementById('list-container').innerHTML = `
                     <div class="text-center text-red-500 py-10 text-sm font-bold">
                         ❌ Gagal memuat data dari database Supabase.<br>
-                        <span class="text-xs text-gray-400 font-normal">Hubungi Supabase atau cek jaringan internet kamu.</span>
+                        <span class="text-xs text-gray-400 font-normal">Periksa kembali URL koneksi atau konfigurasi RLS tabel Anda.</span>
                     </div>`;
             }
         }
 
         function hitungStatistik() {
-            const matching = semuaDataPR.filter(item => ['perlu_matching', 'Perlu Matching', 'Barang Dikirim', 'barang_dikirim', 'verifikasi_sj'].includes(item.status)).length;
+            const matching = semuaDataPR.filter(item => !item.status || ['perlu_matching', 'Perlu Matching', 'Barang Dikirim', 'barang_dikirim', 'verifikasi_sj'].includes(item.status)).length;
             const voucher = semuaDataPR.filter(item => ['terbitkan_voucher', 'Voucher Pembayaran', 'menunggu_po', 'terbitkan voucher'].includes(item.status)).length;
             const bayar = semuaDataPR.filter(item => ['proses_bayar', 'Proses Bayar', 'proses bayar'].includes(item.status)).length;
             const selesai = semuaDataPR.filter(item => ['selesai', 'Selesai'].includes(item.status)).length;
@@ -214,7 +215,8 @@
             let warnaTemaTab = 'green';
 
             if (tabAktif === 'matching') {
-                dataFilter = semuaDataPR.filter(item => ['perlu_matching', 'Perlu Matching', 'Barang Dikirim', 'barang_dikirim', 'verifikasi_sj'].includes(item.status));
+                // Pengajuan baru atau status pencocokan dimasukkan ke tab ini
+                dataFilter = semuaDataPR.filter(item => !item.status || ['perlu_matching', 'Perlu Matching', 'Barang Dikirim', 'barang_dikirim', 'verifikasi_sj'].includes(item.status));
                 warnaTemaTab = 'orange';
                 aturBanner("Antrean 3-Way Matching", "Silakan periksa kesesuaian dokumen PO, Surat Jalan, dan Invoice fisik dari Vendor.", "bg-orange-50 border-orange-200 text-orange-700 text-orange-900");
             } else if (tabAktif === 'voucher') {
@@ -237,16 +239,18 @@
             }
 
             dataFilter.forEach(item => {
+                const namaBarang = item.nama_barang || 'Barang Tanpa Nama';
                 const hargaNominal = item.harga || item.total_harga || 0;
                 const formatRupiah = new Intl.NumberFormat('id-ID', { style: 'currency', currency: 'IDR', maximumFractionDigits: 0 }).format(hargaNominal);
                 const formatTgl = item.created_at ? new Date(item.created_at).toLocaleDateString('id-ID', { day: '2-digit', month: 'short', year: 'numeric' }) : '02 Jun 2026';
                 const nomorInvoice = item.invoice_number || item.no_invoice || `INV/2026/0${Math.floor(Math.random() * 80) + 10}`;
+                const statusTeks = item.status ? item.status.replace('_', ' ') : 'Perlu Matching';
 
                 const cardHtml = `
                     <div class="p-5 border border-gray-200 rounded-2xl bg-white hover:border-${warnaTemaTab}-300 shadow-sm transition">
                         <div class="flex justify-between items-start">
                             <div>
-                                <h3 class="font-black text-gray-800 text-lg m-0 capitalize">${item.nama_barang}</h3>
+                                <h3 class="font-black text-gray-800 text-lg m-0 capitalize">${namaBarang}</h3>
                                 <p class="text-gray-500 text-xs mt-1.5 space-x-2 flex flex-wrap items-center gap-y-1">
                                     <span>${item.jumlah || item.quantity || 1} unit</span>
                                     <span class="text-gray-300">•</span>
@@ -258,7 +262,7 @@
                                 </p>
                             </div>
                             <span class="text-xs font-bold px-3 py-1 bg-${warnaTemaTab}-100 text-${warnaTemaTab}-700 rounded-full border border-${warnaTemaTab}-200 capitalize">
-                                ● ${item.status.replace('_', ' ')}
+                                ● ${statusTeks}
                             </span>
                         </div>
                         
@@ -267,7 +271,7 @@
                                 `<button onclick="bukaModalCetak('${item.id}')" class="bg-green-900 hover:bg-green-800 text-white text-xs font-bold py-2 px-4 rounded-xl border-0 cursor-pointer shadow-sm transition flex items-center gap-1.5">
                                     📄 View / Print Invoice
                                 </button>` :
-                                `<button onclick="prosesAlurKeuangan('${item.id}', '${item.status}')" class="bg-blue-600 hover:bg-blue-700 text-white text-xs font-bold py-2 px-4 rounded-xl border-0 cursor-pointer shadow-sm transition">
+                                `<button onclick="prosesAlurKeuangan('${item.id}', '${item.status || 'perlu_matching'}')" class="bg-blue-600 hover:bg-blue-700 text-white text-xs font-bold py-2 px-4 rounded-xl border-0 cursor-pointer shadow-sm transition">
                                     Lanjutkan Proses Menuju Tahap Berikutnya →
                                 </button>`
                             }
@@ -340,7 +344,7 @@
 
             document.getElementById('modal-invoice-num').innerText = `#${nomorInvoice}`;
             document.getElementById('modal-tanggal').innerText = formatTgl;
-            document.getElementById('modal-nama-barang').innerText = dataItem.nama_barang;
+            document.getElementById('modal-nama-barang').innerText = dataItem.nama_barang || 'Barang';
             document.getElementById('modal-jumlah-barang').innerText = `${dataItem.jumlah || dataItem.quantity || 1} Unit`;
             document.getElementById('modal-total-harga').innerText = formatRupiah;
             document.getElementById('modal-total-final').innerText = formatRupiah;
@@ -353,9 +357,9 @@
         }
 
         function unduhSebagaiPDF() {
-            if (!dataTerpilledUntukPDF) return;
+            if (!dataTerpilihUntukPDF) return;
             const element = document.getElementById('area-pdf');
-            const namaFileClean = dataTerpilihUntukPDF.nama_barang.replace(/\s+/g, '-');
+            const namaFileClean = (dataTerpilihUntukPDF.nama_barang || 'barang').replace(/\s+/g, '-');
             
             const opsi = {
                 margin:       10,
