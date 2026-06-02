@@ -151,14 +151,29 @@ async function muatDataPO() {
 
     let buttonHtml = '';
 
-    if (pr.status === 'po_dibuat') {
+    if (
+   pr.status === 'po_dibuat'
+   && !pr.surat_jalan
+) {
       buttonHtml = `
         <button class="btn-action"
           onclick="kirimSuratJalan('${pr.id}')">
           Kirim Barang + SJ
         </button>`;
     }
-    else if (pr.status === 'barang_diterima' && !sudahInvoice) {
+    else if (
+   pr.status === 'verifikasi_sj'
+   && !sudahInvoice
+) {
+
+   buttonHtml = `
+      <button
+         class="btn-action"
+         onclick="bukaModalTagihan('${pr.id}','${po ? po.id : ''}')">
+         Kirim Invoice
+      </button>
+   `;
+}
       buttonHtml = `
         <button class="btn-action"
           onclick="bukaModalTagihan('${pr.id}','${po ? po.id : ''}')">
