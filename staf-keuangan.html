@@ -5,6 +5,7 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Dashboard Staf Keuangan</title>
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
 <link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@300;400;500;600&family=DM+Mono:wght@400;500&display=swap" rel="stylesheet">
 <style>
 *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
@@ -43,13 +44,11 @@ nav {
 .stat-card { background: var(--surface); border: 1px solid var(--border); border-radius: var(--radius-sm); padding: 1rem; text-align: center; }
 .stat-num { font-size: 22px; font-weight: 600; font-family: 'DM Mono', monospace; }
 .stat-label { font-size: 11px; color: var(--muted); margin-top: 2px; }
-.realtime-dot { display: inline-block; width: 8px; height: 8px; border-radius: 50%; background: var(--success); margin-right: 6px; animation: pulse 2s infinite; }
-@keyframes pulse { 0%,100%{opacity:1} 50%{opacity:0.4} }
-.tabs { display: flex; gap: 4px; background: var(--surface); border: 1px solid var(--border); border-radius: var(--radius-sm); padding: 4px; margin-bottom: 1.5rem; width: fit-content; }
+.tabs { display: flex; gap: 4px; background: var(--surface); border: 1px solid var(--border); border-radius: var(--radius-sm); padding: 4px; margin-bottom: 1.5rem; flex-wrap: wrap; }
 .tab { padding: 7px 16px; border-radius: 6px; font-size: 13px; font-weight: 500; cursor: pointer; color: var(--muted); border: none; background: none; font-family: 'DM Sans', sans-serif; transition: all 0.15s; white-space: nowrap; }
 .tab.active { background: #14532d; color: #fff; }
 .tab:hover:not(.active) { background: var(--bg); }
-.tab-badge { display: inline-flex; align-items: center; justify-content: center; width: 18px; height: 18px; border-radius: 50%; font-size: 10px; font-weight: 700; margin-left: 6px; background: var(--danger); color: #fff; }
+.tab-badge { display: inline-flex; align-items: center; justify-content: center; min-width: 18px; height: 18px; border-radius: 50%; font-size: 10px; font-weight: 700; margin-left: 6px; background: var(--danger); color: #fff; padding: 0 3px; }
 .tab-panel { display: none; }
 .tab-panel.active { display: block; }
 .card { background: var(--surface); border-radius: var(--radius); border: 1px solid var(--border); overflow: hidden; margin-bottom: 1rem; }
@@ -59,22 +58,29 @@ nav {
 .card-icon.green { background: var(--success-soft); } .card-icon.green svg { stroke: var(--success); }
 .card-icon.purple { background: var(--purple-soft); } .card-icon.purple svg { stroke: var(--purple); }
 .card-icon.teal { background: var(--teal-soft); } .card-icon.teal svg { stroke: var(--teal); }
+.card-icon.red { background: var(--danger-soft); } .card-icon.red svg { stroke: var(--danger); }
 .card-title { font-size: 14px; font-weight: 600; }
 .card-subtitle { font-size: 12px; color: var(--muted); }
 .card-body { padding: 1.25rem; }
-.pr-item { border: 1px solid var(--border); border-radius: var(--radius-sm); padding: 1.1rem; margin-bottom: 0.65rem; }
+.pr-item { border: 1px solid var(--border); border-radius: var(--radius-sm); padding: 1.1rem; margin-bottom: 0.65rem; transition: border-color 0.2s; }
 .pr-item:last-child { margin-bottom: 0; }
+.pr-item:hover { border-color: #86efac; }
 .pr-row { display: flex; align-items: flex-start; justify-content: space-between; gap: 12px; flex-wrap: wrap; }
 .pr-name { font-size: 14px; font-weight: 600; margin-bottom: 3px; }
-.pr-meta { font-size: 12px; color: var(--muted); line-height: 1.6; }
-.pr-actions { display: flex; gap: 8px; flex-wrap: wrap; margin-top: 10px; }
+.pr-meta { font-size: 12px; color: var(--muted); line-height: 1.7; }
+.pr-actions { display: flex; gap: 8px; flex-wrap: wrap; margin-top: 10px; align-items: center; }
 .badge { display: inline-flex; align-items: center; gap: 4px; font-size: 11px; font-weight: 600; padding: 3px 9px; border-radius: 40px; white-space: nowrap; }
 .badge-dot { width: 5px; height: 5px; border-radius: 50%; }
-.badge.verifikasi_sj { background: #ffedd5; color: #9a3412; } .badge.verifikasi_sj .badge-dot { background: #ea580c; }
-.badge.matching { background: var(--warn-soft); color: #92400e; } .badge.matching .badge-dot { background: var(--warn); }
-.badge.voucher { background: var(--purple-soft); color: #5b21b6; } .badge.voucher .badge-dot { background: var(--purple); }
-.badge.bayar { background: var(--accent-soft); color: #1e40af; } .badge.bayar .badge-dot { background: var(--accent); }
-.badge.selesai { background: var(--success-soft); color: #065f46; } .badge.selesai .badge-dot { background: var(--success); }
+.badge.verifikasi_sj { background: #ffedd5; color: #9a3412; }
+.badge.verifikasi_sj .badge-dot { background: #ea580c; }
+.badge.matching { background: var(--warn-soft); color: #92400e; }
+.badge.matching .badge-dot { background: var(--warn); }
+.badge.voucher { background: var(--purple-soft); color: #5b21b6; }
+.badge.voucher .badge-dot { background: var(--purple); }
+.badge.bayar { background: var(--accent-soft); color: #1e40af; }
+.badge.bayar .badge-dot { background: var(--accent); }
+.badge.selesai { background: var(--success-soft); color: #065f46; }
+.badge.selesai .badge-dot { background: var(--success); }
 .btn { border: none; border-radius: 6px; padding: 7px 14px; font-size: 12px; font-weight: 600; font-family: 'DM Sans', sans-serif; cursor: pointer; display: inline-flex; align-items: center; gap: 6px; transition: opacity 0.15s; }
 .btn:hover { opacity: 0.85; }
 .btn svg { width: 13px; height: 13px; stroke-width: 2; fill: none; }
@@ -84,14 +90,16 @@ nav {
 .btn-purple { background: var(--purple); color: #fff; }
 .btn-emerald { background: var(--emerald); color: #fff; }
 .btn-outline { background: transparent; color: var(--muted); border: 1px solid var(--border); }
+.btn-pdf { background: #dc2626; color: #fff; }
+.btn-del { background: #fef2f2; color: var(--danger); border: 1px solid #fecaca; }
 .modal-overlay { position: fixed; inset: 0; background: rgba(0,0,0,0.45); z-index: 200; display: none; align-items: center; justify-content: center; padding: 1rem; }
 .modal-overlay.show { display: flex; }
 .modal { background: var(--surface); border-radius: var(--radius); width: 100%; max-width: 560px; max-height: 90vh; overflow-y: auto; box-shadow: 0 20px 60px rgba(0,0,0,0.25); }
 .modal-header { padding: 1.25rem 1.5rem; border-bottom: 1px solid var(--border); display: flex; align-items: center; justify-content: space-between; }
 .modal-title { font-size: 16px; font-weight: 600; }
-.modal-close { background: none; border: none; cursor: pointer; color: var(--muted); font-size: 20px; line-height: 1; }
+.modal-close { background: none; border: none; cursor: pointer; color: var(--muted); font-size: 20px; line-height: 1; padding: 4px; }
 .modal-body { padding: 1.5rem; }
-.modal-footer { padding: 1rem 1.5rem; border-top: 1px solid var(--border); display: flex; gap: 10px; justify-content: flex-end; }
+.modal-footer { padding: 1rem 1.5rem; border-top: 1px solid var(--border); display: flex; gap: 10px; justify-content: flex-end; flex-wrap: wrap; }
 .field { margin-bottom: 1rem; }
 .field label { display: block; font-size: 11px; font-weight: 500; color: var(--muted); text-transform: uppercase; letter-spacing: 0.05em; margin-bottom: 5px; }
 .field input, .field textarea, .field select { width: 100%; border: 1.5px solid var(--border); border-radius: var(--radius-sm); padding: 8px 11px; font-size: 14px; font-family: 'DM Sans', sans-serif; color: var(--text); background: var(--bg); outline: none; }
@@ -108,11 +116,14 @@ nav {
 .warn-box { background: var(--warn-soft); border: 1px solid #fde68a; border-radius: var(--radius-sm); padding: 10px 12px; margin-bottom: 1rem; font-size: 13px; color: #92400e; }
 .three-way-header { font-size: 13px; font-weight: 600; margin-bottom: 8px; display: flex; align-items: center; gap: 6px; }
 .empty-state { text-align: center; padding: 2.5rem 1rem; color: var(--muted); }
-.empty-state svg { width: 40px; height: 40px; stroke: #cbd5e1; fill: none; stroke-width: 1.5; margin-bottom: 10px; }
+.empty-state svg { width: 40px; height: 40px; stroke: #cbd5e1; fill: none; stroke-width: 1.5; margin-bottom: 10px; display: block; margin-left: auto; margin-right: auto; }
 .empty-state p { font-size: 13px; }
 .loading { font-size: 13px; color: var(--muted); padding: 1.5rem 0; text-align: center; }
-.toast { position: fixed; bottom: 24px; right: 24px; background: #1e293b; color: #fff; padding: 12px 18px; border-radius: 10px; font-size: 13px; z-index: 999; opacity: 0; transform: translateY(10px); transition: all 0.3s; pointer-events: none; }
+.divider { height: 1px; background: var(--border); margin: 10px 0; }
+.toast { position: fixed; bottom: 24px; right: 24px; background: #1e293b; color: #fff; padding: 12px 18px; border-radius: 10px; font-size: 13px; z-index: 9999; opacity: 0; transform: translateY(10px); transition: all 0.3s; pointer-events: none; max-width: 320px; box-shadow: 0 8px 24px rgba(0,0,0,0.2); }
 .toast.show { opacity: 1; transform: translateY(0); }
+.pr-date { font-size: 11px; color: var(--muted); }
+.section-label { font-size: 11px; font-weight: 700; text-transform: uppercase; letter-spacing: 0.06em; color: var(--muted); margin-bottom: 10px; padding-bottom: 6px; border-bottom: 1px solid var(--border); }
 </style>
 </head>
 <body>
@@ -136,37 +147,33 @@ nav {
   </div>
 </nav>
 
-<div id="toast" class="toast"></div>
+<div id="toastEl" class="toast"></div>
 
 <div class="container">
-  <div style="display:flex; align-items:center; gap:8px; margin-bottom:1rem; font-size:12px; color:var(--muted);">
-    <span class="realtime-dot"></span> Realtime aktif — data update otomatis
-  </div>
-
   <div class="stat-row">
     <div class="stat-card">
-      <div class="stat-num" id="sMatching" style="color:#92400e">0</div>
+      <div class="stat-num" id="sMatching" style="color:#92400e">—</div>
       <div class="stat-label">Perlu Matching</div>
     </div>
     <div class="stat-card">
-      <div class="stat-num" id="sVoucher" style="color:#5b21b6">0</div>
+      <div class="stat-num" id="sVoucher" style="color:#5b21b6">—</div>
       <div class="stat-label">Terbitkan Voucher</div>
     </div>
     <div class="stat-card">
-      <div class="stat-num" id="sBayar" style="color:#1e40af">0</div>
+      <div class="stat-num" id="sBayar" style="color:#1e40af">—</div>
       <div class="stat-label">Proses Bayar</div>
     </div>
     <div class="stat-card">
-      <div class="stat-num" id="sSelesai" style="color:#065f46">0</div>
+      <div class="stat-num" id="sSelesai" style="color:#065f46">—</div>
       <div class="stat-label">Selesai</div>
     </div>
   </div>
 
   <div class="tabs">
-    <button class="tab active" onclick="switchTab('matching', this)">3-Way Matching <span class="tab-badge" id="badgeMatching">0</span></button>
-    <button class="tab" onclick="switchTab('voucher', this)">Voucher Pembayaran <span class="tab-badge" id="badgeVoucher">0</span></button>
-    <button class="tab" onclick="switchTab('bayar', this)">Proses Bayar <span class="tab-badge" id="badgeBayar">0</span></button>
-    <button class="tab" onclick="switchTab('selesai', this)">Selesai</button>
+    <button class="tab active" onclick="switchTab('matching',this)">3-Way Matching <span class="tab-badge" id="badgeMatching">0</span></button>
+    <button class="tab" onclick="switchTab('voucher',this)">Voucher Pembayaran <span class="tab-badge" id="badgeVoucher">0</span></button>
+    <button class="tab" onclick="switchTab('bayar',this)">Proses Bayar <span class="tab-badge" id="badgeBayar">0</span></button>
+    <button class="tab" onclick="switchTab('selesai',this)">Selesai</button>
   </div>
 
   <!-- TAB MATCHING -->
@@ -177,11 +184,11 @@ nav {
           <svg viewBox="0 0 24 24"><path d="M9 17H7A5 5 0 017 7h2M15 7h2a5 5 0 010 10h-2M8 12h8"/></svg>
         </div>
         <div>
-          <div class="card-title">Antrean 3-Way Matching</div>
-          <div class="card-subtitle">Silakan periksa kesesuaian dokumen PO, Surat Jalan, dan Invoice fisik dari Vendor.</div>
+          <div class="card-title">3-Way Matching</div>
+          <div class="card-subtitle">Cocokkan PO × Invoice × Surat Jalan sebelum terbitkan voucher.</div>
         </div>
       </div>
-      <div class="card-body" id="listMatching"><div class="loading">Memuat...</div></div>
+      <div class="card-body" id="listMatching"><div class="loading">Memuat data...</div></div>
     </div>
   </div>
 
@@ -194,10 +201,10 @@ nav {
         </div>
         <div>
           <div class="card-title">Terbitkan Voucher Pembayaran</div>
-          <div class="card-subtitle">3-Way Matching sudah ✓. Terbitkan voucher sebagai bukti pembayaran resmi.</div>
+          <div class="card-subtitle">3-Way Matching sudah ✓. Terbitkan voucher + download PDF invoice.</div>
         </div>
       </div>
-      <div class="card-body" id="listVoucher"><div class="loading">Memuat...</div></div>
+      <div class="card-body" id="listVoucher"><div class="loading">Memuat data...</div></div>
     </div>
   </div>
 
@@ -210,10 +217,10 @@ nav {
         </div>
         <div>
           <div class="card-title">Proses Pembayaran</div>
-          <div class="card-subtitle">Voucher sudah terbit. Lakukan transfer ke supplier dan upload bukti bayar.</div>
+          <div class="card-subtitle">Voucher sudah terbit. Lakukan transfer ke supplier dan konfirmasi.</div>
         </div>
       </div>
-      <div class="card-body" id="listBayar"><div class="loading">Memuat...</div></div>
+      <div class="card-body" id="listBayar"><div class="loading">Memuat data...</div></div>
     </div>
   </div>
 
@@ -226,10 +233,10 @@ nav {
         </div>
         <div>
           <div class="card-title">PR Selesai</div>
-          <div class="card-subtitle">Seluruh proses pengadaan sudah tuntas.</div>
+          <div class="card-subtitle">Seluruh proses pengadaan sudah tuntas. Bisa download PDF & hapus history.</div>
         </div>
       </div>
-      <div class="card-body" id="listSelesai"><div class="loading">Memuat...</div></div>
+      <div class="card-body" id="listSelesai"><div class="loading">Memuat data...</div></div>
     </div>
   </div>
 </div>
@@ -243,6 +250,7 @@ nav {
     </div>
     <div class="modal-body">
       <div id="matchingContent"></div>
+      <div class="divider"></div>
       <div class="field">
         <label>Nomor Invoice Supplier *</label>
         <input id="nomorInvoice" type="text" placeholder="Contoh: INV/2024/00123">
@@ -289,6 +297,9 @@ nav {
     </div>
     <div class="modal-footer">
       <button class="btn btn-outline" onclick="closeModal('modalVoucher')">Batal</button>
+      <button class="btn btn-pdf" onclick="downloadInvoicePDF()">
+        <svg viewBox="0 0 24 24"><path d="M21 15v4a2 2 0 01-2 2H5a2 2 0 01-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>Download Invoice PDF
+      </button>
       <button class="btn btn-purple" onclick="eksekusiVoucher()">
         <svg viewBox="0 0 24 24"><rect x="1" y="4" width="22" height="16" rx="2"/><line x1="1" y1="10" x2="23" y2="10"/></svg>Terbitkan Voucher
       </button>
@@ -327,47 +338,75 @@ nav {
   </div>
 </div>
 
+<!-- MODAL: KONFIRMASI HAPUS -->
+<div class="modal-overlay" id="modalHapus">
+  <div class="modal" style="max-width:420px">
+    <div class="modal-header">
+      <span class="modal-title">Hapus History PR</span>
+      <button class="modal-close" onclick="closeModal('modalHapus')">×</button>
+    </div>
+    <div class="modal-body">
+      <div class="warn-box">⚠️ Yakin ingin menghapus history PR ini? Data invoice & voucher terkait juga akan dihapus. Tindakan ini <strong>tidak bisa dibatalkan</strong>.</div>
+      <p style="font-size:13px;color:var(--muted)" id="hapusInfo"></p>
+    </div>
+    <div class="modal-footer">
+      <button class="btn btn-outline" onclick="closeModal('modalHapus')">Batal</button>
+      <button class="btn btn-danger" onclick="konfirmasiHapus()">
+        <svg viewBox="0 0 24 24"><polyline points="3 6 5 6 21 6"/><path d="M19 6l-1 14H6L5 6"/><path d="M10 11v6M14 11v6"/></svg>Ya, Hapus
+      </button>
+    </div>
+  </div>
+</div>
+
 <script>
+// ═══════════════════════════════════════════════════
+//  SUPABASE INIT — ganti URL & KEY sesuai proyekmu
+// ═══════════════════════════════════════════════════
 const { createClient } = supabase
 const sb = createClient(
   'https://bgtgeltkbanlnvymalum.supabase.co',
   'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImJndGdlbHRrYmFubG52eW1hbHVtIiwicm9sZSI6ImFub24iLCJpYXQiOjE3Nzk1MTAwNDksImV4cCI6MjA5NTA4NjA0OX0.-JlapeQpug44SjkEKgb1wyoX2_ftdGGcAnTHJhdzvwE'
 )
 
-// ── STATE ────────────────────────────────────────────────────
-let currentPRId = null
-let currentPO = null
-let currentInvoiceId = null
+// State aktif modal
+let currentPRId   = null
+let currentPRData = null   // simpan seluruh data PR yang aktif di modal
+let currentPOData = null
+let currentInvData= null
+let hapusPRId     = null
+let hapusPRNama   = null
 
-// ── HELPERS ──────────────────────────────────────────────────
+// ── UTILS ────────────────────────────────────────────────────
+function fmtDate(d) {
+  if (!d) return '-'
+  return new Date(d).toLocaleDateString('id-ID', { day:'2-digit', month:'short', year:'numeric' })
+}
+function fmtRupiah(n) {
+  if (!n) return 'Rp 0'
+  return 'Rp ' + Number(n).toLocaleString('id-ID')
+}
+function showToast(msg, type='ok') {
+  const el = document.getElementById('toastEl')
+  el.textContent = (type === 'ok' ? '✅ ' : '❌ ') + msg
+  el.classList.add('show')
+  setTimeout(() => el.classList.remove('show'), 3200)
+}
 function switchTab(id, el) {
   document.querySelectorAll('.tab-panel').forEach(p => p.classList.remove('active'))
   document.querySelectorAll('.tab').forEach(t => t.classList.remove('active'))
   document.getElementById('tab-' + id).classList.add('active')
   el.classList.add('active')
 }
-
 function closeModal(id) { document.getElementById(id).classList.remove('show') }
 function openModal(id)  { document.getElementById(id).classList.add('show') }
-
-function fmtDate(d) { return new Date(d).toLocaleDateString('id-ID', { day:'2-digit', month:'short', year:'numeric' }) }
-function fmtRupiah(n) { return 'Rp ' + Number(n).toLocaleString('id-ID') }
-
-function showToast(msg) {
-  const t = document.getElementById('toast')
-  t.textContent = msg
-  t.classList.add('show')
-  setTimeout(() => t.classList.remove('show'), 3500)
-}
-
 function emptyState(msg) {
   return `<div class="empty-state">
-    <svg viewBox="0 0 24 24"><path d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2"/><rect x="9" y="3" width="6" height="4" rx="1"/></svg>
+    <svg viewBox="0 0 24 24"><path d="M14 2H6a2 2 0 00-2 2v16a2 2 0 002 2h12a2 2 0 002-2V8z"/><polyline points="14 2 14 8 20 8"/></svg>
     <p>${msg}</p>
   </div>`
 }
 
-// ── LOGIN CHECK ──────────────────────────────────────────────
+// ── AUTH ────────────────────────────────────────────────────
 async function cekLogin() {
   const { data } = await sb.auth.getSession()
   if (!data.session) { window.location.href = 'index.html'; return }
@@ -375,19 +414,19 @@ async function cekLogin() {
   document.getElementById('userEmail').textContent = email
   document.getElementById('avatarInitial').textContent = email.charAt(0).toUpperCase()
   muatSemua()
-  initRealtime()
+  setupRealtime()
+}
+async function logout() {
+  await sb.auth.signOut()
+  window.location.href = 'index.html'
 }
 
-// ── REALTIME (FIX: subscribe semua perubahan) ────────────────
-function initRealtime() {
-  sb.channel('keuangan-realtime')
-    .on('postgres_changes', { event: '*', schema: 'public', table: 'purchase_requests' },
-      (payload) => {
-        showToast('🔄 Data PR diperbarui secara realtime')
-        muatSemua()
-      })
-    .on('postgres_changes', { event: '*', schema: 'public', table: 'invoices' },
-      () => muatSemua())
+// ── REALTIME ─────────────────────────────────────────────────
+function setupRealtime() {
+  sb.channel('keuangan-rt')
+    .on('postgres_changes', { event: '*', schema: 'public', table: 'purchase_requests' }, () => muatSemua())
+    .on('postgres_changes', { event: '*', schema: 'public', table: 'invoices' }, () => muatSemua())
+    .on('postgres_changes', { event: '*', schema: 'public', table: 'purchase_orders' }, () => muatSemua())
     .subscribe()
 }
 
@@ -396,65 +435,70 @@ async function muatSemua() {
   await Promise.all([muatMatching(), muatVoucher(), muatBayar(), muatSelesai()])
 }
 
-// ── 3-WAY MATCHING ──────────────────────────────────────────
-// FIX: nama tabel → purchase_requests (dengan s), ambil SEMUA data tanpa .single()
+// ═══════════════════════════════════════════════════
+//  TAB 1 — 3-WAY MATCHING
+//  Query semua PR status 'invoice_masuk' (invoice sudah diserahkan supplier)
+// ═══════════════════════════════════════════════════
 async function muatMatching() {
   const { data, error } = await sb
-    .from('purchase_requests')          // ✅ FIX: tambah 's'
-    .select('*')
-    .eq('status', 'verifikasi_sj')
+    .from('purchase_requests')
+    .select('*, purchase_orders(*), invoices(*)')
+    .eq('status', 'invoice_masuk')
     .order('created_at', { ascending: true })
 
-  if (error) { console.error('muatMatching error:', error); return }
-
   const el = document.getElementById('listMatching')
+  if (error) { el.innerHTML = `<p style="color:red;font-size:13px">Error: ${error.message}</p>`; return }
+
   const cnt = data ? data.length : 0
   document.getElementById('badgeMatching').textContent = cnt
   document.getElementById('sMatching').textContent = cnt
 
-  if (!data || cnt === 0) { el.innerHTML = emptyState('Tidak ada berkas PR pada tahap ini.'); return }
+  if (cnt === 0) { el.innerHTML = emptyState('Tidak ada PR yang perlu 3-Way Matching.'); return }
 
-  // Ambil semua PO sekaligus (bukan satu per satu) untuk efisiensi
-  const prIds = data.map(pr => pr.id)
-  const { data: semuaPO } = await sb
-    .from('purchase_orders')            // ✅ FIX: nama tabel benar
-    .select('*')
-    .in('pr_id', prIds)
-
-  const poMap = {}
-  if (semuaPO) semuaPO.forEach(po => { poMap[po.pr_id] = po })
-
-  const rows = data.map(pr => {
-    const po = poMap[pr.id] || null
+  el.innerHTML = data.map(pr => {
+    // Ambil PO dan invoice terbaru
+    const po  = pr.purchase_orders  && pr.purchase_orders.length  ? pr.purchase_orders[pr.purchase_orders.length - 1]   : null
+    const inv = pr.invoices          && pr.invoices.length          ? pr.invoices[pr.invoices.length - 1]                 : null
     return `
     <div class="pr-item">
       <div class="pr-row">
         <div style="flex:1">
-          <div class="pr-name">${pr.nama_barang}</div>
+          <div class="pr-name">${pr.nama_barang || pr.item_name || 'Tanpa nama'}</div>
           <div class="pr-meta">
-            Jumlah: <b>${pr.jumlah} unit</b> &nbsp;·&nbsp; SJ: <b>${pr.surat_jalan || '-'}</b>
-            ${po ? ` &nbsp;·&nbsp; PO: <b>${fmtRupiah(po.harga_total || po.nilai_kontrak || 0)}</b> ke <b>${po.nama_supplier || po.supplier_name || '-'}</b>` : '<span style="color:var(--danger)"> · PO belum ditemukan</span>'}
+            Jumlah: <b>${pr.jumlah || pr.quantity || 1} ${pr.satuan || 'unit'}</b>
+            ${po ? ` &nbsp;·&nbsp; PO: <b>${po.nomor_po || '-'}</b> · <b style="color:var(--emerald)">${fmtRupiah(po.nilai_kontrak || po.harga_total)}</b> → <b>${po.nama_supplier || '-'}</b>` : ''}
+            ${inv ? ` &nbsp;·&nbsp; Invoice: <b>${inv.nomor_invoice}</b> · ${fmtRupiah(inv.nilai_invoice || inv.nilai)}` : ' &nbsp;·&nbsp; <span style="color:var(--warn)">⚠ Invoice belum masuk</span>'}
           </div>
+          <div class="pr-date">Dibuat: ${fmtDate(pr.created_at)}</div>
         </div>
         <span class="badge verifikasi_sj"><span class="badge-dot"></span>Siap Matching</span>
       </div>
       <div class="pr-actions">
-        <button class="btn btn-success" onclick="bukaModalMatching('${pr.id}','${pr.nama_barang}','${pr.jumlah}','${pr.surat_jalan || ''}','${po ? po.id : ''}',${po ? (po.harga_total || po.nilai_kontrak || 0) : 0},'${po ? (po.nama_supplier || po.supplier_name || '') : ''}')">
+        <button class="btn btn-success" onclick='bukaModalMatching(${JSON.stringify(pr).replace(/'/g,"&#39;")})'>
           <svg viewBox="0 0 24 24"><path d="M9 17H7A5 5 0 017 7h2M15 7h2a5 5 0 010 10h-2M8 12h8"/></svg>Lakukan 3-Way Matching
         </button>
       </div>
     </div>`
-  })
-  el.innerHTML = rows.join('')
+  }).join('')
 }
 
-function bukaModalMatching(prId, namaBarang, jumlah, noSJ, poId, hargaPO, namaSupplier) {
-  currentPRId = prId
-  currentPO = { id: poId, harga: parseFloat(hargaPO), supplier: namaSupplier }
-  document.getElementById('nomorInvoice').value = ''
-  document.getElementById('nilaiInvoice').value = ''
-  document.getElementById('tglInvoice').value = ''
+function bukaModalMatching(pr) {
+  currentPRId   = pr.id
+  currentPRData = pr
+  currentPOData = pr.purchase_orders && pr.purchase_orders.length ? pr.purchase_orders[pr.purchase_orders.length - 1] : null
+  currentInvData= pr.invoices        && pr.invoices.length        ? pr.invoices[pr.invoices.length - 1]               : null
+
+  const po  = currentPOData
+  const inv = currentInvData
+  const nama = pr.nama_barang || pr.item_name || '-'
+  const jumlah = pr.jumlah || pr.quantity || 1
+
+  // Pre-fill invoice fields jika invoice sudah ada
+  document.getElementById('nomorInvoice').value  = inv ? (inv.nomor_invoice || '') : ''
+  document.getElementById('nilaiInvoice').value  = inv ? (inv.nilai_invoice || inv.nilai || '') : ''
+  document.getElementById('tglInvoice').value    = inv ? (inv.tanggal_invoice ? inv.tanggal_invoice.split('T')[0] : '') : ''
   document.getElementById('catatanMatching').value = ''
+
   document.getElementById('matchingContent').innerHTML = `
     <div class="three-way-header">🔍 Pengecekan 3-Way Matching</div>
     <table class="matching-table">
@@ -462,125 +506,117 @@ function bukaModalMatching(prId, namaBarang, jumlah, noSJ, poId, hargaPO, namaSu
       <tbody>
         <tr>
           <td><b>Purchase Order</b></td>
-          <td>${namaBarang} — ${jumlah} unit<br><span style="color:var(--muted);font-size:11px">${namaSupplier} · ${fmtRupiah(hargaPO)}</span></td>
-          <td><span class="match-ok">✓ Ada</span></td>
+          <td>${nama} — ${jumlah} ${pr.satuan || 'unit'}<br>
+            <span style="color:var(--muted);font-size:11px">${po ? `${po.nama_supplier || '-'} · ${fmtRupiah(po.nilai_kontrak || po.harga_total)}` : 'PO tidak ditemukan'}</span>
+          </td>
+          <td>${po ? '<span class="match-ok">✓ Ada</span>' : '<span class="match-fail">✗ Tidak ada</span>'}</td>
         </tr>
         <tr>
           <td><b>Surat Jalan</b></td>
-          <td>${noSJ || 'Terverifikasi Pengadaan'}</td>
+          <td>${pr.surat_jalan || 'Terverifikasi oleh Staf Pengadaan'}</td>
           <td><span class="match-ok">✓ Terverifikasi</span></td>
         </tr>
         <tr>
-          <td><b>Invoice</b></td>
-          <td>Input di bawah ↓</td>
-          <td><span class="match-warn">⏳ Perlu diisi</span></td>
+          <td><b>Invoice Supplier</b></td>
+          <td>${inv ? `${inv.nomor_invoice} · ${fmtRupiah(inv.nilai_invoice || inv.nilai)}` : 'Input di bawah ↓'}</td>
+          <td>${inv ? '<span class="match-ok">✓ Ada</span>' : '<span class="match-warn">⏳ Perlu diisi</span>'}</td>
         </tr>
       </tbody>
     </table>`
+
   openModal('modalMatching')
 }
 
 async function eksekusiMatching() {
-  const noInv    = document.getElementById('nomorInvoice').value.trim()
+  const noInv   = document.getElementById('nomorInvoice').value.trim()
   const nilaiInv = parseFloat(document.getElementById('nilaiInvoice').value)
-  const tglInv   = document.getElementById('tglInvoice').value
-  const catatan  = document.getElementById('catatanMatching').value.trim()
+  const tglInv  = document.getElementById('tglInvoice').value
+  const catatan = document.getElementById('catatanMatching').value.trim()
 
-  if (!noInv || !nilaiInv || !tglInv) { alert('Isi semua data invoice!'); return }
+  if (!noInv || !nilaiInv || !tglInv) { showToast('Isi semua data invoice terlebih dahulu!', 'err'); return }
 
-  const selisih = currentPO.harga > 0
-    ? Math.abs(nilaiInv - currentPO.harga) / currentPO.harga
-    : 0
+  const hargaPO = currentPOData ? (currentPOData.nilai_kontrak || currentPOData.harga_total || 0) : 0
+  const selisih = hargaPO > 0 ? Math.abs(nilaiInv - hargaPO) / hargaPO : 0
   const statusMatching = selisih <= 0.05 ? 'ok' : 'selisih'
 
-  // ✅ FIX: INSERT biasa, bukan upsert dengan onConflict pr_id
-  // Cek dulu apakah sudah ada invoice untuk PR ini
-  const { data: existing } = await sb
-    .from('invoices')
-    .select('id')
-    .eq('pr_id', currentPRId)
-    .maybeSingle()
-
-  let invError
-  if (existing) {
-    // Update jika sudah ada
-    const { error } = await sb.from('invoices').update({
-      nomor_invoice: noInv,
-      nilai: nilaiInv,
-      tanggal_invoice: new Date(tglInv).toISOString(),
-      status: 'voucher_pending',
-      status_matching: statusMatching,
-      catatan_matching: catatan
-    }).eq('id', existing.id)
-    invError = error
-  } else {
-    // Insert baru
-    const { error } = await sb.from('invoices').insert({
+  try {
+    // Upsert invoice (insert jika belum ada, update jika sudah ada untuk PR ini)
+    const invPayload = {
       pr_id: currentPRId,
       nomor_invoice: noInv,
-      nilai: nilaiInv,
-      tanggal_invoice: new Date(tglInv).toISOString(),
-      status: 'voucher_pending',
+      nilai_invoice: nilaiInv,
+      tanggal_invoice: tglInv,
+      status: 'matched',
       status_matching: statusMatching,
       catatan_matching: catatan
-    })
-    invError = error
+    }
+    if (currentPOData) invPayload.po_id = currentPOData.id
+
+    // Cek apakah invoice untuk PR ini sudah ada
+    if (currentInvData && currentInvData.id) {
+      await sb.from('invoices').update(invPayload).eq('id', currentInvData.id)
+    } else {
+      await sb.from('invoices').insert(invPayload)
+    }
+
+    await sb.from('purchase_requests').update({
+      status: 'matching_ok',
+      updated_at: new Date().toISOString()
+    }).eq('id', currentPRId)
+
+    closeModal('modalMatching')
+    muatSemua()
+
+    if (statusMatching === 'ok') {
+      showToast('3-Way Matching berhasil! Nilai cocok. Lanjut terbitkan voucher.')
+    } else {
+      showToast(`Matching OK dengan catatan: selisih ${(selisih*100).toFixed(1)}%. Periksa ke atasan jika perlu.`)
+    }
+  } catch(e) {
+    showToast('Error: ' + e.message, 'err')
   }
-
-  if (invError) { alert('Error simpan invoice: ' + invError.message); return }
-
-  const { error: prErr } = await sb
-    .from('purchase_requests')
-    .update({ status: 'matching_ok' })
-    .eq('id', currentPRId)
-
-  if (prErr) { alert('Error update PR: ' + prErr.message); return }
-
-  closeModal('modalMatching')
-  muatSemua()
-  showToast(statusMatching === 'ok'
-    ? '✅ 3-Way Matching berhasil! Nilai cocok.'
-    : `⚠️ Matching OK dengan catatan: selisih ${(selisih*100).toFixed(1)}%.`)
 }
 
-// ── VOUCHER ─────────────────────────────────────────────────
+// ═══════════════════════════════════════════════════
+//  TAB 2 — VOUCHER
+// ═══════════════════════════════════════════════════
 async function muatVoucher() {
   const { data, error } = await sb
     .from('purchase_requests')
-    .select('*')
+    .select('*, purchase_orders(*), invoices(*)')
     .eq('status', 'matching_ok')
     .order('created_at', { ascending: true })
 
-  if (error) { console.error('muatVoucher error:', error); return }
+  const el = document.getElementById('listVoucher')
+  if (error) { el.innerHTML = `<p style="color:red;font-size:13px">Error: ${error.message}</p>`; return }
 
-  const el  = document.getElementById('listVoucher')
   const cnt = data ? data.length : 0
   document.getElementById('badgeVoucher').textContent = cnt
   document.getElementById('sVoucher').textContent = cnt
 
-  if (!data || cnt === 0) { el.innerHTML = emptyState('Tidak ada yang perlu diterbitkan voucher.'); return }
-
-  // Ambil semua invoice sekaligus
-  const prIds = data.map(pr => pr.id)
-  const { data: semuaInv } = await sb.from('invoices').select('*').in('pr_id', prIds)
-  const invMap = {}
-  if (semuaInv) semuaInv.forEach(inv => { invMap[inv.pr_id] = inv })
+  if (cnt === 0) { el.innerHTML = emptyState('Tidak ada yang perlu diterbitkan voucher.'); return }
 
   el.innerHTML = data.map(pr => {
-    const inv = invMap[pr.id] || null
+    const po  = pr.purchase_orders && pr.purchase_orders.length ? pr.purchase_orders[pr.purchase_orders.length - 1] : null
+    const inv = pr.invoices        && pr.invoices.length        ? pr.invoices[pr.invoices.length - 1]               : null
     return `
     <div class="pr-item">
       <div class="pr-row">
         <div style="flex:1">
-          <div class="pr-name">${pr.nama_barang}</div>
+          <div class="pr-name">${pr.nama_barang || pr.item_name || 'Tanpa nama'}</div>
           <div class="pr-meta">
-            ${inv ? `Invoice: <b>${inv.nomor_invoice}</b> · <b style="color:var(--emerald)">${fmtRupiah(inv.nilai)}</b>` : '<span style="color:var(--danger)">Data invoice tidak ditemukan</span>'}
+            ${po ? `Supplier: <b>${po.nama_supplier}</b> · PO: <b>${po.nomor_po || '-'}</b>` : ''}
+            ${inv ? ` &nbsp;·&nbsp; Invoice: <b>${inv.nomor_invoice}</b> · <b style="color:var(--emerald)">${fmtRupiah(inv.nilai_invoice || inv.nilai)}</b>` : ''}
           </div>
+          <div class="pr-date">Matching: ${fmtDate(pr.updated_at)}</div>
         </div>
         <span class="badge voucher"><span class="badge-dot"></span>Perlu Voucher</span>
       </div>
       <div class="pr-actions">
-        <button class="btn btn-purple" onclick="bukaModalVoucher('${pr.id}','${pr.nama_barang}','${inv ? inv.nomor_invoice : ''}','${inv ? inv.nilai : 0}','${inv ? inv.id : ''}')">
+        <button class="btn btn-pdf" onclick='downloadInvoicePDFLangsung(${JSON.stringify(pr).replace(/'/g,"&#39;")})'>
+          <svg viewBox="0 0 24 24"><path d="M21 15v4a2 2 0 01-2 2H5a2 2 0 01-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>Download Invoice PDF
+        </button>
+        <button class="btn btn-purple" onclick='bukaModalVoucher(${JSON.stringify(pr).replace(/'/g,"&#39;")})'>
           <svg viewBox="0 0 24 24"><rect x="1" y="4" width="22" height="16" rx="2"/><line x1="1" y1="10" x2="23" y2="10"/></svg>Terbitkan Voucher
         </button>
       </div>
@@ -588,72 +624,194 @@ async function muatVoucher() {
   }).join('')
 }
 
-function bukaModalVoucher(prId, namaBarang, noInv, nilai, invId) {
-  currentPRId = prId
-  currentInvoiceId = invId
-  document.getElementById('nomorVoucher').value = ''
-  document.getElementById('catatanVoucher').value = ''
-  document.getElementById('voucherInfo').innerHTML = `✅ Matching OK<br><b>${namaBarang}</b> · Invoice ${noInv} · <b>${fmtRupiah(nilai)}</b>`
+function bukaModalVoucher(pr) {
+  currentPRId   = pr.id
+  currentPRData = pr
+  currentPOData = pr.purchase_orders && pr.purchase_orders.length ? pr.purchase_orders[pr.purchase_orders.length - 1] : null
+  currentInvData= pr.invoices        && pr.invoices.length        ? pr.invoices[pr.invoices.length - 1]               : null
+
+  const inv = currentInvData
+  const po  = currentPOData
+  const nama = pr.nama_barang || pr.item_name || '-'
+
+  document.getElementById('nomorVoucher').value    = ''
+  document.getElementById('catatanVoucher').value  = ''
+  document.getElementById('voucherInfo').innerHTML =
+    `✅ Matching OK — Siap diterbitkan voucher<br>
+     <b>${nama}</b> · ${pr.jumlah || pr.quantity || 1} ${pr.satuan || 'unit'}<br>
+     ${inv ? `Invoice: <b>${inv.nomor_invoice}</b> · <b>${fmtRupiah(inv.nilai_invoice || inv.nilai)}</b>` : ''}
+     ${po  ? ` · Supplier: <b>${po.nama_supplier}</b>` : ''}`
+
   openModal('modalVoucher')
 }
 
 async function eksekusiVoucher() {
   const nomor   = document.getElementById('nomorVoucher').value.trim()
   const catatan = document.getElementById('catatanVoucher').value.trim()
-  if (!nomor) { alert('Isi nomor voucher!'); return }
+  if (!nomor) { showToast('Isi nomor voucher terlebih dahulu!', 'err'); return }
 
-  if (currentInvoiceId) {
-    await sb.from('invoices').update({ status: 'voucher_terbit', bukti_bayar: nomor }).eq('id', currentInvoiceId)
+  try {
+    // Update status invoice
+    if (currentInvData && currentInvData.id) {
+      await sb.from('invoices').update({ status: 'voucher_terbit', nomor_voucher: nomor }).eq('id', currentInvData.id)
+    }
+    // Update status PR
+    await sb.from('purchase_requests').update({
+      status: 'voucher_terbit',
+      updated_at: new Date().toISOString()
+    }).eq('id', currentPRId)
+
+    closeModal('modalVoucher')
+    muatSemua()
+    showToast('Voucher berhasil diterbitkan!')
+  } catch(e) {
+    showToast('Error: ' + e.message, 'err')
   }
-  const { error } = await sb.from('purchase_requests').update({ status: 'voucher_terbit' }).eq('id', currentPRId)
-  if (error) { alert('Error: ' + error.message); return }
-
-  closeModal('modalVoucher')
-  muatSemua()
-  showToast('🧾 Voucher berhasil diterbitkan!')
 }
 
-// ── PROSES BAYAR ─────────────────────────────────────────────
+// ── DOWNLOAD INVOICE PDF (dari tombol di modal voucher) ──────
+function downloadInvoicePDF() {
+  if (!currentPRData) return
+  generateInvoicePDF(currentPRData, currentPOData, currentInvData)
+}
+
+// Download langsung dari kartu voucher
+function downloadInvoicePDFLangsung(pr) {
+  const po  = pr.purchase_orders && pr.purchase_orders.length ? pr.purchase_orders[pr.purchase_orders.length - 1] : null
+  const inv = pr.invoices        && pr.invoices.length        ? pr.invoices[pr.invoices.length - 1]               : null
+  generateInvoicePDF(pr, po, inv)
+}
+
+function generateInvoicePDF(pr, po, inv) {
+  const { jsPDF } = window.jspdf
+  const doc = new jsPDF({ orientation: 'portrait', unit: 'mm', format: 'a4' })
+
+  const nama    = pr.nama_barang || pr.item_name || '-'
+  const jumlah  = pr.jumlah || pr.quantity || 1
+  const satuan  = pr.satuan || 'unit'
+  const supplier= po ? (po.nama_supplier || '-') : '-'
+  const noPO    = po ? (po.nomor_po || '-') : '-'
+  const noInv   = inv ? (inv.nomor_invoice || '-') : '-'
+  const nilaiInv= inv ? (inv.nilai_invoice || inv.nilai || 0) : 0
+  const tglInv  = inv ? fmtDate(inv.tanggal_invoice) : fmtDate(new Date())
+  const tglCetak = fmtDate(new Date())
+
+  // Header
+  doc.setFillColor(5, 46, 22)
+  doc.rect(0, 0, 210, 30, 'F')
+  doc.setTextColor(255, 255, 255)
+  doc.setFont('helvetica', 'bold')
+  doc.setFontSize(16)
+  doc.text('DOKUMEN INVOICE', 14, 13)
+  doc.setFontSize(9)
+  doc.setFont('helvetica', 'normal')
+  doc.text('Sistem Pengadaan ITK — Staf Keuangan', 14, 21)
+  doc.text(`Dicetak: ${tglCetak}`, 196, 21, { align: 'right' })
+
+  // No Invoice besar
+  doc.setTextColor(5, 46, 22)
+  doc.setFont('helvetica', 'bold')
+  doc.setFontSize(13)
+  doc.text(`No. Invoice: ${noInv}`, 14, 42)
+  doc.setFont('helvetica', 'normal')
+  doc.setFontSize(10)
+  doc.setTextColor(100, 116, 139)
+  doc.text(`No. PO: ${noPO}   ·   Tanggal Invoice: ${tglInv}`, 14, 50)
+
+  // Divider
+  doc.setDrawColor(226, 232, 240)
+  doc.line(14, 55, 196, 55)
+
+  // Tabel info
+  doc.setTextColor(30, 41, 59)
+  doc.setFontSize(10)
+  const col1 = 14, col2 = 70
+
+  const rows = [
+    ['Nama Barang',  nama],
+    ['Jumlah',       `${jumlah} ${satuan}`],
+    ['Supplier',     supplier],
+    ['Nilai Invoice', fmtRupiah(nilaiInv)],
+    ['Status Matching', inv ? (inv.status_matching === 'ok' ? '✓ Cocok (selisih ≤5%)' : '⚠ Selisih — periksa') : '-'],
+    ['Spesifikasi',  pr.spesifikasi || pr.specification || '-'],
+  ]
+
+  let y = 65
+  rows.forEach(([key, val]) => {
+    doc.setFont('helvetica', 'bold')
+    doc.setTextColor(100, 116, 139)
+    doc.text(key, col1, y)
+    doc.setFont('helvetica', 'normal')
+    doc.setTextColor(30, 41, 59)
+    const lines = doc.splitTextToSize(String(val), 110)
+    doc.text(lines, col2, y)
+    y += lines.length > 1 ? lines.length * 6 + 2 : 9
+  })
+
+  // Box total
+  y += 4
+  doc.setFillColor(240, 244, 248)
+  doc.roundedRect(14, y, 182, 20, 3, 3, 'F')
+  doc.setFont('helvetica', 'bold')
+  doc.setFontSize(12)
+  doc.setTextColor(5, 46, 22)
+  doc.text('TOTAL PEMBAYARAN', 20, y + 8)
+  doc.setFontSize(14)
+  doc.text(fmtRupiah(nilaiInv), 196, y + 8, { align: 'right' })
+  doc.setFont('helvetica', 'normal')
+  doc.setFontSize(9)
+  doc.setTextColor(100, 116, 139)
+  doc.text('Nilai sesuai invoice yang telah melalui 3-Way Matching', 20, y + 15)
+
+  // Footer
+  doc.setFillColor(248, 250, 252)
+  doc.rect(0, 272, 210, 25, 'F')
+  doc.setFont('helvetica', 'normal')
+  doc.setFontSize(8)
+  doc.setTextColor(148, 163, 184)
+  doc.text('Dokumen ini digenerate otomatis oleh Sistem Pengadaan ITK', 105, 282, { align: 'center' })
+  doc.text(`PR ID: ${pr.id}`, 105, 288, { align: 'center' })
+
+  doc.save(`Invoice_${noInv.replace(/\//g, '-')}_${nama.replace(/\s/g,'_')}.pdf`)
+  showToast('Invoice PDF berhasil didownload!')
+}
+
+// ═══════════════════════════════════════════════════
+//  TAB 3 — PROSES BAYAR
+// ═══════════════════════════════════════════════════
 async function muatBayar() {
   const { data, error } = await sb
     .from('purchase_requests')
-    .select('*')
+    .select('*, purchase_orders(*), invoices(*)')
     .eq('status', 'voucher_terbit')
     .order('created_at', { ascending: true })
 
-  if (error) { console.error('muatBayar error:', error); return }
+  const el = document.getElementById('listBayar')
+  if (error) { el.innerHTML = `<p style="color:red;font-size:13px">Error: ${error.message}</p>`; return }
 
-  const el  = document.getElementById('listBayar')
   const cnt = data ? data.length : 0
   document.getElementById('badgeBayar').textContent = cnt
   document.getElementById('sBayar').textContent = cnt
 
-  if (!data || cnt === 0) { el.innerHTML = emptyState('Tidak ada yang perlu diproses pembayaran.'); return }
-
-  const prIds = data.map(pr => pr.id)
-  const { data: semuaPO  } = await sb.from('purchase_orders').select('*').in('pr_id', prIds)
-  const { data: semuaInv } = await sb.from('invoices').select('*').in('pr_id', prIds)
-
-  const poMap  = {}; if (semuaPO)  semuaPO.forEach(po   => { poMap[po.pr_id]   = po })
-  const invMap = {}; if (semuaInv) semuaInv.forEach(inv => { invMap[inv.pr_id] = inv })
+  if (cnt === 0) { el.innerHTML = emptyState('Tidak ada pembayaran yang perlu diproses.'); return }
 
   el.innerHTML = data.map(pr => {
-    const po  = poMap[pr.id]  || null
-    const inv = invMap[pr.id] || null
+    const po  = pr.purchase_orders && pr.purchase_orders.length ? pr.purchase_orders[pr.purchase_orders.length - 1] : null
+    const inv = pr.invoices        && pr.invoices.length        ? pr.invoices[pr.invoices.length - 1]               : null
     return `
     <div class="pr-item">
       <div class="pr-row">
         <div style="flex:1">
-          <div class="pr-name">${pr.nama_barang}</div>
+          <div class="pr-name">${pr.nama_barang || pr.item_name || 'Tanpa nama'}</div>
           <div class="pr-meta">
-            Supplier: <b>${po ? (po.nama_supplier || po.supplier_name || '-') : '-'}</b>
-            ${inv ? ` · Voucher: <b>${inv.bukti_bayar || '-'}</b> · <b style="color:var(--emerald)">${fmtRupiah(inv.nilai)}</b>` : ''}
+            ${inv ? `Voucher: <b>${inv.nomor_voucher || '-'}</b> · Nilai: <b style="color:var(--emerald)">${fmtRupiah(inv.nilai_invoice || inv.nilai)}</b>` : ''}
+            ${po  ? ` · Supplier: <b>${po.nama_supplier}</b>` : ''}
           </div>
         </div>
-        <span class="badge bayar"><span class="badge-dot"></span>Siap Dibayar</span>
+        <span class="badge bayar"><span class="badge-dot"></span>Proses Bayar</span>
       </div>
       <div class="pr-actions">
-        <button class="btn btn-emerald" onclick="bukaModalBayar('${pr.id}','${pr.nama_barang}','${po ? (po.nama_supplier || po.supplier_name || '') : ''}','${inv ? inv.nilai : 0}','${inv ? inv.id : ''}')">
+        <button class="btn btn-emerald" onclick='bukaModalBayar(${JSON.stringify(pr).replace(/'/g,"&#39;")})'>
           <svg viewBox="0 0 24 24"><line x1="12" y1="1" x2="12" y2="23"/><path d="M17 5H9.5a3.5 3.5 0 000 7h5a3.5 3.5 0 010 7H6"/></svg>Proses Pembayaran
         </button>
       </div>
@@ -661,13 +819,20 @@ async function muatBayar() {
   }).join('')
 }
 
-function bukaModalBayar(prId, namaBarang, supplier, nilai, invId) {
-  currentPRId = prId
-  currentInvoiceId = invId
-  document.getElementById('refTransfer').value = ''
-  document.getElementById('tglBayar').value = ''
-  document.getElementById('catatanBayar').value = ''
-  document.getElementById('bayarInfo').innerHTML = `<b>${namaBarang}</b><br>Supplier: ${supplier} · Nilai: <b>${fmtRupiah(nilai)}</b>`
+function bukaModalBayar(pr) {
+  currentPRId   = pr.id
+  currentPRData = pr
+  currentInvData= pr.invoices && pr.invoices.length ? pr.invoices[pr.invoices.length - 1] : null
+  const po = pr.purchase_orders && pr.purchase_orders.length ? pr.purchase_orders[pr.purchase_orders.length - 1] : null
+
+  document.getElementById('refTransfer').value   = ''
+  document.getElementById('tglBayar').value       = new Date().toISOString().split('T')[0]
+  document.getElementById('catatanBayar').value   = ''
+  document.getElementById('bayarInfo').innerHTML  =
+    `💳 Siap dibayar<br><b>${pr.nama_barang || pr.item_name}</b>
+     ${currentInvData ? ` · Voucher: <b>${currentInvData.nomor_voucher || '-'}</b> · <b>${fmtRupiah(currentInvData.nilai_invoice || currentInvData.nilai)}</b>` : ''}
+     ${po ? ` · Supplier: <b>${po.nama_supplier}</b>` : ''}`
+
   openModal('modalBayar')
 }
 
@@ -675,52 +840,109 @@ async function eksekusiBayar() {
   const ref     = document.getElementById('refTransfer').value.trim()
   const tgl     = document.getElementById('tglBayar').value
   const catatan = document.getElementById('catatanBayar').value.trim()
-  if (!ref || !tgl) { alert('Isi nomor referensi transfer dan tanggal bayar!'); return }
+  if (!ref || !tgl) { showToast('Isi nomor referensi & tanggal bayar!', 'err'); return }
 
-  if (currentInvoiceId) {
-    await sb.from('invoices').update({
-      status: 'lunas',
-      tanggal_bayar: new Date(tgl).toISOString()
-    }).eq('id', currentInvoiceId)
+  try {
+    if (currentInvData && currentInvData.id) {
+      await sb.from('invoices').update({
+        status: 'dibayar',
+        ref_transfer: ref,
+        tanggal_bayar: tgl,
+        catatan_bayar: catatan
+      }).eq('id', currentInvData.id)
+    }
+    await sb.from('purchase_requests').update({
+      status: 'selesai',
+      updated_at: new Date().toISOString()
+    }).eq('id', currentPRId)
+
+    closeModal('modalBayar')
+    muatSemua()
+    showToast('Pembayaran berhasil dikonfirmasi! PR selesai.')
+  } catch(e) {
+    showToast('Error: ' + e.message, 'err')
   }
-
-  const { error } = await sb.from('purchase_requests').update({ status: 'selesai' }).eq('id', currentPRId)
-  if (error) { alert('Error: ' + error.message); return }
-
-  closeModal('modalBayar')
-  muatSemua()
-  showToast('🎉 Pembayaran dikonfirmasi! PR selesai.')
 }
 
-// ── SELESAI ──────────────────────────────────────────────────
+// ═══════════════════════════════════════════════════
+//  TAB 4 — SELESAI + HAPUS HISTORY
+// ═══════════════════════════════════════════════════
 async function muatSelesai() {
   const { data, error } = await sb
     .from('purchase_requests')
-    .select('*')
+    .select('*, purchase_orders(*), invoices(*)')
     .eq('status', 'selesai')
-    .order('created_at', { ascending: false })
-
-  if (error) { console.error('muatSelesai error:', error); return }
+    .order('updated_at', { ascending: false })
 
   const el = document.getElementById('listSelesai')
-  document.getElementById('sSelesai').textContent = data ? data.length : 0
+  if (error) { el.innerHTML = `<p style="color:red;font-size:13px">Error: ${error.message}</p>`; return }
 
-  if (!data || data.length === 0) { el.innerHTML = emptyState('Belum ada PR yang selesai.'); return }
+  const cnt = data ? data.length : 0
+  document.getElementById('sSelesai').textContent = cnt
 
-  el.innerHTML = data.map(pr => `
-    <div class="pr-item">
+  if (cnt === 0) { el.innerHTML = emptyState('Belum ada PR yang selesai.'); return }
+
+  el.innerHTML = data.map(pr => {
+    const po  = pr.purchase_orders && pr.purchase_orders.length ? pr.purchase_orders[pr.purchase_orders.length - 1] : null
+    const inv = pr.invoices        && pr.invoices.length        ? pr.invoices[pr.invoices.length - 1]               : null
+    return `
+    <div class="pr-item" style="border-left: 3px solid var(--success)">
       <div class="pr-row">
         <div style="flex:1">
-          <div class="pr-name">${pr.nama_barang}</div>
-          <div class="pr-meta">${pr.jumlah} unit &nbsp;·&nbsp; Selesai ${fmtDate(pr.updated_at || pr.created_at)}</div>
+          <div class="pr-name">${pr.nama_barang || pr.item_name || 'Tanpa nama'}</div>
+          <div class="pr-meta">
+            ${po  ? `Supplier: <b>${po.nama_supplier}</b> · PO: <b>${po.nomor_po || '-'}</b>` : ''}
+            ${inv ? ` · Invoice: <b>${inv.nomor_invoice}</b> · <b style="color:var(--emerald)">${fmtRupiah(inv.nilai_invoice || inv.nilai)}</b>` : ''}
+            ${inv && inv.ref_transfer ? ` · Ref Transfer: <b>${inv.ref_transfer}</b>` : ''}
+          </div>
+          <div class="pr-date">Selesai: ${fmtDate(pr.updated_at)}</div>
         </div>
-        <span class="badge selesai"><span class="badge-dot"></span>Selesai</span>
+        <span class="badge selesai"><span class="badge-dot"></span>✓ Selesai</span>
       </div>
-    </div>`).join('')
+      <div class="pr-actions">
+        <button class="btn btn-pdf" onclick='downloadInvoicePDFLangsung(${JSON.stringify(pr).replace(/'/g,"&#39;")})'>
+          <svg viewBox="0 0 24 24"><path d="M21 15v4a2 2 0 01-2 2H5a2 2 0 01-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>Download Invoice PDF
+        </button>
+        <button class="btn btn-del" onclick="bukaModalHapus('${pr.id}', '${(pr.nama_barang || pr.item_name || 'PR').replace(/'/g, "\\'")}')">
+          <svg viewBox="0 0 24 24" stroke="currentColor"><polyline points="3 6 5 6 21 6"/><path d="M19 6l-1 14H6L5 6"/><path d="M10 11v6M14 11v6"/></svg>Hapus History
+        </button>
+      </div>
+    </div>`
+  }).join('')
 }
 
-async function logout() { await sb.auth.signOut(); window.location.href = 'index.html' }
+// ── HAPUS HISTORY ────────────────────────────────────────────
+function bukaModalHapus(prId, prNama) {
+  hapusPRId   = prId
+  hapusPRNama = prNama
+  document.getElementById('hapusInfo').textContent = `PR: "${prNama}"`
+  openModal('modalHapus')
+}
 
+async function konfirmasiHapus() {
+  if (!hapusPRId) return
+  try {
+    // Hapus invoice dulu (jika tidak ada ON DELETE CASCADE)
+    await sb.from('invoices').delete().eq('pr_id', hapusPRId)
+    // Hapus purchase order
+    await sb.from('purchase_orders').delete().eq('pr_id', hapusPRId)
+    // Hapus PR
+    const { error } = await sb.from('purchase_requests').delete()
+      .eq('id', hapusPRId).eq('status', 'selesai') // guard: hanya hapus yang selesai
+
+    if (error) { showToast('Gagal hapus: ' + error.message, 'err'); return }
+
+    closeModal('modalHapus')
+    hapusPRId   = null
+    hapusPRNama = null
+    muatSemua()
+    showToast('History PR berhasil dihapus.')
+  } catch(e) {
+    showToast('Error: ' + e.message, 'err')
+  }
+}
+
+// ── INIT ─────────────────────────────────────────────────────
 cekLogin()
 </script>
 </body>
