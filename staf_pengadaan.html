@@ -3,8 +3,7 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Sistem Pengadaan ITK — Staf Pengadaan</title>
-  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+  <title>Sistem Pengadaan ITK — Staf Pengadaan (Simulasi Preview)</title>
   <link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600;700&display=swap" rel="stylesheet">
   <style>
     *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
@@ -35,7 +34,6 @@
     .status-vendor { background: #e2e8f0; color: #334155; }
     .status-manajer { background: #dcfce7; color: #15803d; }
     
-    /* Tombol Aksi Alur Berwarna Biru Procurement */
     .btn-aksi { background: #2563eb; color: white; border: none; padding: 6px 12px; border-radius: 6px; font-size: 12px; font-weight: 600; cursor: pointer; transition: 0.2s; }
     .btn-aksi:hover { background: #1d4ed8; }
     .text-done { color: #10b981; font-weight: 600; font-size: 13px; }
@@ -44,8 +42,8 @@
 <body>
 
 <nav>
-  <div class="nav-title">Sistem Pengadaan ITK — Staf Pengadaan</div>
-  <button class="btn-keluar" onclick="window.location.href='index.html'">Keluar</button>
+  <div class="nav-title">Sistem Pengadaan ITK — Staf Pengadaan (Simulasi Preview)</div>
+  <button class="btn-keluar" onclick="alert('Kembali ke login login')">Keluar</button>
 </nav>
 
 <div class="container">
@@ -88,81 +86,81 @@
 </div>
 
 <script>
-  const SB_URL = "https://bgtgeltkbanlnvymalum.supabase.co";
-  const SB_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImJndGdlbHRrYmFubG52eW1hbHVtIiwicm9sZSI6ImFub24iLCJpYXQiOjE3Nzk1MTAwNDksImV4cCI6MjA5NTA4NjA0OX0.-JlapeQpug44SjkEKgb1wyoX2_ftdGGcAnTHJhdzvwE";
-  const sb = supabase.createClient(SB_URL, SB_KEY);
+  // Menggunakan LocalStorage browser agar fungsional di HTMLPreview tanpa keblokir CDN
+  function ambilDataLokal() {
+    const data = localStorage.getItem('mock_purchase_requests');
+    if (!data) {
+      // Data awal jika local storage kosong bawaan demo lu yang di screenshot
+      const dataAwal = [
+        { id: "ee3bc", nama_barang: "oli", jumlah: 3, harga_estimasi: 50000, status: "pending" },
+        { id: "22c20", nama_barang: "busi", jumlah: 2, harga_estimasi: 25000, status: "buat_quotation" },
+        { id: "aef15", nama_barang: "pipa", jumlah: 1, harga_estimasi: 120000, status: "evaluasi_pemilihan" }
+      ];
+      localStorage.setItem('mock_purchase_requests', JSON.stringify(dataAwal));
+      return dataAwal;
+    }
+    return JSON.parse(data);
+  }
 
-  async function muatTabelPengadaan() {
-    try {
-      const { data: prs, error } = await sb.from('purchase_request').select('*').order('created_at', { ascending: false });
-      if (error) throw error;
-      
-      const tbody = document.getElementById('tabelPR');
-      tbody.innerHTML = "";
+  function simpanDataLokal(data) {
+    localStorage.setItem('mock_purchase_requests', JSON.stringify(data));
+  }
 
-      if(!prs || prs.length === 0) {
-        tbody.innerHTML = `<tr><td colspan="7" style="text-align:center; color:#64748b; padding:2rem;">Belum ada data riwayat permintaan barang.</td></tr>`;
-        return;
+  function muatTabelPengadaan() {
+    const prs = ambilDataLokal();
+    const tbody = document.getElementById('tabelPR');
+    tbody.innerHTML = "";
+
+    prs.forEach((pr, index) => {
+      const qty = Number(pr.jumlah) || 0;
+      const satuan = Number(pr.harga_estimasi) || 0; 
+      const total = qty * satuan;
+      const statusText = pr.status || 'pending';
+
+      let classBadge = "badge-status";
+      if(statusText === 'pending') classBadge += " status-pending";
+      if(statusText === 'buat_quotation') classBadge += " status-quotation";
+      if(statusText === 'evaluasi_pemilihan') classBadge += " status-evaluasi";
+      if(statusText === 'vendor_baru') classBadge += " status-vendor";
+      if(statusText === 'dikirim_ke_manajer') classBadge += " status-manajer";
+
+      let tombolAksi = "";
+      if (statusText === 'pending') {
+        tombolAksi = `<button class="btn-aksi" onclick="ubahStatusAlur(${index}, 'buat_quotation')">🔍 Cek PR</button>`;
+      } else if (statusText === 'buat_quotation') {
+        tombolAksi = `<button class="btn-aksi" onclick="ubahStatusAlur(${index}, 'evaluasi_pemilihan')">📄 Buat Quotation</button>`;
+      } else if (statusText === 'evaluasi_pemilihan') {
+        tombolAksi = `<button class="btn-aksi" onclick="ubahStatusAlur(${index}, 'vendor_baru')">📊 Evaluasi Pemilihan</button>`;
+      } else if (statusText === 'vendor_baru') {
+        tombolAksi = `<button class="btn-aksi" onclick="ubahStatusAlur(${index}, 'dikirim_ke_manajer')">🤝 Pilih Vendor Baru</button>`;
+      } else if (statusText === 'dikirim_ke_manajer') {
+        tombolAksi = `<span class="text-done">🚀 Sent to Manager</span>`;
+      } else {
+        tombolAksi = `<span class="text-done">✓ Selesai</span>`;
       }
 
-      prs.forEach(pr => {
-        const qty = Number(pr.jumlah) || 0;
-        const satuan = Number(pr.harga_estimasi) || 0; 
-        const total = qty * satuan;
-        const statusText = pr.status || 'pending';
-
-        // Styling Badge Status secara dinamis sesuai alur pekerjaan
-        let classBadge = "badge-status";
-        if(statusText === 'pending') classBadge += " status-pending";
-        if(statusText === 'buat_quotation') classBadge += " status-quotation";
-        if(statusText === 'evaluasi_pemilihan') classBadge += " status-evaluasi";
-        if(statusText === 'vendor_baru') classBadge += " status-vendor";
-        if(statusText === 'dikirim_ke_manajer') classBadge += " status-manajer";
-
-        // LOGIKA ALUR TOMBOL AKSI BERTAHAP (FITUR YANG LU MAKSUD)
-        let tombolAksi = "";
-        if (statusText === 'pending') {
-          tombolAksi = `<button class="btn-aksi" onclick="ubahStatusAlur('${pr.id}', 'buat_quotation')">🔍 Cek PR</button>`;
-        } else if (statusText === 'buat_quotation') {
-          tombolAksi = `<button class="btn-aksi" onclick="ubahStatusAlur('${pr.id}', 'evaluasi_pemilihan')">📄 Buat Quotation</button>`;
-        } else if (statusText === 'evaluasi_pemilihan') {
-          tombolAksi = `<button class="btn-aksi" onclick="ubahStatusAlur('${pr.id}', 'vendor_baru')">📊 Evaluasi Pemilihan</button>`;
-        } else if (statusText === 'vendor_baru') {
-          tombolAksi = `<button class="btn-aksi" onclick="ubahStatusAlur('${pr.id}', 'dikirim_ke_manajer')">🤝 Pilih Vendor Baru</button>`;
-        } else if (statusText === 'dikirim_ke_manajer') {
-          tombolAksi = `<span class="text-done">🚀 Sent to Manager</span>`;
-        } else {
-          tombolAksi = `<span class="text-done">✓ Selesai (${statusText})</span>`;
-        }
-
-        tbody.innerHTML += `
-          <tr>
-            <td>#${pr.id.substring(0,5)}</td>
-            <td><b>${pr.nama_barang || '—'}</b></td>
-            <td>${qty} Unit</td>
-            <td>Rp ${satuan.toLocaleString('id-ID')}</td>
-            <td><b>Rp ${total.toLocaleString('id-ID')}</b></td>
-            <td><span class="${classBadge}">${statusText.replace(/_/g, ' ')}</span></td>
-            <td>${tombolAksi}</td>
-          </tr>
-        `;
-      });
-    } catch (e) {
-      console.error(e);
-    }
+      tbody.innerHTML += `
+        <tr>
+          <td>#${pr.id}</td>
+          <td><b>${pr.nama_barang}</b></td>
+          <td>${qty} Unit</td>
+          <td>Rp ${satuan.toLocaleString('id-ID')}</td>
+          <td><b>Rp ${total.toLocaleString('id-ID')}</b></td>
+          <td><span class="${classBadge}">${statusText.replace(/_/g, ' ')}</span></td>
+          <td>${tombolAksi}</td>
+        </tr>
+      `;
+    });
   }
 
-  // FUNGSI UTAMA UNTUK MERUBAH STATUS STEP-BY-STEP DI DATABASE
-  async function ubahStatusAlur(idPR, statusBaru) {
-    const { error } = await sb.from('purchase_request').update({ status: statusBaru }).eq('id', idPR);
-    if(error) {
-      alert("Gagal memperbarui tahapan: " + error.message);
-    } else {
-      await muatTabelPengadaan();
-    }
+  function ubahStatusAlur(index, statusBaru) {
+    const prs = ambilDataLokal();
+    prs[index].status = statusBaru;
+    simpanDataLokal(prs);
+    muatTabelPengadaan();
   }
 
-  async function simpanPRBaru() {
+  function simpanPRBaru() {
     const namaInput = document.getElementById('nama_barang').value.trim();
     const qtyInput = parseInt(document.getElementById('jumlah').value) || 1;
     const hargaInput = parseFloat(document.getElementById('harga').value) || 0;
@@ -172,21 +170,22 @@
       return;
     }
 
-    const { error } = await sb.from('purchase_request').insert([{
+    const prs = ambilDataLokal();
+    const acakId = Math.random().toString(16).substr(2, 5);
+    
+    prs.unshift({
+      id: acakId,
       nama_barang: namaInput,
       jumlah: qtyInput,
-      harga_estimasi: hargaInput, 
+      harga_estimasi: hargaInput,
       status: 'pending'
-    }]);
+    });
 
-    if(error) {
-      alert("Gagal: " + error.message);
-    } else {
-      alert("Sukses diajukan! Silahkan lakukan Cek PR pada tabel.");
-      document.getElementById('nama_barang').value = "";
-      document.getElementById('harga').value = "";
-      await muatTabelPengadaan();
-    }
+    simpanDataLokal(prs);
+    alert("Sukses diajukan secara lokal! Silahkan lakukan Cek PR pada tabel.");
+    document.getElementById('nama_barang').value = "";
+    document.getElementById('harga').value = "";
+    muatTabelPengadaan();
   }
 
   window.onload = muatTabelPengadaan;
