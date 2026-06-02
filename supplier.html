@@ -1,286 +1,246 @@
 <!DOCTYPE html>
 <html lang="id">
 <head>
-<meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Dashboard Supplier - ITK Procurement</title>
-<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
-<link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@300;400;500;600&display=swap" rel="stylesheet">
-<style>
-*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
-:root {
-  --pink: #d946ef; --pink-dark: #c026d3; --pink-soft: #fdf4ff;
-  --emerald: #059669; --emerald-soft: #d1fae5;
-  --amber: #f59e0b; --amber-soft: #fef3c7;
-  --blue: #3b82f6; --blue-soft: #dbeafe;
-  --danger: #ef4444; --danger-soft: #fee2e2;
-  --surface: #ffffff; --bg: #f3f4f6;
-  --border: #e5e7eb; --text: #111827; --muted: #6b7280;
-  --radius: 16px; --radius-sm: 10px;
-}
-body { font-family: 'DM Sans', sans-serif; background: var(--bg); color: var(--text); padding: 40px 20px; line-height: 1.5; }
-.container { max-width: 1000px; margin: 0 auto; }
-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 32px; }
-h1 { font-size: 24px; font-weight: 600; color: #111827; }
-.btn-logout { background: #fee2e2; color: #dc2626; border: none; padding: 10px 18px; font-weight: 500; border-radius: var(--radius-sm); cursor: pointer; transition: 0.2s; font-size: 14px; }
-.btn-logout:hover { background: #fca5a5; }
-.card { background: var(--surface); border: 1px solid var(--border); border-radius: var(--radius); padding: 24px; margin-bottom: 24px; box-shadow: 0 1px 3px rgba(0,0,0,0.05); }
-.card-title { font-size: 16px; font-weight: 600; margin-bottom: 16px; display: flex; align-items: center; gap: 8px; }
-.po-item { border: 1px solid var(--border); padding: 18px; border-radius: var(--radius-sm); margin-bottom: 12px; display: flex; justify-content: space-between; align-items: center; transition: 0.2s; }
-.po-item:hover { border-color: #cbd5e1; background: #f8fafc; }
-.po-name { font-weight: 600; font-size: 15px; margin-bottom: 4px; }
-.po-meta { font-size: 13px; color: var(--muted); }
-.badge { padding: 4px 10px; border-radius: 20px; font-size: 12px; font-weight: 500; text-transform: capitalize; }
-.badge-aktif { background: var(--blue-soft); color: var(--blue); }
-.badge-proses { background: var(--amber-soft); color: var(--amber); }
-.btn-action { background: var(--text); color: white; border: none; padding: 8px 14px; border-radius: var(--radius-sm); font-size: 13px; font-weight: 500; cursor: pointer; }
-.btn-action:hover { opacity: 0.9; }
-.modal { display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.4); justify-content: center; align-items: center; z-index: 1000; }
-.modal-content { background: white; padding: 28px; border-radius: var(--radius); width: 100%; max-width: 440px; box-shadow: 0 20px 25px -5px rgba(0,0,0,0.1); }
-.form-group { margin-bottom: 16px; }
-.form-group label { display: block; font-size: 13px; font-weight: 500; margin-bottom: 6px; color: var(--text); }
-.form-group input { width: 100%; padding: 10px 12px; border: 1px solid var(--border); border-radius: var(--radius-sm); font-family: inherit; font-size: 14px; }
-.modal-actions { display: flex; justify-content: flex-end; gap: 10px; margin-top: 24px; }
-.btn-cancel { background: #f3f4f6; border: none; padding: 10px 16px; border-radius: var(--radius-sm); cursor: pointer; font-size: 13px; }
-</style>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Portal Supplier & Mitra Vendor - ITK Procurement</title>
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+  <link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@300;400;500;600&family=DM+Mono:wght@400;500&display=swap" rel="stylesheet">
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+    :root {
+      --navy: #0f2847; --navy-mid: #1a3a63;
+      --accent: #3b82f6; --accent-soft: #dbeafe;
+      --success: #10b981; --success-soft: #d1fae5;
+      --orange: #ea580c; --orange-soft: #ffedd5;
+      --surface: #ffffff; --bg: #f0f4f8;
+      --border: #e2e8f0; --text: #1e293b; --muted: #64748b;
+      --radius: 12px; --radius-sm: 8px;
+    }
+    body { font-family: 'DM Sans', sans-serif; background: var(--bg); color: var(--text); min-height: 100vh; }
+
+    nav {
+      background: linear-gradient(135deg, var(--navy) 0%, var(--navy-mid) 100%);
+      padding: 0 2rem; height: 64px;
+      display: flex; align-items: center; justify-content: space-between;
+      box-shadow: 0 2px 16px rgba(15,40,71,0.18);
+    }
+    .nav-brand { display: flex; align-items: center; gap: 12px; }
+    .nav-logo { width: 36px; height: 36px; background: rgba(255,255,255,0.12); border-radius: 10px; display: flex; align-items: center; justify-content: center; font-size: 20px; }
+    .nav-title { font-size: 15px; font-weight: 600; color: #fff; }
+    .nav-sub { font-size: 12px; color: rgba(255,255,255,0.5); }
+    .btn-logout { background: rgba(255,255,255,0.12); border: 1px solid rgba(255,255,255,0.2); color: #fff; padding: 7px 14px; border-radius: 8px; font-size: 13px; cursor: pointer; }
+
+    .container { max-width: 1100px; margin: 0 auto; padding: 1.75rem 1.5rem; }
+
+    .tabs { display: flex; gap: 6px; background: var(--surface); border: 1px solid var(--border); border-radius: var(--radius-sm); padding: 6px; margin-bottom: 1.5rem; width: fit-content; }
+    .tab { padding: 8px 16px; border-radius: 6px; font-size: 13px; font-weight: 500; cursor: pointer; color: var(--muted); border: none; background: none; }
+    .tab.active { background: var(--navy); color: #fff; }
+    
+    .tab-panel { display: none; }
+    .tab-panel.active { display: block; }
+
+    .card { background: var(--surface); border-radius: var(--radius); border: 1px solid var(--border); overflow: hidden; margin-bottom: 1rem; box-shadow: 0 4px 6px rgba(0,0,0,0.01); }
+    .card-header { padding: 1.25rem 1.5rem; border-bottom: 1px solid var(--border); background: #fafbfa; }
+    .card-title { font-size: 15px; font-weight: 600; color: var(--navy); }
+
+    .vendor-item { border: 1px solid var(--border); border-radius: var(--radius-sm); padding: 1.25rem; margin-bottom: 0.75rem; background: #fff; }
+    .vendor-row { display: flex; align-items: flex-start; justify-content: space-between; gap: 16px; flex-wrap: wrap; }
+    .item-title { font-size: 16px; font-weight: 600; color: var(--navy); }
+    .item-details { font-size: 13px; color: var(--muted); margin-top: 4px; line-height: 1.5; }
+    
+    .doc-box { background: #f8fafc; border-left: 4px solid var(--accent); padding: 8px 12px; border-radius: 0 4px 4px 0; margin-top: 8px; font-size: 13px; }
+
+    .actions { display: flex; gap: 10px; margin-top: 14px; }
+    
+    .badge { display: inline-flex; align-items: center; gap: 6px; font-size: 11px; font-weight: 600; padding: 4px 10px; border-radius: 40px; text-transform: uppercase; }
+    .badge.disetujui { background: var(--success-soft); color: #065f46; }
+    .badge.barang_diterima { background: #e0f2fe; color: #0369a1; }
+    .badge.dikirim { background: var(--orange-soft); color: #9a3412; }
+    .badge.invoice_dikirim { background: #e0e7ff; color: #3730a3; }
+
+    /* FORM ELEMENTS */
+    .field-group { display: flex; gap: 10px; width: 100%; max-width: 500px; margin-top: 8px; }
+    .field-group input { flex: 1; border: 1.5px solid var(--border); border-radius: 6px; padding: 8px 12px; font-size: 13px; outline: none; }
+    .field-group input:focus { border-color: var(--accent); }
+
+    .btn { border: none; border-radius: 6px; padding: 8px 16px; font-size: 12px; font-weight: 600; cursor: pointer; display: inline-flex; align-items: center; }
+    .btn-orange { background: var(--orange); color: #fff; }
+    .btn-primary { background: var(--accent); color: #fff; }
+    .empty-state { text-align: center; padding: 4rem 1rem; color: var(--muted); font-size: 14px; }
+  </style>
 </head>
 <body>
 
-<div class="container">
-  <header>
+<nav>
+  <div class="nav-brand">
+    <div class="nav-logo">🤝</div>
     <div>
-      <h1>Dashboard Supplier Portal</h1>
-      <p style="color: var(--muted); font-size: 14px; margin-top: 2px;">ITK Procurement System &bull; Mitra Vendor Resmi</p>
-    </div>
-    <button class="btn-logout" onclick="window.location.href='index.html'">Keluar Aplikasi</button>
-  </header>
-
-  <div class="card">
-    <div class="card-title">📦 Pesanan Pembelian & Berkas Penagihan (PO)</div>
-    <div id="listPO"><p style="color:var(--muted); font-size:13px;">Sedang sinkronisasi database...</p></div>
-  </div>
-</div>
-
-<div class="modal" id="modalInvoice">
-  <div class="modal-content">
-    <h3 style="margin-bottom:16px; font-weight:600;">Penyerahan Berkas Tagihan</h3>
-    <p style="font-size:13px; color:var(--muted); margin-bottom:20px;">Masukkan nomor invoice resmi sebagai dokumen bukti untuk dicocokkan pada proses 3-Way Matching keuangan.</p>
-    
-    <div class="form-group">
-      <label>Nomor Invoice Tagihan</label>
-      <input type="text" id="invNomor" placeholder="Contoh: INV/ITK/2026/0049">
-    </div>
-    
-    <div class="form-group">
-      <label>Nilai Nominal Penagihan (Rp)</label>
-      <input type="number" id="invNilai" placeholder="Masukkan total nominal angka">
-    </div>
-
-    <div class="form-group">
-      <label>Tanggal Invoice</label>
-      <input type="date" id="invTanggal">
-    </div>
-
-    <div class="modal-actions">
-      <button class="btn-cancel" onclick="tutupModal('modalInvoice')">Batal</button>
-      <button class="btn-action" onclick="submitTagihanInvoice()">Kirim Berkas Tagihan</button>
+      <div class="nav-title">Sistem Pengadaan ITK</div>
+      <div class="nav-sub">Modul Terintegrasi Hulu ke Hilir &mdash; Portal Resmi Supplier / Vendor</div>
     </div>
   </div>
-</div>
+  <button class="btn-logout" onclick="window.location.href='index.html'">Keluar</button>
+</nav>
 
-<div class="modal" id="modalSJ">
-  <div class="modal-content">
-    <h3 style="margin-bottom:16px; font-weight:600;">Kirim Barang & Surat Jalan</h3>
-    <div class="form-group">
-      <label>Nomor Surat Jalan</label>
-      <input type="text" id="nomorSJ" placeholder="Contoh: SJ-001">
-    </div>
-    <div class="modal-actions">
-      <button class="btn-cancel" onclick="tutupModal('modalSJ')">Batal</button>
-      <button class="btn-action" onclick="submitSuratJalan()">Kirim Surat Jalan</button>
+<div class="container">
+
+  <div class="tabs">
+    <button class="tab active" onclick="switchTab('kirim-barang', this)">1. PO Aktif (Kirim Barang & SJ)</button>
+    <button class="tab" onclick="switchTab('kirim-invoice', this)">2. Barang Diterima (Kirim Tagihan/Invoice)</button>
+  </div>
+
+  <div class="tab-panel active" id="tab-kirim-barang">
+    <div class="card">
+      <div class="card-header"><div class="card-title">Daftar Kontrak Purchase Order Aktif &ndash; Siap Dikirim</div></div>
+      <div class="card-body" id="listPOAktif"></div>
     </div>
   </div>
+
+  <div class="tab-panel" id="tab-kirim-invoice">
+    <div class="card">
+      <div class="card-header"><div class="card-title">Barang Lolos Cek Gudang &ndash; Menunggu Dokumen Invoice Finansial</div></div>
+      <div class="card-body" id="listInvoicing"></div>
+    </div>
+  </div>
+
 </div>
 
 <script>
-const SB_URL = "https://bgtgeltkbanlnvymalum.supabase.co";
-const SB_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImJndGdlbHRrYmFubG52eW1hbHVtIiwicm9sZSI6ImFub24iLCJpYXQiOjE3Nzk1MTAwNDksImV4cCI6MjA5NTA4NjA0OX0.-JlapeQpug44SjkEKgb1wyoX2_ftdGGcAnTHJhdzvwE";
-const sb = supabase.createClient(SB_URL, SB_KEY);
+  const SB_URL = "https://bgtgeltkbanlnvymalum.supabase.co";
+  const SB_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImJndGdlbHRrYmFubG52eW1hbHVtIiwicm9sZSI6ImFub24iLCJpYXQiOjE3Nzk1MTAwNDksImV4cCI6MjA5NTA4NjA0OX0.-JlapeQpug44SjkEKgb1wyoX2_ftdGGcAnTHJhdzvwE";
+  const sb = supabase.createClient(SB_URL, SB_KEY);
 
-let aktivePRId = null;
-let aktivePOId = null;
-let activeSJPR = null;
+  function switchTab(id, el) {
+    document.querySelectorAll('.tab-panel').forEach(p => p.classList.remove('active'));
+    document.querySelectorAll('.tab').forEach(t => t.classList.remove('active'));
+    document.getElementById('tab-' + id).classList.add('active');
+    el.classList.add('active');
+  }
+  function fmtRupiah(n) { return 'Rp ' + Number(n).toLocaleString('id-ID'); }
 
-async function muatDataPO() {
-  const el = document.getElementById('listPO');
-
-  // PERBAIKAN UTAMA: Mengambil data yang statusnya relevan dengan Supplier agar tidak tenggelam/hilang
-  const { data: prData, error: prErr } = await sb
-    .from('purchase_request')
-    .select('*')
-    .in('status', ['po_dibuat', 'diproses', 'disetujui', 'perlu_matching', 'verifikasi_sj', 'barang_diterima', 'selesai'])
-    .order('created_at', { ascending: false });
-
-  if (prErr) {
-    el.innerHTML = `<p style="color:red; font-size:13px">${prErr.message}</p>`;
-    return;
+  async function muatDataSupplier() {
+    await Promise.all([muatPOAktif(), muatInvoicing()]);
   }
 
-  if (!prData || prData.length === 0) {
-    el.innerHTML = `<p style="color:var(--muted); font-size:13px">Belum ada Purchase Order (PO) aktif.</p>`;
-    return;
-  }
+  // ALUR 7: SUPPLIER PROSES BARANG & INPUT SURAT JALAN
+  async function muatPOAktif() {
+    const { data } = await sb.from('purchase_request').select('*').in('status', ['disetujui', 'dikirim']).order('created_at', {ascending:true});
+    const el = document.getElementById('listPOAktif');
 
-  el.innerHTML = '';
+    if(!data || data.length === 0) { el.innerHTML = `<div class="empty-state">Tidak ada ikatan kontrak PO baru untuk Anda saat ini.</div>`; return; }
 
-  for (const pr of prData) {
-    const { data: po } = await sb
-      .from('purchase_order')
-      .select('*')
-      .eq('pr_id', pr.id)
-      .maybeSingle();
+    const barisRender = await Promise.all(data.map(async pr => {
+      const { data: po } = await sb.from('purchase_order').select('*').eq('pr_id', pr.id).maybeSingle();
+      
+      const noPO = po ? po.no_po : '-';
+      const vendor = po ? po.nama_supplier : 'Mitra Vendor';
+      const nilaiKontrak = po ? po.harga_total : pr.harga_estimasi;
 
-    const { data: invoice } = await sb
-      .from('invoices')
-      .select('*')
-      .eq('po_id', po?.id)
-      .maybeSingle();
+      let formAksi = '';
+      if(pr.status === 'disetujui') {
+        formAksi = `
+          <div class="field-group">
+            <input type="text" id="sj_${pr.id}" placeholder="Masukkan Nomor Surat Jalan Resmi (Contoh: SJ/001)">
+            <button class="btn btn-orange" onclick="eksekusiKirimBarang('${pr.id}')">🚚 Kirim Barang</button>
+          </div>`;
+      } else {
+        formAksi = `<div class="doc-box">✅ <b>Sudah Dikirim:</b> Dokumen Surat Jalan Berhasil Di-upload (${pr.surat_jalan || 'SJ-Verified'}) &bull; Menunggu Konfirmasi Masuk Gudang.</div>`;
+      }
 
-    const sudahInvoice = !!invoice || !!pr.nomor_invoice;
-    let buttonHtml = '';
-
-    // PERBAIKAN KONDISI TOMBOL: Melonggarkan filter status agar Kopi Luwak langsung dapat tombol aksi
-    if (!pr.surat_jalan) {
-      buttonHtml = `
-        <button class="btn-action" onclick="kirimSuratJalan('${pr.id}')">
-          Kirim Barang + SJ
-        </button>`;
-    } 
-    else if (pr.surat_jalan && !sudahInvoice) {
-      buttonHtml = `
-        <button class="btn-action" style="background:var(--amber)" onclick="bukaModalTagihan('${pr.id}','${po ? po.id : ''}')">
-          Kirim Invoice
-        </button>`;
-    } 
-    else {
-      buttonHtml = `<span style="color:var(--emerald);font-weight:600;font-size:13px;">✓ Berkas Selesai dikirim</span>`;
-    }
-
-    el.innerHTML += `
-      <div class="po-item">
-        <div>
-          <div class="po-name">${pr.nama_barang || '-'}</div>
-          <div class="po-meta">
-            Jumlah: <b>${pr.jumlah || 0} unit</b>
-            &bull;
-            Surat Jalan: <b style="color:var(--text)">${pr.surat_jalan || 'Belum Dikirim'}</b>
-            &bull;
-            Invoice: <b style="color:var(--text)">${pr.nomor_invoice || 'Belum Diinput'}</b>
+      return `
+        <div class="vendor-item">
+          <div class="vendor-row">
+            <div style="flex:1">
+              <div class="item-title">${pr.nama_barang}</div>
+              <div class="item-details">Kuantitas: <b>${pr.jumlah} Unit</b> &nbsp;&bull;&nbsp; Nilai Transaksi: <b style="color:#10b981">${fmtRupiah(nilaiKontrak)}</b></div>
+              <div class="item-details" style="color:var(--navy)">📄 Ikatan Dokumen: <b>${noPO}</b> [${vendor}]</div>
+              ${formAksi}
+            </div>
+            <span class="badge ${pr.status}">${pr.status === 'disetujui' ? 'PO Terbit Aktif' : 'Dalam Perjalanan'}</span>
           </div>
-        </div>
-
-        <div style="display:flex;align-items:center;gap:16px;">
-          <span class="badge ${pr.status === 'selesai' ? 'badge-aktif' : 'badge-proses'}">
-            ${(pr.status || 'po_dibuat').replace(/_/g, ' ')}
-          </span>
-          ${buttonHtml}
-        </div>
-      </div>`;
-  }
-}
-
-function bukaModalTagihan(prId, poId) {
-  aktivePRId = prId;
-  aktivePOId = poId;
-  document.getElementById('modalInvoice').style.display = 'flex';
-  document.getElementById('invTanggal').valueAsDate = new Date();
-}
-
-function kirimSuratJalan(prId) {
-  activeSJPR = prId;
-  document.getElementById('nomorSJ').value = '';
-  document.getElementById('modalSJ').style.display = 'flex';
-}
-
-function tutupModal(id) {
-  document.getElementById(id).style.display = 'none';
-}
-
-async function submitSuratJalan() {
-  const nomorSJ = document.getElementById('nomorSJ').value.trim();
-
-  if (!nomorSJ) {
-    alert('Nomor Surat Jalan wajib diisi!');
-    return;
+        </div>`;
+    }));
+    el.innerHTML = barisRender.join('');
   }
 
-  const { error } = await sb
-    .from('purchase_request')
-    .update({
-      surat_jalan: nomorSJ,
-      status_surat_jalan: 'terkirim',
-      status: 'barang_diterima' // Mengubah status agar masuk antrean verifikasi gudang/staf pengadaan
-    })
-    .eq('id', activeSJPR);
+  async function eksekusiKirimBarang(prId) {
+    const noSJ = document.getElementById('sj_' + prId).value.trim();
+    if(!noSJ) { alert("Nomor Surat Jalan wajib diisi sebagai bukti legalitas pengiriman fisik!"); return; }
 
-  if (error) {
-    alert('Gagal simpan Surat Jalan: ' + error.message);
-    return;
+    // Update status berkas logistik menjadi 'dikirim' beserta nomor Surat Jalan
+    await sb.from('purchase_request').update({ status: 'dikirim', surat_jalan: noSJ }).eq('id', prId);
+    
+    alert(`Sukses! Status logistik diperbarui menjadi 'Dalam Perjalanan'. Surat Jalan ${noSJ} telah ter-upload.`);
+    await muatDataSupplier();
   }
 
-  alert('Sukses! Fisik barang dan nomor Surat Jalan berhasil dikirim.');
-  tutupModal('modalSJ');
-  muatDataPO();
-}
 
-async function submitTagihanInvoice() {
-  const noInv = document.getElementById('invNomor').value.trim();
-  const nilai = document.getElementById('invNilai').value.trim();
-  const tgl = document.getElementById('invTanggal').value;
+  // ALUR 9: SUPPLIER KIRIM INVOICE SETELAH BARANG AMAN DITERIMA GUDANG
+  async function muatInvoicing() {
+    const { data } = await sb.from('purchase_request').select('*').in('status', ['barang_diterima', 'invoice_dikirim']).order('created_at', {ascending:true});
+    const el = document.getElementById('listInvoicing');
 
-  if (!noInv || !nilai || !tgl) {
-    alert('Lengkapi seluruh kolom data invoice tagihan!');
-    return;
+    if(!data || data.length === 0) { el.innerHTML = `<div class="empty-state">Belum ada barang masuk gudang yang siap dicairkan tagihannya.</div>`; return; }
+
+    const barisRender = await Promise.all(data.map(async pr => {
+      const { data: po } = await sb.from('purchase_order').select('*').eq('pr_id', pr.id).maybeSingle();
+      
+      const noPO = po ? po.no_po : '-';
+      const nilaiKontrak = po ? po.harga_total : pr.harga_estimasi;
+
+      let formAksi = '';
+      if(pr.status === 'barang_diterima') {
+        formAksi = `
+          <div class="field-group">
+            <input type="text" id="inv_${pr.id}" placeholder="Masukkan Nomor Seri Invoice Tagihan (Contoh: INV-2026-01)">
+            <button class="btn btn-primary" onclick="eksekusiKirimInvoice('${pr.id}', ${nilaiKontrak})">🧾 Kirim Invoice Finansial</button>
+          </div>`;
+      } else {
+        formAksi = `<div class="doc-box" style="border-left-color:#10b981">📩 <b>Tagihan Terkirim:</b> No Invoice (${pr.nomor_invoice}) &bull; Sedang diaudit tim Keuangan via 3-Way Matching.</div>`;
+      }
+
+      return `
+        <div class="vendor-item">
+          <div class="vendor-row">
+            <div style="flex:1">
+              <div class="item-title">${pr.nama_barang}</div>
+              <div class="item-details">Logistik Aman: Diterima Lengkap di Gudang Utama &bull; Bukti SJ: <b>${pr.surat_jalan}</b></div>
+              <div class="item-details">Nilai Cair Tagihan: <b style="color:#10b981">${fmtRupiah(nilaiKontrak)}</b> &nbsp;|&nbsp; Ref PO: ${noPO}</div>
+              ${formAksi}
+            </div>
+            <span class="badge ${pr.status}">${pr.status === 'barang_diterima' ? 'Barang Sampai' : 'Tagihan Diproses'}</span>
+          </div>
+        </div>`;
+    }));
+    el.innerHTML = barisRender.join('');
   }
 
-  const { error: invErr } = await sb
-    .from('invoices')
-    .insert({
-      po_id: aktivePOId || null,
-      pr_id: aktivePRId,
-      nomor_invoice: noInv,
-      nama_supplier: 'Mitra Supplier ITK',
-      jumlah_tagihan: parseInt(nilai),
-      status_bayar: 'belum_bayar',
-      status: 'aktif',
-      status_matching: 'menunggu_matching',
-      tanggal_invoice: tgl
+  async function eksekusiKirimInvoice(prId, totalHarga) {
+    const noInv = document.getElementById('inv_' + prId).value.trim();
+    if(!noInv) { alert("Nomor Seri Invoice wajib diinput untuk keperluan audit finansial!"); return; }
+
+    // 1. Bersihkan preventif data duplikat lawas di tabel invoices keuangan agar anti-error
+    await sb.from('invoices').delete().eq('pr_id', prId);
+
+    // 2. Masukkan record penagihan baru ke tabel invoices keuangan
+    await sb.from('invoices').insert({
+      pr_id: prId,
+      no_invoice: noInv,
+      total_tagihan: totalHarga,
+      status: 'belum_dibayar',
+      created_at: new Date().toISOString()
     });
 
-  if (invErr && invErr.code !== '23505') {
-    alert('Gagal input ke tabel invoices: ' + invErr.message);
-    return;
+    // 3. Naikkan status utama alur di purchase_request menjadi 'invoice_dikirim'
+    await sb.from('purchase_request').update({ status: 'invoice_dikirim', nomor_invoice: noInv }).eq('id', prId);
+
+    alert(`Sukses! Invoice ${noInv} resmi diajukan. Dokumen diteruskan ke Staf Keuangan.`);
+    await muatDataSupplier();
+    switchTab('kirim-invoice', document.querySelectorAll('.tab')[1]);
   }
 
-  const { error: prErr } = await sb
-    .from('purchase_request')
-    .update({
-      nomor_invoice: noInv
-    })
-    .eq('id', aktivePRId);
-
-  if (prErr) {
-    alert('Gagal memperbarui status dokumen utama: ' + prErr.message);
-    return;
-  }
-
-  alert('Sukses! Berkas tagihan invoice resmi telah terkirim.');
-  tutupModal('modalInvoice');
-  muatDataPO();
-}
-
-window.onload = muatDataPO;
+  window.onload = muatDataSupplier;
 </script>
-
 </body>
 </html>
