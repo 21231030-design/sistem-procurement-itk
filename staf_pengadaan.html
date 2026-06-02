@@ -9,7 +9,7 @@
     *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
     body { font-family: 'DM Sans', sans-serif; background: #f4f6f9; color: #1e293b; padding: 0; margin: 0; }
     
-    /* Header Navbar Dashboard */
+    /* Navigation Bar */
     nav { background: #0f2847; padding: 0 2rem; height: 70px; display: flex; align-items: center; justify-content: space-between; color: white; box-shadow: 0 2px 10px rgba(0,0,0,0.05); }
     .nav-title { font-size: 20px; font-weight: 700; color: #fff; }
     .btn-keluar { background: rgba(255,255,255,0.15); color: #fff; border: 1px solid rgba(255,255,255,0.2); padding: 8px 24px; border-radius: 6px; cursor: pointer; font-weight: 600; font-size: 14px; }
@@ -18,7 +18,7 @@
     .card { background: white; border-radius: 12px; padding: 2rem; margin-bottom: 2.5rem; box-shadow: 0 4px 6px rgba(0,0,0,0.02); border: 1px solid #e2e8f0; }
     .card h3 { font-size: 18px; font-weight: 700; color: #0f2847; margin-bottom: 1.5rem; border-left: 4px solid #2563eb; padding-left: 10px; }
     
-    /* Layout Form Pembuatan PR */
+    /* Form Style */
     .form-grid { display: flex; gap: 20px; align-items: flex-end; width: 100%; flex-wrap: wrap; }
     .form-group { display: flex; flex-direction: column; gap: 8px; }
     .form-group.nama { flex: 2; min-width: 250px; }
@@ -31,23 +31,22 @@
     .btn-submit { background: #0f2847; color: white; border: none; border-radius: 8px; padding: 0 32px; font-size: 15px; font-weight: 700; cursor: pointer; height: 48px; display: inline-flex; align-items: center; gap: 8px; transition: 0.2s; }
     .btn-submit:hover { background: #173d6b; }
     
-    /* Desain Tabel Utama */
+    /* Table Dashboard Style */
     .table-responsive { width: 100%; overflow-x: auto; margin-top: 0.5rem; }
     table { width: 100%; border-collapse: collapse; }
     th { text-align: left; font-size: 11px; font-weight: 700; color: #64748b; text-transform: uppercase; padding: 14px 12px; background: #f8fafc; border-bottom: 2px solid #e2e8f0; letter-spacing: 0.5px; }
     td { padding: 16px 12px; border-bottom: 1px solid #e2e8f0; font-size: 14px; color: #334155; vertical-align: middle; }
     tr:hover { background-color: #f8fafc; }
     
-    /* Badges Status Warna-warni Pengadaan */
+    /* Status Badges */
     .badge-status { font-size: 11px; padding: 6px 12px; border-radius: 6px; font-weight: 700; text-transform: uppercase; display: inline-block; }
     .status-pending { background: #fef3c7; color: #d97706; }
     .status-quotation { background: #e0f2fe; color: #0369a1; }
     .status-evaluasi { background: #f3e8ff; color: #6b21a8; }
-    .status-vendor { background: #e2e8f0; color: #334155; }
+    .status-vendor { background: #cbd5e1; color: #1e293b; }
     .status-manajer { background: #dcfce7; color: #15803d; }
-    .status-lunas { background: #ecfdf5; color: #047857; font-style: italic; }
     
-    /* Tombol Aksi Kerja Dinamis */
+    /* Action Buttons */
     .btn-aksi { background: #2563eb; color: white; border: none; padding: 8px 14px; border-radius: 6px; font-size: 12px; font-weight: 700; cursor: pointer; transition: 0.2s; box-shadow: 0 2px 4px rgba(37,99,235,0.15); }
     .btn-aksi:hover { background: #1d4ed8; }
     .text-done { color: #10b981; font-weight: 700; font-size: 13px; display: inline-flex; align-items: center; gap: 4px; }
@@ -96,7 +95,7 @@
           </tr>
         </thead>
         <tbody id="tabelPR">
-          <tr><td colspan="7" style="text-align:center; color:#64748b; padding:2rem;">Sedang menyinkronkan data dengan database Supabase...</td></tr>
+          <tr><td colspan="7" style="text-align:center; color:#64748b; padding:2rem;">Menghubungkan ke database...</td></tr>
         </tbody>
       </table>
     </div>
@@ -104,43 +103,43 @@
 </div>
 
 <script>
-  // Konfigurasi Kunci Supabase Lu Asli
-  const SB_URL = "https://bgtgeltkbanlnvymalum.supabase.co/rest/v1/purchase_request";
-  const SB_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImJndGdlbHRrYmFubG52eW1hbHVtIiwicm9sZSI6ImFub24iLCJpYXQiOjE3Nzk1MTAwNDksImV4cCI6MjA5NTA4NjA0OX0.-JlapeQpug44SjkEKgb1wyoX2_ftdGGcAnTHJhdzvwE";
+  // Menggunakan API Endpoint langsung (Aman untuk Vercel production)
+  const BASE_URL = "https://bgtgeltkbanlnvymalum.supabase.co/rest/v1/purchase_request";
+  const HEADERS = {
+    "apikey": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImJndGdlbHRrYmFubG52eW1hbHVtIiwicm9sZSI6ImFub24iLCJpYXQiOjE3Nzk1MTAwNDksImV4cCI6MjA5NTA4NjA0OX0.-JlapeQpug44SjkEKgb1wyoX2_ftdGGcAnTHJhdzvwE",
+    "Authorization": "Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImJndGdlbHRrYmFubG52eW1hbHVtIiwicm9sZSI6ImFub24iLCJpYXQiOjE3Nzk1MTAwNDksImV4cCI6MjA5NTA4NjA0OX0.-JlapeQpug44SjkEKgb1wyoX2_ftdGGcAnTHJhdzvwE",
+    "Content-Type": "application/json"
+  };
 
-  // Ambil Data Supabase via REST API murni (Bypass Blokir HTMLPreview)
   async function muatTabelPengadaan() {
     try {
-      const response = await fetch(`${SB_URL}?order=created_at.desc`, {
-        method: "GET",
-        headers: { "apikey": SB_KEY, "Authorization": `Bearer ${SB_KEY}`, "Content-Type": "application/json" }
-      });
+      const response = await fetch(`${BASE_URL}?order=created_at.desc`, { method: "GET", headers: HEADERS });
+      if (!response.ok) throw new Error("Gagal mengambil data");
       
       const prs = await response.json();
       const tbody = document.getElementById('tabelPR');
       tbody.innerHTML = "";
 
-      if(!prs || prs.length === 0) {
-        tbody.innerHTML = `<tr><td colspan="7" style="text-align:center; color:#64748b; padding:2rem;">Belum ada data permintaan barang di database.</td></tr>`;
+      if (!prs || prs.length === 0) {
+        tbody.innerHTML = `<tr><td colspan="7" style="text-align:center; color:#64748b; padding:2rem;">Belum ada data riwayat pengadaan.</td></tr>`;
         return;
       }
 
       prs.forEach(pr => {
         const qty = Number(pr.jumlah) || 0;
-        const satuan = Number(pr.harga_estimasi) || 0; // Fix Harga Estimasi anti Rp 0
+        const satuan = Number(pr.harga_estimasi) || 0; 
         const total = qty * satuan;
         const statusText = pr.status || 'pending';
 
-        // Kelas badge warna dinamis
+        // Badge styling berdasarkan status alur
         let classBadge = "badge-status";
         if(statusText === 'pending') classBadge += " status-pending";
         if(statusText === 'buat_quotation') classBadge += " status-quotation";
         if(statusText === 'evaluasi_pemilihan') classBadge += " status-evaluasi";
         if(statusText === 'vendor_baru') classBadge += " status-vendor";
         if(statusText === 'dikirim_ke_manajer') classBadge += " status-manajer";
-        if(statusText === 'lunas') classBadge += " status-lunas";
 
-        // Fitur Alur Kerja Tombol Yang Lu Minta
+        // Pemetaan Alur Tombol Bertahap sesuai permintaan lu
         let tombolAksi = "";
         if (statusText === 'pending') {
           tombolAksi = `<button class="btn-aksi" onclick="ubahStatusAlur('${pr.id}', 'buat_quotation')">🔍 Cek PR</button>`;
@@ -150,10 +149,8 @@
           tombolAksi = `<button class="btn-aksi" onclick="ubahStatusAlur('${pr.id}', 'vendor_baru')">📊 Evaluasi Pemilihan</button>`;
         } else if (statusText === 'vendor_baru') {
           tombolAksi = `<button class="btn-aksi" onclick="ubahStatusAlur('${pr.id}', 'dikirim_ke_manajer')">🤝 Pilih Vendor Baru</button>`;
-        } else if (statusText === 'dikirim_ke_manajer') {
-          tombolAksi = `<span class="text-done">🚀 Sent to Manager</span>`;
         } else {
-          tombolAksi = `<span class="text-done">✓ Selesai (${statusText})</span>`;
+          tombolAksi = `<span class="text-done">🚀 Sent to Manager</span>`;
         }
 
         tbody.innerHTML += `
@@ -170,39 +167,41 @@
       });
     } catch (e) {
       console.error(e);
-      document.getElementById('tabelPR').innerHTML = `<tr><td colspan="7" style="text-align:center; color:red; padding:2rem;">Gagal memuat koneksi data database.</td></tr>`;
+      document.getElementById('tabelPR').innerHTML = `<tr><td colspan="7" style="text-align:center; color:red; padding:2rem;">Gagal memuat koneksi database.</td></tr>`;
     }
   }
 
-  // Update Status Alur Kerja Langsung ke Supabase
   async function ubahStatusAlur(idPR, statusBaru) {
     try {
-      await fetch(`${SB_URL}?id=eq.${idPR}`, {
+      const response = await fetch(`${BASE_URL}?id=eq.${idPR}`, {
         method: "PATCH",
-        headers: { "apikey": SB_KEY, "Authorization": `Bearer ${SB_KEY}`, "Content-Type": "application/json" },
+        headers: HEADERS,
         body: JSON.stringify({ status: statusBaru })
       });
-      await muatTabelPengadaan();
+      if(response.ok) {
+        await muatTabelPengadaan();
+      } else {
+        alert("Gagal merubah tahapan alur.");
+      }
     } catch (e) {
-      alert("Gagal merubah tahapan alur!");
+      console.error(e);
     }
   }
 
-  // Pengajuan PR Baru Masuk Supabase
   async function simpanPRBaru() {
     const namaInput = document.getElementById('nama_barang').value.trim();
     const qtyInput = parseInt(document.getElementById('jumlah').value) || 1;
     const hargaInput = parseFloat(document.getElementById('harga').value) || 0;
 
     if(!namaInput || hargaInput <= 0) {
-      alert("Tolong isi kolom nama barang dan nominal harga satuan!");
+      alert("Tolong isi nama barang dan harga satuan estimasi!");
       return;
     }
 
     try {
-      await fetch(SB_URL, {
+      const response = await fetch(BASE_URL, {
         method: "POST",
-        headers: { "apikey": SB_KEY, "Authorization": `Bearer ${SB_KEY}`, "Content-Type": "application/json", "Prefer": "return=representation" },
+        headers: HEADERS,
         body: JSON.stringify({
           nama_barang: namaInput,
           jumlah: qtyInput,
@@ -210,13 +209,17 @@
           status: 'pending'
         })
       });
-      
-      alert("PR Berhasil Diajukan!");
-      document.getElementById('nama_barang').value = "";
-      document.getElementById('harga').value = "";
-      await muatTabelPengadaan();
+
+      if(response.ok) {
+        alert("PR Baru Sukses Diajukan!");
+        document.getElementById('nama_barang').value = "";
+        document.getElementById('harga').value = "";
+        await muatTabelPengadaan();
+      } else {
+        alert("Gagal menyimpan data.");
+      }
     } catch (e) {
-      alert("Gagal menyimpan data ke database!");
+      console.error(e);
     }
   }
 
