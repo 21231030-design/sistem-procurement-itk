@@ -296,7 +296,7 @@
 
   // TAB 2
   async function muatQuotation() {
-    const { data } = await sb.from('purchase_request').select('*').eq('status', 'diverifikasi').order('created_at', {ascending:true});
+    const { data } = await sb.from('purchase_request').select('*').in('status', ['diverifikasi', 'disetujui']).order('created_at', {ascending:true});
     const el = document.getElementById('listQuotation');
     const total = data ? data.length : 0;
     document.getElementById('badgeQuotation').textContent = total;
@@ -355,7 +355,7 @@
     switchTab('evaluasi', document.querySelectorAll('.tab')[2]);
   }
 
-  // TAB 3 - EVALUASI (SUDAH MENDUKUNG STATUS 'disetujui' DAN 'diproses')
+  // TAB 3
   async function muatEvaluasi() {
     const { data } = await sb.from('purchase_request').select('*').in('status', ['disetujui', 'diproses', 'menunggu_approval', 'po_dibuat']).order('created_at', {ascending:true});
     const el = document.getElementById('listEvaluasi');
@@ -368,11 +368,8 @@
 
     const barisRender = await Promise.all(data.map(async pr => {
       const { data: qts } = await sb.from('quotation').select('*').eq('pr_id', pr.id).order('harga', {ascending:true});
-      const { data: po } = await sb.from('purchase_order').select('*').eq('pr_id', pr.id).maybeSingle();
 
       let tombolAksi = '';
-      
-      // JIKA BARU DISETUJUI / DIPROSES, MUNCULKAN TOMBOL BUAT PO
       if (pr.status === 'diproses' || pr.status === 'disetujui') {
         tombolAksi = `<button class="btn btn-navy" onclick="bukaModalEvaluasi('${pr.id}', '${pr.nama_barang}', ${pr.jumlah})">⚖️ Pilih Pemenang & Buat PO</button>`;
       } else if (pr.status === 'po_dibuat') {
@@ -454,7 +451,8 @@
       tanggal_po: new Date().toISOString()
     });
 
-    await sb.from('purchase_request').update({ status: 'po_dibuat', estimasi_harga: hargaTotal }).eq('id', currentPRId);
+    // Perbaikan anti-error cache schema: simpan ke harga_estimasi atau harga dasar jika kolom estimasi_harga tidak ada
+    await sb.from('purchase_request').update({ status: 'po_dibuat', harga_estimasi: hargaTotal }).eq('id', currentPRId);
     closeModal('modalEvaluasi');
     await muatSemuaData();
     alert("Draf PO berhasil dikunci! Klik tombol '🚀 Kirim Berkas Ke Manajer' untuk melanjutkan.");
@@ -495,7 +493,7 @@
     muatSemuaData();
   }
 
-  // TAB 5 - ARSIP (FITUR UTAMA HAPUS HISTORY DATA)
+  // TAB 5 - SAKTI (ANTI ERROR FOREIGN KEY CONSTRAINT)
   async function muatRiwayat() {
     const { data } = await sb.from('purchase_request').select('*').order('created_at', {ascending:false});
     const el = document.getElementById('listRiwayat');
@@ -518,22 +516,30 @@
       </div>`).join('');
   }
 
-  // FUNGSI AKSI FITUR HAPUS HISTORY
+  // PROSES SAKTI: Hapus dari tabel anak paling bawah dulu, baru hapus tabel induk utama!
   async function hapusPermanenData(id, nama) {
     if(confirm(`Apakah kamu yakin ingin menghapus data "${nama}" ini dari history?`)) {
-      // Bersihkan data relasi terlebih dahulu agar tidak terkena Foreign Key Constraint
-      await sb.from('invoices').delete().eq('pr_id', id);
-      await sb.from('purchase_order').delete().eq('pr_id', id);
-      await sb.from('quotation').delete().eq('pr_id', id);
-      
-      // Hapus data utama
-      const { error } = await sb.from('purchase_request').delete().eq('id', id);
-      
-      if(!error) {
-        alert(`Data "${nama}" berhasil dihapus!`);
-        await muatSemuaData();
-      } else {
-        alert("Gagal menghapus data: " + error.message);
+      try {
+        // 1. Hapus data penawaran harga (quotation)
+        await sb.from('quotation').delete().eq('pr_id', id);
+        
+        // 2. Hapus data invoice tagihan (invoices) jika ada
+        await sb.from('invoices').delete().eq('pr_id', id);
+        
+        // 3. Hapus data ikatan purchase order kontrak yang mengunci data lama tadi
+        await sb.from('purchase_order').delete().eq('pr_id', id);
+        
+        // 4. Setelah relasi bersih, hapus data utama purchase_request
+        const { error } = await sb.from('purchase_request').delete().eq('id', id);
+        
+        if(!error) {
+          alert(`Sukses! Data "${nama}" berhasil dibersihkan total beserta relasi PO-nya.`);
+          await muatSemuaData();
+        } else {
+          alert("Gagal menghapus data utama: " + error.message);
+        }
+      } catch (err) {
+        alert("Terjadi masalah sistem: " + err.message);
       }
     }
   }
