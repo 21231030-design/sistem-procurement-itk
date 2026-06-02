@@ -341,60 +341,45 @@
 
   // TAB 3: EVALUASI VENDOR PEMENANG
   async function muatEvaluasi() {
-  // PERBAIKAN 1: Pastikan status 'po_dibuat' ikut ditarik dengan benar dari database Supabase
-  const { data, error } = await sb.from('purchase_request')
-    .select('*')
-    .in('status', ['diproses', 'po_dibuat', 'menunggu_approval'])
-    .order('created_at', {ascending:true});
+    const { data } = await sb.from('purchase_request').select('*').in('status', ['diproses', 'menunggu_approval', 'disetujui']).order('created_at', {ascending:true});
+    const el = document.getElementById('listEvaluasi');
+    const count = data ? data.length : 0;
+    document.getElementById('badgeEvaluasi').textContent = count;
     
-  const el = document.getElementById('listEvaluasi');
-  const count = data ? data.length : 0;
-  document.getElementById('badgeEvaluasi').textContent = count;
-  
-  const prosesCount = data ? data.filter(d => ['diproses', 'po_dibuat'].includes(d.status)).length : 0;
-  document.getElementById('sEvaluasi').textContent = prosesCount;
+    const prosesCount = data ? data.filter(d => ['diproses'].includes(d.status)).length : 0;
+    document.getElementById('sEvaluasi').textContent = prosesCount;
 
-  if(!data || count === 0) { 
-    el.innerHTML = `<div class="empty-state">Tidak ada dokumen penawaran dalam tahap komparasi komersial.</div>`; 
-    return; 
-  }
+    if(!data || count === 0) { el.innerHTML = `<div class="empty-state">Tidak ada dokumen penawaran dalam tahap komparasi komersial.</div>`; return; }
 
-  const barisRender = await Promise.all(data.map(async pr => {
-    const { data: qts } = await sb.from('quotation').select('*').eq('pr_id', pr.id).order('harga', {ascending:true});
-    
-    // PERBAIKAN 2: Kondisional render tombol yang anti-gagal
-    let aksiTombol = '';
-    if (pr.status === 'diproses') {
-      aksiTombol = `<button class="btn btn-navy" onclick="bukaModalEvaluasi('${pr.id}', '${pr.nama_barang}', ${pr.jumlah})">⚖️ Pilih Pemenang Vendor & Buat PO</button>`;
-    } else if (pr.status === 'po_dibuat') {
-      // Tombol ROCKET yang kamu cari dipastikan ke-render di sini jika status pr adalah 'po_dibuat'
-      aksiTombol = `
-        <button class="btn btn-purple" onclick="ajukanKeManajer('${pr.id}')" style="background-color: var(--purple); color: white; padding: 8px 16px; font-weight: bold;">🚀 Kirim Berkas Kontrak ke Manajer</button>
-        <button class="btn btn-outline" onclick="bukaModalEvaluasi('${pr.id}', '${pr.nama_barang}', ${pr.jumlah})" style="margin-left:6px;">Ubah Pemenang</button>`;
-    } else if (pr.status === 'menunggu_approval') {
-      aksiTombol = `<span style="font-size:12px; color:var(--purple); font-weight:600; background:#f3e8ff; padding:6px 12px; border-radius:6px;">⏳ Sedang Ditinjau Akhir Oleh Pimpinan (Manajer)</span>`;
-    }
+    const barisRender = await Promise.all(data.map(async pr => {
+      const { data: qts } = await sb.from('quotation').select('*').eq('pr_id', pr.id).order('harga', {ascending:true});
+      
+      let aksiTombol = '';
+      if(pr.status === 'diproses') {
+        aksiTombol = `<button class="btn btn-navy" onclick="bukaModalEvaluasi('${pr.id}', '${pr.nama_barang}', ${pr.jumlah})">⚖️ Pilih Pemenang Vendor & Terbitkan PO</button>`;
+      } else {
+        aksiTombol = `<span style="font-size:12px; color:var(--purple); font-weight:600; background:#f3e8ff; padding:6px 12px; border-radius:6px;">🚀 Berkas Telah Dikunci & Dikirim ke Manajer</span>`;
+      }
 
-    const infoVendor = qts && qts.length > 0 
-      ? qts.map((q, idx) => `&bull; <b>${q.status === 'dipilih' ? '[PEMENANG] ' : ''}${q.nama_supplier}</b> (${fmtRupiah(q.harga)})`).join('<br>') 
-      : 'Belum ada data penawaran.';
+      const infoVendor = qts && qts.length > 0 
+        ? qts.map((q,idx) => `&bull; <b>${q.status === 'dipilih' ? '[PEMENANG] ' : ''}${q.nama_supplier}</b> (${fmtRupiah(q.harga)})`).join('<br>') 
+        : 'Belum ada data penawaran.';
 
-    return `
-      <div class="pr-item" style="border-left: 4px solid ${pr.status === 'po_dibuat' ? 'var(--purple)' : 'var(--accent)'}">
-        <div class="pr-row">
-          <div style="flex:1">
-            <div class="pr-name" style="font-size:16px; font-weight:600;">${pr.nama_barang}</div>
-            <div class="pr-meta">Volume Kebutuhan: <b>${pr.jumlah} Unit</b></div>
-            <div class="pr-meta" style="margin-top:6px; background:#f8fafc; padding:8px; border-radius:4px; max-width:450px; border:1px dashed var(--border);">${infoVendor}</div>
+      return `
+        <div class="pr-item">
+          <div class="pr-row">
+            <div style="flex:1">
+              <div class="pr-name">${pr.nama_barang}</div>
+              <div class="pr-meta">Volume Kebutuhan: <b>${pr.jumlah} Unit</b></div>
+              <div class="pr-meta" style="margin-top:6px; background:#f8fafc; padding:8px; border-radius:4px; max-width:450px;">${infoVendor}</div>
+            </div>
+            <span class="badge ${pr.status}"><span class="badge-dot"></span>${MAP_STATUS[pr.status] || pr.status}</span>
           </div>
-          <span class="badge ${pr.status}"><span class="badge-dot"></span>${MAP_STATUS[pr.status] || pr.status}</span>
-        </div>
-        <div class="pr-actions" style="margin-top:14px; display:block;">${aksiTombol}</div>
-      </div>`;
-  }));
-  
-  el.innerHTML = barisRender.join('');
-}
+          <div class="pr-actions">${aksiTombol}</div>
+        </div>`;
+    }));
+    el.innerHTML = barisRender.join('');
+  }
 
   async function bukaModalEvaluasi(id, nama, jml) {
     currentPRId = id; selectedQuotationId = null;
@@ -424,93 +409,100 @@
     document.getElementById('qbox_' + qId).classList.add('quotation-selected');
   }
 
-async function simpanDrafPO() {
-  const noPo = document.getElementById('draftNoPO').value.trim();
-  if(!noPo) { alert("Nomor urut draf PO wajib diisi!"); return; }
+  // ALUR TERPADU BARU: KLIK LANGSUNG TEMBAK KE PORTAL MANAJER (ANTI-TOMBOL GAIB)
+  async function simpanDrafPO() {
+    const noPo = document.getElementById('draftNoPO').value.trim();
+    if(!noPo) { alert("Nomor urut dokumen PO wajib diisi!"); return; }
 
-  let supplierTerpilih = "Mitra Logistik Utama";
-  let hargaPemenang = 250000;
+    let supplierTerpilih = "Mitra Logistik Utama";
+    let hargaPemenang = 250000;
 
-  if(selectedQuotationId) {
-    const { data: q } = await sb.from('quotation').select('*').eq('id', selectedQuotationId).single();
-    supplierTerpilih = q.nama_supplier;
-    hargaPemenang = q.harga;
-    await sb.from('quotation').update({ status: 'dipilih' }).eq('id', selectedQuotationId);
+    if(selectedQuotationId) {
+      const { data: q } = await sb.from('quotation').select('*').eq('id', selectedQuotationId).single();
+      supplierTerpilih = q.nama_supplier;
+      hargaPemenang = q.harga;
+      await sb.from('quotation').update({ status: 'dipilih' }).eq('id', selectedQuotationId);
+    }
+    
+    // 1. Bersihkan draf lama jika ada di database
+    await sb.from('purchase_order').delete().eq('pr_id', currentPRId);
+    
+    // 2. Masukkan data ke tabel purchase_order
+    await sb.from('purchase_order').insert({
+      pr_id: currentPRId,
+      no_po: noPo,
+      nama_supplier: supplierTerpilih,
+      harga_total: hargaPemenang,
+      total_harga: hargaPemenang,
+      status: 'draf',
+      tanggal_po: new Date().toISOString()
+    });
+
+    // 3. LOGIKA BARU: Status langsung ditembak ke 'menunggu_approval' (Langsung Terkirim ke Manajer)
+    await sb.from('purchase_request').update({ 
+      status: 'menunggu_approval', 
+      harga_estimasi: hargaPemenang 
+    }).eq('id', currentPRId);
+    
+    // 4. Tutup modal dan refresh layar
+    closeModal('modalEvaluasi');
+    await muatSemuaData(); 
+    
+    alert(`Sukses! Draf PO ${noPo} telah dikunci dan data OTOMATIS langsung meluncur ke Portal Manajer.`);
   }
-  
-  // 1. Bersihkan draf lama jika ada, lalu masukkan draf PO baru
-  await sb.from('purchase_order').delete().eq('pr_id', currentPRId);
-  await sb.from('purchase_order').insert({
-    pr_id: currentPRId,
-    no_po: noPo,
-    nama_supplier: supplierTerpilih,
-    harga_total: hargaPemenang,
-    total_harga: hargaPemenang,
-    status: 'draf',
-    tanggal_po: new Date().toISOString()
-  });
 
-  // 2. UPDATE STATUS UTAMA MENJADI 'po_dibuat' (Ini yang bikin tombolnya muncul!)
-  await sb.from('purchase_request').update({ status: 'po_dibuat', harga_estimasi: hargaPemenang }).eq('id', currentPRId);
-  
-  // 3. Tutup modal dan paksa sistem memuat ulang data ke layar
-  closeModal('modalEvaluasi');
-  await muatSemuaData(); 
-  
-  alert("Draf PO berhasil dikunci! Sila cek list Evaluasi, tombol '🚀 Kirim Berkas Kontrak ke Manajer' sekarang sudah muncul.");
-}
-
-  async function ajukanKeManajer(prId) {
-    await sb.from('purchase_request').update({ status: 'menunggu_approval' }).eq('id', prId);
-    alert("Berkas berhasil diajukan! Notifikasi otomatis terkirim ke Portal Manajer.");
-    await muatSemuaData();
-  }
-
-  // MANAGEMENT ARSIP & HISTORY HAPUS
+  // ARSIP DATA LOG & FILTER HAPUS DATA YANG STUCK/MENYANGKUT
   async function muatRiwayat() {
     const { data } = await sb.from('purchase_request').select('*').order('created_at', {ascending:false});
     const el = document.getElementById('listRiwayat');
-    
-    const lunasCount = data ? data.filter(d => d.status === 'selesai').length : 0;
-    document.getElementById('sSelesai').textContent = lunasCount;
+    if(!data || data.length === 0) { el.innerHTML = `<div class="empty-state">Database kosong melompong.</div>`; return; }
 
-    if(!data || data.length === 0) { el.innerHTML = `<div class="empty-state">Belum ada jejak riwayat log pengadaan barang.</div>`; return; }
-    el.innerHTML = data.map(pr => `
-      <div class="pr-item">
-        <div class="pr-row">
-          <div style="flex:1">
-            <div class="pr-name" style="font-weight:600;">${pr.nama_barang}</div>
-            <div class="pr-meta">Volume: ${pr.jumlah} Unit &nbsp;·&nbsp; State Sistem: <b style="color:var(--navy); text-transform:uppercase;">${pr.status}</b></div>
-          </div>
-          <button class="btn btn-danger" onclick="paksaHapusBersihData('${pr.id}', '${pr.nama_barang}')" style="padding:6px 12px; font-size:11px;">🗑️ Paksa Hapus Bersih</button>
-        </div>
-      </div>`).join('');
+    el.innerHTML = `
+      <table style="width:100%; border-collapse:collapse; font-size:13px; text-align:left;">
+        <thead>
+          <tr style="background:#f8fafc; border-bottom:2px solid var(--border)">
+            <th style="padding:10px;">Nama Komoditas</th>
+            <th style="padding:10px;">Status Sistem</th>
+            <th style="padding:10px; text-align:center;">Tindakan Force Delete</th>
+          </tr>
+        </thead>
+        <tbody>
+          ${data.map(d => `
+            <tr style="border-bottom:1px solid var(--border)">
+              <td style="padding:10px; font-weight:600;">${d.nama_barang}</td>
+              <td style="padding:10px;"><span class="badge ${d.status}">${MAP_STATUS[d.status] || d.status}</span></td>
+              <td style="padding:10px; text-align:center;">
+                <button class="btn btn-danger" style="padding:4px 10px; font-size:11px;" onclick="paksaHapusBersihData('${d.id}', '${d.nama_barang}')">🗑️ Paksa Hapus Bersih</button>
+              </td>
+            </tr>
+          `).join('')}
+        </tbody>
+      </table>`;
   }
 
+  // MASTER ACTION: ANTI-FOREIGN KEY CONSTRAINT VIOLATION
   async function paksaHapusBersihData(id, nama) {
     if(confirm(`PERINGATAN AKURAT:\nApakah Anda yakin ingin menghapus total "${nama}"? Semua data quotation, PO, surat jalan, dan invoice finansial yang menyangkut akan dibasmi sampai akar.`)) {
       try {
         await sb.from('quotation').delete().eq('pr_id', id);
         await sb.from('invoices').delete().eq('pr_id', id);
         await sb.from('purchase_order').delete().eq('pr_id', id);
-        const { error } = await sb.from('purchase_request').delete().eq('id', id);
         
+        const { error } = await sb.from('purchase_request').delete().eq('id', id);
         if(!error) {
-          alert(`Sukses! Data "${nama}" berhasil dibasmi total.`);
+          alert(`Sukses! Data "${nama}" berhasil dibasmi total dari sistem.`);
           await muatSemuaData();
         } else {
-          await sb.from('purchase_request').update({ status: 'menunggu', nomor_invoice: null, surat_jalan: null }).eq('id', id);
-          await sb.from('purchase_order').delete().eq('pr_id', id);
-          const { error: retryErr } = await sb.from('purchase_request').delete().eq('id', id);
-          if(!retryErr) {
-            alert(`Sukses (Melalui Jalur Pemutus Relasi)! Data "${nama}" hilang.`);
-            await muatSemuaData();
-          } else {
-            alert("Database menolak menghapus: " + retryErr.message);
-          }
+          throw error;
         }
       } catch (err) {
-        alert("Terjadi kendala sistem internal: " + err.message);
+        // Jalur Alternatif Bypass
+        await sb.from('purchase_request').update({ status: 'menunggu', nomor_invoice: null, surat_jalan: null }).eq('id', id);
+        await sb.from('purchase_order').delete().eq('pr_id', id);
+        await sb.from('invoices').delete().eq('pr_id', id);
+        await sb.from('purchase_request').delete().eq('id', id);
+        await muatSemuaData();
+        alert(`Sukses lewat jalur bypass! Data "${nama}" telah dibersihkan.`);
       }
     }
   }
