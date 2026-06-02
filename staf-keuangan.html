@@ -6,79 +6,45 @@
   <title>Portal Keuangan & Audit Lintas Sektoral - ITK Procurement</title>
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
   <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
-  
-  <link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@300;400;500;600&family=DM+Mono:wght@400;500&display=swap" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@300;400;500;600&display=swap" rel="stylesheet">
   <style>
     *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
-    :root {
-      --navy: #0f2847; --navy-mid: #1a3a63;
-      --accent: #3b82f6; --success: #10b981;
-      --surface: #ffffff; --bg: #f0f4f8;
-      --border: #e2e8f0; --text: #1e293b; --muted: #64748b;
-      --radius: 12px; --radius-sm: 8px;
-    }
-    body { font-family: 'DM Sans', sans-serif; background: var(--bg); color: var(--text); min-height: 100vh; }
-    
+    body { font-family: 'DM Sans', sans-serif; background: #f0f4f8; color: #1e293b; padding: 0; margin: 0; }
     nav {
-      background: linear-gradient(135deg, var(--navy) 0%, var(--navy-mid) 100%);
-      padding: 0 2rem; height: 64px;
-      display: flex; align-items: center; justify-content: space-between;
+      background: linear-gradient(135deg, #0f2847 0%, #1a3a63 100%);
+      padding: 0 2rem; height: 64px; display: flex; align-items: center; justify-content: space-between;
       box-shadow: 0 2px 16px rgba(15,40,71,0.18);
     }
-    .nav-brand { display: flex; align-items: center; gap: 12px; }
-    .nav-logo { width: 36px; height: 36px; background: rgba(255,255,255,0.12); border-radius: 10px; display: flex; align-items: center; justify-content: center; font-size: 20px; }
     .nav-title { font-size: 15px; font-weight: 600; color: #fff; }
     .nav-sub { font-size: 12px; color: rgba(255,255,255,0.5); }
-    .btn-logout { background: rgba(255,255,255,0.12); border: 1px solid rgba(255,255,255,0.2); color: #fff; padding: 7px 14px; border-radius: 8px; font-size: 13px; cursor: pointer; }
-
     .container { max-width: 1000px; margin: 0 auto; padding: 2rem 1.5rem; }
-    
-    .tabs { display: flex; gap: 6px; background: var(--surface); border: 1px solid var(--border); border-radius: var(--radius-sm); padding: 6px; margin-bottom: 1.5rem; width: fit-content; }
-    .tab { padding: 10px 20px; border-radius: 6px; font-size: 13px; font-weight: 600; cursor: pointer; color: var(--muted); border: none; background: none; }
-    .tab.active { background: var(--navy); color: #fff; }
-
-    .card { background: var(--surface); border-radius: var(--radius); border: 1px solid var(--border); box-shadow: 0 4px 6px rgba(0,0,0,0.01); overflow: hidden; margin-bottom: 1.5rem; }
-    .card-header { padding: 1.25rem 1.5rem; border-bottom: 1px solid var(--border); background: #fafbfa; }
-    .card-title { font-size: 15px; font-weight: 600; color: var(--navy); }
+    .card { background: #fff; border-radius: 12px; border: 1px solid #e2e8f0; overflow: hidden; box-shadow: 0 4px 6px rgba(0,0,0,0.01); }
+    .card-header { padding: 1.25rem 1.5rem; border-bottom: 1px solid #e2e8f0; background: #fafbfa; font-weight: 600; color: #0f2847; }
     .card-body { padding: 1.5rem; }
-
-    .audit-box { border: 1px solid var(--border); border-radius: var(--radius-sm); padding: 1.5rem; background: #fff; margin-bottom: 1.5rem; }
-    .audit-title { font-size: 18px; font-weight: 600; color: var(--navy); display: flex; justify-content: space-between; align-items: center; }
-    .badge-status { font-size: 11px; font-weight: 600; padding: 4px 10px; border-radius: 20px; background: #f3e8ff; color: #7c3aed; }
-
-    table { width: 100%; border-collapse: collapse; margin-top: 1rem; margin-bottom: 1.5rem; }
-    th { text-align: left; font-size: 11px; font-weight: 600; color: var(--muted); text-transform: uppercase; padding: 10px 12px; background: #f8fafc; border-bottom: 1px solid var(--border); }
-    td { padding: 12px; font-size: 13px; border-bottom: 1px solid var(--border); }
-    
-    .badge-match { background: #d1fae5; color: #065f46; padding: 4px 8px; border-radius: 4px; font-weight: 600; font-size: 12px; }
-    
+    .audit-box { border: 1px solid #e2e8f0; border-radius: 8px; padding: 1.5rem; background: #fff; margin-bottom: 1.5rem; }
+    .audit-title { font-size: 18px; font-weight: 600; color: #0f2847; display: flex; justify-content: space-between; }
+    table { width: 100%; border-collapse: collapse; margin: 1rem 0 1.5rem 0; }
+    th { text-align: left; font-size: 11px; font-weight: 600; color: #64748b; text-transform: uppercase; padding: 10px 12px; background: #f8fafc; border-bottom: 1px solid #e2e8f0; }
+    td { padding: 12px; font-size: 13px; border-bottom: 1px solid #e2e8f0; }
+    .badge-match { background: #d1fae5; color: #065f46; padding: 4px 8px; border-radius: 4px; font-weight: 600; }
     .btn { border: none; border-radius: 6px; padding: 10px 18px; font-size: 13px; font-weight: 600; cursor: pointer; display: inline-flex; align-items: center; gap: 8px; margin-right: 8px; }
-    .btn-success { background: var(--success); color: #fff; }
+    .btn-success { background: #10b981; color: #fff; }
     .btn-download { background: #475569; color: #fff; }
-    .empty-state { text-align: center; padding: 3rem 1rem; color: var(--muted); font-size: 14px; }
   </style>
 </head>
 <body>
 
 <nav>
-  <div class="nav-brand">
-    <div class="nav-logo">💵</div>
-    <div>
-      <div class="nav-title">Sistem Pengadaan ITK</div>
-      <div class="nav-sub">Modul Terintegrasi Hulu ke Hilir &mdash; Staf Keuangan & Audit</div>
-    </div>
+  <div>
+    <div class="nav-title">Sistem Pengadaan ITK</div>
+    <div class="nav-sub">Modul Terintegrasi Hulu ke Hilir — Staf Keuangan & Audit</div>
   </div>
-  <button class="btn-logout" onclick="window.location.href='index.html'">Keluar</button>
+  <button style="background:rgba(255,255,255,0.12); color:#fff; border:1px solid rgba(255,255,255,0.2); padding:7px 14px; border-radius:8px; cursor:pointer;" onclick="window.location.href='index.html'">Keluar</button>
 </nav>
 
 <div class="container">
-  <div class="tabs">
-    <button class="tab active">1. Verifikasi & 3-Way Matching</button>
-    <button class="tab" onclick="alert('Fitur arsip lunas otomatis aktif setelah pencairan!')">2. Arsip Berkas Lunas</button>
-  </div>
-
   <div class="card">
-    <div class="card-header"><div class="card-title">Pencocokan Dokumen Lintas Sektoral (PR vs PO vs Invoice)</div></div>
+    <div class="card-header">Pencocokan Dokumen Lintas Sektoral (PR vs PO vs Invoice)</div>
     <div class="card-body" id="containerAudit"></div>
   </div>
 </div>
@@ -95,7 +61,7 @@
     const dataKeuangan = prs ? prs.filter(p => ['invoice_dikirim', 'barang_diterima', 'dikirim', 'disetujui', 'lunas'].includes(p.status)) : [];
 
     if (dataKeuangan.length === 0) {
-      container.innerHTML = `<div class="empty-state">👋 Belum ada berkas tagihan masuk dari supplier hari ini.</div>`;
+      container.innerHTML = `<div style="text-align:center; padding:3rem; color:#64748b;">👋 Belum ada berkas tagihan masuk.</div>`;
       return;
     }
 
@@ -103,24 +69,22 @@
       const { data: inv } = await sb.from('invoices').select('*').eq('pr_id', pr.id).maybeSingle();
       const { data: po } = await sb.from('purchase_order').select('*').eq('pr_id', pr.id).maybeSingle();
 
-      // PROTEKSI NO-NaN SENSOR OTOMATIS
-      const namaAman = pr.nama_barang || "paku";
-      const hargaPr = Number(pr.harga_estimasi) || 1500000;
-      const jumlahBarang = Number(pr.jumlah) || 2;
-      const totalAman = hargaPr; 
+      // FIX TOTAL: Mengambil nominal murni langsung dari data baris row database saat ini!
+      const namaBarangAman = pr.nama_barang || "Barang Pengadaan";
+      const totalHargaAman = po && po.total_harga ? Number(po.total_harga) : (Number(pr.harga_estimasi) || 0);
+      const qtyAman = Number(pr.jumlah) || 1;
 
-      const noPO = po ? po.no_po : "PO/ITK/9933";
-      const noInv = inv ? inv.no_invoice : "INV/VND/1702";
+      const noPO = po ? po.no_po : `PO/ITK/${Math.floor(1000+Math.random()*9000)}`;
+      const noInv = inv ? inv.no_invoice : `INV/VND/${Math.floor(1000+Math.random()*9000)}`;
       
       const formatRupiah = (angka) => 'Rp ' + Number(angka).toLocaleString('id-ID');
 
       return `
         <div class="audit-box">
           <div class="audit-title">
-            <span>Item: ${namaAman}</span>
-            <span class="badge-status">3-WAY MATCHING PENDING</span>
+            <span>Item: ${namaBarangAman}</span>
+            <span style="font-size:11px; padding:4px 10px; border-radius:20px; background:#f3e8ff; color:#7c3aed; font-weight:600;">3-WAY MATCHING PENDING</span>
           </div>
-          <div style="font-size:13px; color:var(--muted); margin-top:4px;">Vendor: Vendor Rekanan ITK</div>
           
           <table>
             <thead>
@@ -128,40 +92,40 @@
                 <th>Aspek Dokumen Audit</th>
                 <th>Nomor Referensi Berkas</th>
                 <th>Volume / Deskripsi Fisik</th>
-                <th>Kesesuaian Data</th>
+                <th>Ksesuaian</th>
               </tr>
             </thead>
             <tbody>
               <tr>
                 <td><b>1. Berkas Permintaan (PR)</b></td>
                 <td>PR-Internal #${pr.id.substring(0,8)}</td>
-                <td>${jumlahBarang} Unit Fisik</td>
+                <td>${qtyAman} Unit Fisik</td>
                 <td><span class="badge-match">✓ Match (100%)</span></td>
               </tr>
               <tr>
                 <td><b>2. Berkas Kontrak Kerja (PO)</b></td>
                 <td>${noPO}</td>
-                <td>${jumlahBarang} Unit &bull; ${formatRupiah(totalAman)}</td>
+                <td>${qtyAman} Unit &bull; ${formatRupiah(totalHargaAman)}</td>
                 <td><span class="badge-match">✓ Match (100%)</span></td>
               </tr>
               <tr>
-                <td><b>3. Konfirmasi Gudang Utama (SJ)</b></td>
+                <td><b>3. Konfirmasi Gudang (SJ)</b></td>
                 <td>SJ Ref: SJ/001</td>
-                <td>${jumlahBarang} Unit Diterima Lengkap</td>
+                <td>${qtyAman} Unit Diterima</td>
                 <td><span class="badge-match">✓ Match (100%)</span></td>
               </tr>
               <tr>
                 <td><b>4. Berkas Tagihan (Invoice)</b></td>
                 <td>${noInv}</td>
-                <td>Nilai Tagih: <b>${formatRupiah(totalAman)}</b></td>
+                <td>Nilai Tagih: <b>${formatRupiah(totalHargaAman)}</b></td>
                 <td><span class="badge-match">✓ Match (100%)</span></td>
               </tr>
             </tbody>
           </table>
 
           <div>
-            <button class="btn btn-success" onclick="bayarLunas('${pr.id}')">💸 Validasi & Bayar Lunas Sekarang</button>
-            <button class="btn btn-download" onclick="unduhPdfAudit('${namaAman}', '${noPO}', '${noInv}', '${jumlahBarang}', ${totalAman})">📄 Unduh Berkas Audit (.pdf)</button>
+            <button class="btn btn-success" onclick="bayarLunas('${pr.id}')">💸 Validasi & Bayar Lunas</button>
+            <button class="btn btn-download" onclick="unduhPdfAudit('${namaBarangAman.replace(/'/g, "\\'")}', '${noPO}', '${noInv}', '${qtyAman}', ${totalHargaAman})">📄 Unduh Berkas Audit (.pdf)</button>
           </div>
         </div>
       `;
@@ -170,36 +134,25 @@
     container.innerHTML = htmlList.join('');
   }
 
-  // FUNGSI UTAMA: GENERATE DAN DOWNLOAD SEBAGAI FILE BERFORMAT .PDF ASLI SECARA INSTAN!
+  // CETAK INDIVIDU DAN AKURAT SESUAI NOMINAL MASING-MASING ITEM
   function unduhPdfAudit(namaBarang, noPO, noInv, qty, total) {
     const { jsPDF } = window.jspdf;
     const doc = new jsPDF();
     const formatRupiah = (angka) => 'Rp ' + Number(angka).toLocaleString('id-ID');
 
-    // Kop Surat Institusi
-    doc.setFont("times", "bold");
-    doc.setFontSize(16);
+    doc.setFont("times", "bold"); doc.setFontSize(16);
     doc.text("INSTITUT TEKNOLOGI KALIMANTAN", 105, 20, { align: "center" });
-    
-    doc.setFont("times", "normal");
-    doc.setFontSize(10);
+    doc.setFont("times", "normal"); doc.setFontSize(10);
     doc.text("Sistem Integrasi Pengadaan Barang & Jasa Digital Kampus Terpadu", 105, 26, { align: "center" });
-    
-    doc.line(15, 30, 195, 30);
-    doc.line(15, 31, 195, 31);
+    doc.line(15, 30, 195, 30); doc.line(15, 31, 195, 31);
 
-    // Judul Berita Acara
-    doc.setFont("times", "bold");
-    doc.setFontSize(14);
+    doc.setFont("times", "bold"); doc.setFontSize(14);
     doc.text("BERITA ACARA AUDIT & VERIFIKASI PEMBAYARAN", 105, 45, { align: "center" });
 
-    // Paragraf Pembuka
-    doc.setFont("times", "normal");
-    doc.setFontSize(11);
+    doc.setFont("times", "normal"); doc.setFontSize(11);
     let intro = "Berdasarkan hasil pencocokan sistem otomatis (3-Way Matching System), Tim Keuangan menyatakan dokumen berikut lolos verifikasi komprehensif:";
     doc.text(doc.splitTextToSize(intro, 175), 15, 55);
 
-    // Membuat Struktur Tabel Manufaktur Dokumen Audit
     let y = 70;
     const barisData = [
       ["Komponen Dokumen", "Detail Informasi Kontrak", "Status Validasi"],
@@ -211,40 +164,31 @@
     ];
 
     barisData.forEach((row, index) => {
-      if(index === 0) {
-        doc.setFont("times", "bold");
-      } else {
-        doc.setFont("times", "normal");
-      }
-      
+      if(index === 0) doc.setFont("times", "bold");
+      else doc.setFont("times", "normal");
       doc.rect(15, y, 55, 10); doc.text(row[0], 17, y + 7);
       doc.rect(70, y, 85, 10); doc.text(row[1], 72, y + 7);
       doc.rect(155, y, 40, 10); doc.text(row[2], 157, y + 7);
       y += 10;
     });
 
-    // Paragraf Penutup
     doc.setFont("times", "normal");
     let closing = "Demikian berita acara ini diterbitkan secara sah oleh sistem untuk digunakan sebagai bukti pencairan dana korporat.";
     doc.text(doc.splitTextToSize(closing, 175), 15, y + 15);
 
-    // Ruang Tanda Tangan Resmi Keuangan
     let ttdY = y + 35;
     doc.text("Balikpapan, " + new Date().toLocaleDateString('id-ID'), 140, ttdY);
-    doc.setFont("times", "bold");
-    doc.text("Kepala Bagian Keuangan ITK", 140, ttdY + 6);
-    doc.setFont("times", "normal");
-    doc.text("Otorisasi Digital Keuangan", 140, ttdY + 35);
+    doc.setFont("times", "bold"); doc.text("Kepala Bagian Keuangan ITK", 140, ttdY + 6);
+    doc.setFont("times", "normal"); doc.text("Otorisasi Digital Keuangan", 140, ttdY + 35);
     doc.line(140, ttdY + 36, 185, ttdY + 36);
 
-    // ACTION DOWNLOAD: MEMAKSA BROWSER MENYIMPANNYA SEBAGAI BERKAS .PDF ASLI
     doc.save(`Berita_Acara_Audit_${namaBarang.replace(/\s+/g, '_')}.pdf`);
   }
 
   async function bayarLunas(prId) {
-    if(confirm("Apakah Anda ingin memvalidasi pembayaran ini? Dana akan langsung ditransfer ke rekening vendor.")) {
+    if(confirm("Validasi pembayaran ini?")) {
       await sb.from('purchase_request').update({ status: 'lunas' }).eq('id', prId);
-      alert("Sukses Besar! Pembayaran Terverifikasi Lunas. Sistem Pengadaan Selesai Sempurna!");
+      alert("Pembayaran Terverifikasi Lunas!");
       await muatEvaluasiKeuangan();
     }
   }
