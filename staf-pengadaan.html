@@ -5,67 +5,102 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Dashboard Staf Pengadaan - ITK Procurement</title>
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
-  <link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@300;400;500;600&display=swap" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
   <style>
-    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
-    :root {
-      --navy: #0f2847; --navy-mid: #1a3a63; --accent: #3b82f6;
-      --success: #10b981; --surface: #ffffff; --bg: #f0f4f8;
-      --border: #e2e8f0; --text: #1e293b; --muted: #64748b;
-      --radius: 12px; --radius-sm: 8px;
+    body {
+      font-family: 'Inter', sans-serif;
+      margin: 0;
+      padding: 0;
+      background-color: #f4f6f9;
+      color: #333;
     }
-    body { font-family: 'DM Sans', sans-serif; background: var(--bg); color: var(--text); min-height: 100vh; }
-    
-    nav {
-      background: linear-gradient(135deg, var(--navy) 0%, var(--navy-mid) 100%);
-      padding: 0 2rem; height: 64px;
-      display: flex; align-items: center; justify-content: space-between;
-      box-shadow: 0 2px 16px rgba(15,40,71,0.18);
+    .header {
+      background-color: #0f2847;
+      color: white;
+      padding: 20px;
+      text-align: center;
+      font-weight: bold;
+      font-size: 20px;
     }
-    .nav-brand { display: flex; align-items: center; gap: 12px; }
-    .nav-logo { width: 36px; height: 36px; background: rgba(255,255,255,0.12); border-radius: 10px; display: flex; align-items: center; justify-content: center; font-size: 20px; }
-    .nav-title { font-size: 15px; font-weight: 600; color: #fff; }
-    .nav-sub { font-size: 12px; color: rgba(255,255,255,0.5); }
-    .btn-logout { background: rgba(255,255,255,0.12); border: 1px solid rgba(255,255,255,0.2); color: #fff; padding: 7px 14px; border-radius: 8px; font-size: 13px; cursor: pointer; }
-
-    .container { max-width: 1000px; margin: 0 auto; padding: 2rem 1.5rem; }
-    
-    .card { background: var(--surface); border-radius: var(--radius); border: 1px solid var(--border); box-shadow: 0 4px 6px rgba(0,0,0,0.01); overflow: hidden; margin-bottom: 1.5rem; }
-    .card-header { padding: 1.25rem 1.5rem; border-bottom: 1px solid var(--border); background: #fafbfa; }
-    .card-title { font-size: 15px; font-weight: 600; color: var(--navy); }
-    .card-body { padding: 1.5rem; }
-
-    .pr-box { border: 1px solid var(--border); border-radius: var(--radius-sm); padding: 1.5rem; background: #fff; margin-bottom: 1.5rem; }
-    .pr-title { font-size: 16px; font-weight: 600; color: var(--navy); margin-bottom: 10px; display: flex; justify-content: space-between; }
-    
-    .vendor-section { background: #f8fafc; border: 1px dashed #cbd5e1; padding: 12px; border-radius: 6px; margin-top: 10px; }
-    
-    .btn { border: none; border-radius: 6px; padding: 10px 18px; font-size: 13px; font-weight: 600; cursor: pointer; display: inline-flex; align-items: center; gap: 8px; margin-top: 10px; }
-    .btn-primary { background: var(--accent); color: #fff; }
-    .btn-success { background: var(--success); color: #fff; }
-    
-    .empty-state { text-align: center; padding: 3rem 1rem; color: var(--muted); font-size: 14px; }
-    .status-badge { font-size: 11px; padding: 3px 8px; border-radius: 12px; font-weight: 600; background: #e0f2fe; color: #0369a1; }
+    .container {
+      width: 90%;
+      margin: 30px auto;
+      background: white;
+      padding: 20px;
+      border-radius: 8px;
+      box-shadow: 0 4px 6px rgba(0,0,0,0.1);
+    }
+    h2 {
+      color: #0f2847;
+      border-bottom: 2px solid #0f2847;
+      padding-bottom: 10px;
+      margin-bottom: 20px;
+    }
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      margin-top: 10px;
+    }
+    th, td {
+      border: 1px solid #ddd;
+      padding: 12px;
+      text-align: left;
+    }
+    th {
+      background-color: #0f2847;
+      color: white;
+    }
+    tr:nth-child(even) {
+      background-color: #f9f9f9;
+    }
+    .btn {
+      padding: 8px 12px;
+      border: none;
+      border-radius: 4px;
+      cursor: pointer;
+      font-weight: bold;
+      font-size: 13px;
+    }
+    .btn-action {
+      background-color: #f39c12;
+      color: white;
+    }
+    .btn-action:hover {
+      background-color: #d35400;
+    }
+    .status-badge {
+      padding: 5px 10px;
+      border-radius: 4px;
+      font-weight: bold;
+      font-size: 12px;
+      text-transform: uppercase;
+    }
+    .status-pending { background-color: #f1c40f; color: #7f8c8d; }
+    .status-proses { background-color: #3498db; color: white; }
+    .status-done { background-color: #2ecc71; color: white; }
   </style>
 </head>
 <body>
 
-<nav>
-  <div class="nav-brand">
-    <div class="nav-logo">📦</div>
-    <div>
-      <div class="nav-title">Sistem Pengadaan ITK</div>
-      <div class="nav-sub">Modul Terintegrasi Hulu ke Hilir &mdash; Staf Pengadaan</div>
-    </div>
-  </div>
-  <button class="btn-logout" onclick="window.location.href='index.html'">Keluar</button>
-</nav>
+<div class="header">
+  SISTEM PENGADAAN BARANG & JASA - INSTITUT TEKNOLOGI KALIMANTAN
+</div>
 
 <div class="container">
-  <div class="card">
-    <div class="card-header"><div class="card-title">Daftar Pengajuan PR (Purchase Request) & Pemilihan Vendor</div></div>
-    <div class="card-body" id="containerPR"></div>
-  </div>
+  <h2>Daftar Evaluasi Pengajuan & Pemilihan Vendor</h2>
+  <table>
+    <thead>
+      <tr>
+        <th>Nama Barang</th>
+        <th>Jumlah</th>
+        <th>Harga Estimasi</th>
+        <th>Status Alur</th>
+        <th>Aksi Staf Pengadaan</th>
+      </tr>
+    </thead>
+    <tbody id="tabelPR">
+      </tbody>
+  </table>
 </div>
 
 <script>
@@ -73,85 +108,63 @@
   const SB_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImJndGdlbHRrYmFubG52eW1hbHVtIiwicm9sZSI6ImFub24iLCJpYXQiOjE3Nzk1MTAwNDksImV4cCI6MjA5NTA4NjA0OX0.-JlapeQpug44SjkEKgb1wyoX2_ftdGGcAnTHJhdzvwE";
   const sb = supabase.createClient(SB_URL, SB_KEY);
 
-  // Load data PR dari database
-  async function muatDataPR() {
-    const { data: prs, error } = await sb.from('purchase_request').select('*').order('created_at', { ascending: false });
-    const container = document.getElementById('containerPR');
+  async function muatTabelPengadaan() {
+    const { data: prs } = await sb.from('purchase_request').select('*').order('created_at', { ascending: false });
+    const tbody = document.getElementById('tabelPR');
+    tbody.innerHTML = "";
 
     if (!prs || prs.length === 0) {
-      container.innerHTML = `<div class="empty-state">👋 Belum ada Pengajuan PR baru yang masuk dari user internal.</div>`;
+      tbody.innerHTML = `<tr><td colspan="5" style="text-align:center;">Belum ada pengajuan masuk.</td></tr>`;
       return;
     }
 
-    let html = "";
     prs.forEach(pr => {
-      // Tombol Kirim Berkas Kontrak otomatis muncul jika status sudah masuk tahap evaluasi/siap diteruskan
-      const totalHarga = Number(pr.harga_estimasi) || 1500000;
+      const hargaAman = Number(pr.harga_estimasi) || 1500000;
       const formatRupiah = (angka) => 'Rp ' + Number(angka).toLocaleString('id-ID');
-
-      let tombolAksi = "";
       
-      if (pr.status === 'pending' || pr.status === 'draft') {
-        // Tahap 1: Staf mengunci draf PO / Memilih Vendor
-        tombolAksi = `
-          <div class="vendor-section">
-            <p style="font-size:12px; color:var(--muted)"><b>Rekomendasi Sistem:</b> Vendor Rekanan ITK Terverifikasi</p>
-            <button class="btn btn-primary" onclick="kunciDrafPO('${pr.id}', '${pr.nama_barang}', ${totalHarga})">🔒 Pilih Vendor & Kunci Draf PO</button>
-          </div>
-        `;
-      } else if (pr.status === 'disetujui' || pr.status === 'proses_kontrak' || pr.status === 'invoice_dikirim' || pr.status === 'barang_diterima' || pr.status === 'dikirim' || pr.status === 'lunas') {
-        // Tahap Sudah Dikunci, Berkas Otomatis Siap Teruskan Tanpa Kendala/Error!
-        tombolAksi = `
-          <div style="background: #ecfdf5; padding: 12px; border-radius:6px; margin-top:10px; border: 1px solid #a7f3d0;">
-            <p style="font-size: 13px; color: #065f46; font-weight: 500;">✓ Berkas PO Kontrak Telah Berhasil Dikunci Sistem.</p>
-            <button class="btn btn-success" onclick="teruskanKeManajer('${pr.id}')">🚀 Kirim Berkas Kontrak ke Manajer</button>
-          </div>
-        `;
+      let badgeClass = "status-pending";
+      if(pr.status !== 'pending' && pr.status !== 'draft') {
+        badgeClass = pr.status === 'disetujui' || pr.status === 'lunas' ? "status-done" : "status-proses";
       }
 
-      html += `
-        <div class="pr-box">
-          <div class="pr-title">
-            <span>Item: <b>${pr.nama_barang || 'paku'}</b></span>
-            <span class="status-badge">${pr.status.toUpperCase()}</span>
-          </div>
-          <div style="font-size: 13px; color: var(--muted)">
-            <p>Jumlah: ${pr.jumlah || 2} Unit</p>
-            <p>Estimasi Nilai Kontrak: <b>${formatRupiah(totalHarga)}</b></p>
-          </div>
-          ${tombolAksi}
-        </div>
+      // LOGIKA KILAT: Jika masih pending/draft, tampilkan tombol Pilih Vendor.
+      // Jika diklik, otomatis draf PO dikunci dan LANGSUNG diteruskan ke Manajer saat itu juga!
+      let kolomAksi = "";
+      if (pr.status === 'pending' || pr.status === 'draft') {
+        kolomAksi = `<button class="btn btn-action" onclick="prosesKilatPengadaan('${pr.id}', ${hargaAman})">🎯 Pilih Vendor & Kirim ke Manajer</button>`;
+      } else {
+        kolomAksi = `<span style="color:#2ecc71; font-weight:bold;">✓ Terkirim ke Manajer</span>`;
+      }
+
+      tbody.innerHTML += `
+        <tr>
+          <td><b>${pr.nama_barang || 'paku'}</b></td>
+          <td>${pr.jumlah || 2} Unit</td>
+          <td>${formatRupiah(hargaAman)}</td>
+          <td><span class="status-badge ${badgeClass}">${pr.status}</span></td>
+          <td>${kolomAksi}</td>
+        </tr>
       `;
     });
-
-    container.innerHTML = html;
   }
 
-  // FUNGSI 1: KUNCI DRAF PO VENDOR
-  async function kunciDrafPO(prId, namaBarang, harga) {
+  // FUNGSI SAT SET: SEKALI KLIK LANGSUNG KUNCI PO + TERUSKAN KE MANAJER
+  async function prosesKilatPengadaan(prId, harga) {
     const noPOAcak = `PO/ITK/${Math.floor(1000 + Math.random() * 9000)}`;
     
-    // Pastikan data PO masuk ke database agar tidak memicu error NaN di manajer/keuangan
-    const { error: poError } = await sb.from('purchase_order').insert([
+    // 1. Buat draf PO biar data keuangan/manajer ga NaN
+    await sb.from('purchase_order').insert([
       { pr_id: prId, no_po: noPOAcak, total_harga: harga }
     ]);
 
-    // Update status PR agar tombol kirim berkas manajer muncul secara realtime
-    await sb.from('purchase_request').update({ status: 'proses_kontrak' }).eq('id', prId);
-    
-    alert(`Draf PO berhasil dikunci! Sila cek list Evaluasi, tombol '🚀 Kirim Berkas Kontrak ke Manajer' sekarang sudah muncul.`);
-    muatDataPR();
-  }
-
-  // FUNGSI 2: TERUSKAN BERKAS KONTRAK KE MANAJER
-  async function teruskanKeManajer(prId) {
-    // Manajer akan langsung membaca status 'disetujui' atau 'proses_kontrak' untuk penandatanganan digital
+    // 2. Langsung tembak status ke 'disetujui' (biar nembus ke dashboard manajer)
     await sb.from('purchase_request').update({ status: 'disetujui' }).eq('id', prId);
-    alert("Sukses! Berkas kontrak pengadaan berhasil diteruskan ke Dashboard Manajer Operasional untuk disetujui.");
-    muatDataPR();
+    
+    alert("Sukses! Vendor dipilih, draf PO dikunci, dan berkas LANGSUNG diteruskan ke Manajer!");
+    muatTabelPengadaan();
   }
 
-  window.onload = muatDataPR;
+  window.onload = muatTabelPengadaan;
 </script>
 </body>
 </html>
