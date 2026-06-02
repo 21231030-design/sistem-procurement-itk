@@ -9,14 +9,12 @@
   <style>
     *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
     :root {
-      --navy: #0f2847; --navy-mid: #1a3a63; --navy-light: #2a5298;
+      --navy: #0f2847; --navy-mid: #1a3a63;
       --accent: #3b82f6; --accent-soft: #dbeafe;
       --success: #10b981; --success-soft: #d1fae5;
       --danger: #ef4444; --danger-soft: #fee2e2;
       --warn: #f59e0b; --warn-soft: #fef3c7;
-      --purple: #7c3aed; --purple-soft: #ede9fe;
-      --teal: #0d9488; --teal-soft: #ccfbf1;
-      --orange: #ea580c; --orange-soft: #ffedd5;
+      --purple: #7c3aed;
       --surface: #ffffff; --bg: #f0f4f8;
       --border: #e2e8f0; --text: #1e293b; --muted: #64748b;
       --radius: 12px; --radius-sm: 8px;
@@ -28,7 +26,6 @@
       padding: 0 2rem; height: 64px;
       display: flex; align-items: center; justify-content: space-between;
       box-shadow: 0 2px 16px rgba(15,40,71,0.18);
-      position: sticky; top: 0; z-index: 100;
     }
     .nav-brand { display: flex; align-items: center; gap: 12px; }
     .nav-logo { width: 36px; height: 36px; background: rgba(255,255,255,0.12); border-radius: 10px; display: flex; align-items: center; justify-content: center; font-size: 20px; }
@@ -38,77 +35,57 @@
 
     .container { max-width: 1200px; margin: 0 auto; padding: 1.75rem 1.5rem; }
 
-    /* REALTIME COUNTER */
     .stat-row { display: grid; grid-template-columns: repeat(5, 1fr); gap: 12px; margin-bottom: 1.5rem; }
-    .stat-card { background: var(--surface); border: 1px solid var(--border); border-radius: var(--radius-sm); padding: 1rem; text-align: center; box-shadow: 0 2px 4px rgba(0,0,0,0.02); }
+    .stat-card { background: var(--surface); border: 1px solid var(--border); border-radius: var(--radius-sm); padding: 1rem; text-align: center; }
     .stat-num { font-size: 24px; font-weight: 600; font-family: 'DM Mono', monospace; }
-    .stat-label { font-size: 11px; color: var(--muted); margin-top: 4px; font-weight: 500; }
+    .stat-label { font-size: 11px; color: var(--muted); margin-top: 4px; }
 
-    /* NAVIGATION TABS */
     .tabs { display: flex; gap: 6px; background: var(--surface); border: 1px solid var(--border); border-radius: var(--radius-sm); padding: 6px; margin-bottom: 1.5rem; width: fit-content; }
-    .tab { padding: 8px 16px; border-radius: 6px; font-size: 13px; font-weight: 500; cursor: pointer; color: var(--muted); border: none; background: none; transition: all 0.15s; }
+    .tab { padding: 8px 16px; border-radius: 6px; font-size: 13px; font-weight: 500; cursor: pointer; color: var(--muted); border: none; background: none; }
     .tab.active { background: var(--navy); color: #fff; }
-    .tab:hover:not(.active) { background: var(--bg); color: var(--text); }
     .tab-badge { display: inline-flex; align-items: center; justify-content: center; padding: 2px 6px; border-radius: 10px; font-size: 10px; font-weight: 700; margin-left: 6px; background: var(--danger); color: #fff; }
-    .tab.active .tab-badge { background: rgba(255,255,255,0.25); }
 
     .tab-panel { display: none; }
     .tab-panel.active { display: block; }
 
-    /* CARDS */
-    .card { background: var(--surface); border-radius: var(--radius); border: 1px solid var(--border); overflow: hidden; margin-bottom: 1rem; box-shadow: 0 4px 6px rgba(0,0,0,0.01); }
+    .card { background: var(--surface); border-radius: var(--radius); border: 1px solid var(--border); overflow: hidden; margin-bottom: 1rem; }
     .card-header { padding: 1.25rem 1.5rem; border-bottom: 1px solid var(--border); background: #fafbfa; }
     .card-title { font-size: 15px; font-weight: 600; color: var(--navy); }
-    .card-subtitle { font-size: 12px; color: var(--muted); margin-top: 3px; }
     .card-body { padding: 1.5rem; }
 
-    /* ITEMS */
     .pr-item { border: 1px solid var(--border); border-radius: var(--radius-sm); padding: 1.25rem; margin-bottom: 0.75rem; background: #fff; }
-    .pr-row { display: flex; align-items: flex-start; justify-content: space-between; gap: 16px; flex-wrap: wrap; }
-    .pr-name { font-size: 16px; font-weight: 600; color: var(--navy); margin-bottom: 4px; }
+    .pr-row { display: flex; align-items: flex-start; justify-content: space-between; gap: 16px; }
+    .pr-name { font-size: 16px; font-weight: 600; color: var(--navy); }
     .pr-meta { font-size: 12px; color: var(--muted); line-height: 1.6; }
-    .pr-actions { display: flex; gap: 8px; flex-wrap: wrap; margin-top: 14px; align-items: center; }
+    .pr-actions { display: flex; gap: 8px; margin-top: 14px; }
 
-    /* BADGES */
     .badge { display: inline-flex; align-items: center; gap: 6px; font-size: 11px; font-weight: 600; padding: 4px 10px; border-radius: 40px; text-transform: uppercase; }
-    .badge-dot { width: 6px; height: 6px; border-radius: 50%; }
-    .badge.menunggu { background: var(--warn-soft); color: #92400e; } .badge.menunggu .badge-dot { background: var(--warn); }
-    .badge.diverifikasi { background: var(--teal-soft); color: #134e4a; } .badge.diverifikasi .badge-dot { background: var(--teal); }
-    .badge.diproses { background: #e0f2fe; color: #0369a1; } .badge.diproses .badge-dot { background: var(--accent); }
-    .badge.po_dibuat { background: #fae8ff; color: #701a75; } .badge.po_dibuat .badge-dot { background: #d946ef; }
-    .badge.menunggu_approval { background: #f3e8ff; color: #6b21a8; } .badge.menunggu_approval .badge-dot { background: #a855f7; }
-    .badge.disetujui { background: var(--success-soft); color: #065f46; } .badge.disetujui .badge-dot { background: var(--success); }
-    .badge.dikirim { background: #ffedd5; color: #9a3412; } .badge.dikirim .badge-dot { background: var(--orange); }
-    .badge.barang_diterima { background: #eef2f3; color: #374151; } .badge.barang_diterima .badge-dot { background: #4b5563; }
-    .badge.invoice_dikirim { background: #e0e7ff; color: #3730a3; } .badge.invoice_dikirim .badge-dot { background: #6366f1; }
-    .badge.verifikasi_sj { background: #fce7f3; color: #9d174d; } .badge.verifikasi_sj .badge-dot { background: #ec4899; }
-    .badge.selesai { background: var(--success-soft); color: #065f46; } .badge.selesai .badge-dot { background: var(--success); }
+    .badge.menunggu { background: var(--warn-soft); color: #92400e; }
+    .badge.diverifikasi { background: #ccfbf1; color: #134e4a; }
+    .badge.diproses { background: #e0f2fe; color: #0369a1; }
+    .badge.menunggu_approval { background: #f3e8ff; color: #6b21a8; }
 
-    /* BUTTONS */
-    .btn { border: none; border-radius: 6px; padding: 8px 16px; font-size: 12px; font-weight: 600; font-family: 'DM Sans', sans-serif; cursor: pointer; display: inline-flex; align-items: center; gap: 6px; }
+    .btn { border: none; border-radius: 6px; padding: 8px 16px; font-size: 12px; font-weight: 600; cursor: pointer; display: inline-flex; align-items: center; gap: 6px; }
     .btn-success { background: var(--success); color: #fff; }
-    .btn-danger { background: var(--danger); color: #fff; }
     .btn-primary { background: var(--accent); color: #fff; }
     .btn-navy { background: var(--navy); color: #fff; }
-    .btn-purple { background: var(--purple); color: #fff; }
+    .btn-danger { background: var(--danger); color: #fff; }
     .btn-outline { background: transparent; color: var(--muted); border: 1px solid var(--border); }
 
-    /* MODALS */
     .modal-overlay { position: fixed; inset: 0; background: rgba(15,40,71,0.5); z-index: 200; display: none; align-items: center; justify-content: center; padding: 1rem; backdrop-filter: blur(2px); }
     .modal-overlay.show { display: flex; }
-    .modal { background: var(--surface); border-radius: var(--radius); width: 100%; max-width: 560px; box-shadow: 0 20px 25px -5px rgba(0,0,0,0.1); overflow: hidden; }
-    .modal-header { padding: 1.25rem 1.5rem; border-bottom: 1px solid var(--border); display: flex; align-items: center; justify-content: space-between; background: #fafbfa; }
+    .modal { background: var(--surface); border-radius: var(--radius); width: 100%; max-width: 560px; overflow: hidden; }
+    .modal-header { padding: 1.25rem 1.5rem; border-bottom: 1px solid var(--border); display: flex; align-items: center; justify-content: space-between; }
     .modal-title { font-size: 15px; font-weight: 600; color: var(--navy); }
-    .modal-close { background: none; border: none; cursor: pointer; color: var(--muted); font-size: 22px; }
-    .modal-body { padding: 1.5rem; max-height: 65vh; overflow-y: auto; }
+    .modal-close { background: none; border: none; cursor: pointer; font-size: 22px; color: var(--muted); }
+    .modal-body { padding: 1.5rem; max-height: 60vh; overflow-y: auto; }
     .modal-footer { padding: 1rem 1.5rem; border-top: 1px solid var(--border); background: #f8fafc; display: flex; gap: 10px; justify-content: flex-end; }
 
     .field { margin-bottom: 1rem; }
     .field label { display: block; font-size: 11px; font-weight: 600; color: var(--muted); text-transform: uppercase; margin-bottom: 6px; }
-    .field input { width: 100%; border: 1.5px solid var(--border); border-radius: var(--radius-sm); padding: 9px 12px; font-size: 14px; outline: none; background: var(--bg); }
-    .field input:focus { border-color: var(--accent); background: #fff; }
+    .field input { width: 100%; border: 1.5px solid var(--border); border-radius: var(--radius-sm); padding: 9px 12px; font-size: 14px; outline: none; }
 
-    .info-box { background: var(--accent-soft); border: 1px solid #bfdbfe; border-radius: var(--radius-sm); padding: 12px; margin-bottom: 1.25rem; font-size: 13px; color: #1e40af; font-weight: 500; }
+    .info-box { background: var(--accent-soft); border: 1px solid #bfdbfe; border-radius: var(--radius-sm); padding: 12px; margin-bottom: 1.25rem; font-size: 13px; color: #1e40af; }
     .quotation-row { border: 1px solid var(--border); border-radius: var(--radius-sm); padding: 12px; margin-bottom: 8px; background: #fff; }
     .quotation-row.quotation-selected { border-color: var(--success); background: var(--success-soft); }
     .empty-state { text-align: center; padding: 3rem 1rem; color: var(--muted); font-size: 14px; }
@@ -131,9 +108,9 @@
 
   <div class="stat-row">
     <div class="stat-card"><div class="stat-num" id="sCekPR" style="color:#92400e">0</div><div class="stat-label">1. Verifikasi PR</div></div>
-    <div class="stat-card"><div class="stat-num" id="sQuotation" style="color:#134e4a">0</div><div class="stat-label">2. Input Quotation</div></div>
+    <div class="stat-card"><div class="stat-num" id="sQuotation" style="color:#134e4a">0</div><div class="stat-label">2. Input Vendor</div></div>
     <div class="stat-card"><div class="stat-num" id="sEvaluasi" style="color:#0369a1">0</div><div class="stat-label">3. Evaluasi Vendor</div></div>
-    <div class="stat-card"><div class="stat-num" id="sVerifSJ" style="color:#a855f7">0</div><div class="stat-label">4. Proses Approval</div></div>
+    <div class="stat-card"><div class="stat-num" id="sVerifSJ" style="color:#7c3aed">0</div><div class="stat-label">4. Total Ajuan</div></div>
     <div class="stat-card"><div class="stat-num" id="sSelesai" style="color:#065f46">0</div><div class="stat-label">5. Selesai Lunas</div></div>
   </div>
 
@@ -141,39 +118,13 @@
     <button class="tab active" onclick="switchTab('cek-pr', this)">1. Verifikasi PR <span class="tab-badge" id="badgeCekPR">0</span></button>
     <button class="tab" onclick="switchTab('quotation', this)">2. Input Quotation <span class="tab-badge" id="badgeQuotation">0</span></button>
     <button class="tab" onclick="switchTab('evaluasi', this)">3. Evaluasi & Draf PO <span class="tab-badge" id="badgeEvaluasi">0</span></button>
-    <button class="tab" onclick="switchTab('riwayat', this)">Semua Arsip (Fitur Paksa Hapus)</button>
+    <button class="tab" onclick="switchTab('riwayat', this)">Semua Arsip (Reset Database)</button>
   </div>
 
-  <div class="tab-panel active" id="tab-cek-pr">
-    <div class="card">
-      <div class="card-header"><div class="card-title">Pengecekan Berkas Kelayakan Purchase Request (PR)</div></div>
-      <div class="card-body" id="listCekPR"></div>
-    </div>
-  </div>
-
-  <div class="tab-panel" id="tab-quotation">
-    <div class="card">
-      <div class="card-header"><div class="card-title">Registrasi Surat Penawaran Komersial Vendor Rekanan</div></div>
-      <div class="card-body" id="listQuotation"></div>
-    </div>
-  </div>
-
-  <div class="tab-panel" id="tab-evaluasi">
-    <div class="card">
-      <div class="card-header"><div class="card-title">Komparasi Harga & Penerbitan Berkas Draf PO</div></div>
-      <div class="card-body" id="listEvaluasi"></div>
-    </div>
-  </div>
-
-  <div class="tab-panel" id="tab-riwayat">
-    <div class="card">
-      <div class="card-header">
-        <div class="card-title">Master Log Database & Pembersihan History</div>
-        <div class="card-subtitle" style="color:var(--danger); font-weight:600;">Gunakan tombol di bawah untuk membersihkan data uji coba yang menyangkut.</div>
-      </div>
-      <div class="card-body" id="listRiwayat"></div>
-    </div>
-  </div>
+  <div class="tab-panel active" id="tab-cek-pr"><div class="card"><div class="card-body" id="listCekPR"></div></div></div>
+  <div class="tab-panel" id="tab-quotation"><div class="card"><div class="card-body" id="listQuotation"></div></div></div>
+  <div class="tab-panel" id="tab-evaluasi"><div class="card"><div class="card-body" id="listEvaluasi"></div></div></div>
+  <div class="tab-panel" id="tab-riwayat"><div class="card"><div class="card-body" id="listRiwayat"></div></div></div>
 
 </div>
 
@@ -198,12 +149,11 @@
 <div class="modal-overlay" id="modalEvaluasi">
   <div class="modal">
     <div class="modal-header">
-      <span class="modal-title">Kunci Pemenang & Terbitkan Berkas PO</span>
+      <span class="modal-title">Kunci Pemenang & Kirim ke Manajer</span>
       <button class="modal-close" onclick="closeModal('modalEvaluasi')">×</button>
     </div>
     <div class="modal-body">
       <div class="info-box" id="evalInfoPR"></div>
-      <p style="font-size:11px; font-weight:700; margin-bottom:10px; color:var(--muted); text-transform:uppercase;">Silakan klik salah satu vendor di bawah untuk menjadi pemenang:</p>
       <div id="evalQuotationList"></div>
       <div class="field" style="margin-top:1.25rem;">
         <label>Nomor Urut Dokumen PO Kontrak</label>
@@ -212,7 +162,7 @@
     </div>
     <div class="modal-footer">
       <button class="btn btn-outline" onclick="closeModal('modalEvaluasi')">Batal</button>
-      <button class="btn btn-purple" onclick="simpanDrafPO()">Kunci & Teruskan ke Manajer</button>
+      <button class="btn btn-navy" onclick="simpanDrafPOTerpadu()">🚀 Kunci & Kirim Langsung ke Manajer</button>
     </div>
   </div>
 </div>
@@ -224,14 +174,11 @@
 
   const MAP_STATUS = {
     menunggu: 'Menunggu Verifikasi', diverifikasi: 'Proses Input Vendor', diproses: 'Evaluasi Vendor',
-    po_dibuat: 'Draf PO Dikunci', menunggu_approval: 'Menunggu Approval Manajer', disetujui: 'PO Terbit Aktif',
-    dikirim: 'Barang Sedang Dikirim', barang_diterima: 'Logistik Sampai Gudang', invoice_dikirim: 'Invoice Diterima',
-    verifikasi_sj: 'Proses 3-Way Matching', selesai: 'Selesai Lunas'
+    po_dibuat: 'Menunggu Approval Manajer', menunggu_approval: 'Menunggu Approval Manajer', disetujui: 'PO Terbit Aktif',
+    dikirim: 'Barang Sedang Dikirim', barang_diterima: 'Logistik Sampai Gudang', invoice_dikirim: 'Invoice Diterima', selesai: 'Selesai Lunas'
   };
 
-  let currentPRId = null;
-  let selectedQuotationId = null;
-  let rowCount = 0;
+  let currentPRId = null, selectedQuotationId = null, rowCount = 0;
 
   function switchTab(id, el) {
     document.querySelectorAll('.tab-panel').forEach(p => p.classList.remove('active'));
@@ -241,34 +188,26 @@
   }
   function openModal(id) { document.getElementById(id).classList.add('show'); }
   function closeModal(id) { document.getElementById(id).classList.remove('show'); }
-  function fmtDate(d) { return new Date(d).toLocaleDateString('id-ID', {day:'2-digit', month:'short', year:'numeric'}); }
   function fmtRupiah(n) { return 'Rp ' + Number(n).toLocaleString('id-ID'); }
 
   async function muatSemuaData() {
     await Promise.all([muatCekPR(), muatQuotation(), muatEvaluasi(), muatRiwayat()]);
   }
 
-  // TAB 1: VERIFIKASI PR AWAL
   async function muatCekPR() {
     const { data } = await sb.from('purchase_request').select('*').eq('status', 'menunggu').order('created_at', {ascending:true});
     const el = document.getElementById('listCekPR');
-    const count = data ? data.length : 0;
-    document.getElementById('badgeCekPR').textContent = count;
-    document.getElementById('sCekPR').textContent = count;
+    document.getElementById('badgeCekPR').textContent = data ? data.length : 0;
+    document.getElementById('sCekPR').textContent = data ? data.length : 0;
 
-    if(!data || count === 0) { el.innerHTML = `<div class="empty-state">Tidak ada dokumen PR baru dari internal user.</div>`; return; }
+    if(!data || data.length === 0) { el.innerHTML = `<div class="empty-state">Tidak ada dokumen PR baru.</div>`; return; }
     el.innerHTML = data.map(pr => `
       <div class="pr-item">
         <div class="pr-row">
-          <div style="flex:1">
-            <div class="pr-name">${pr.nama_barang}</div>
-            <div class="pr-meta">Volume Kebutuhan: <b>${pr.jumlah} Unit</b> &bull; Diajukan: ${fmtDate(pr.created_at)}</div>
-          </div>
-          <span class="badge menunggu"><span class="badge-dot"></span>Baru Masuk</span>
+          <div><div class="pr-name">${pr.nama_barang}</div><div class="pr-meta">Volume: <b>${pr.jumlah} Unit</b></div></div>
+          <span class="badge menunggu">Baru</span>
         </div>
-        <div class="pr-actions">
-          <button class="btn btn-success" onclick="eksekusiLolosPR('${pr.id}')">✓ Lolos Verifikasi Awal</button>
-        </div>
+        <div class="pr-actions"><button class="btn btn-success" onclick="eksekusiLolosPR('${pr.id}')">✓ Lolos Verifikasi</button></div>
       </div>`).join('');
   }
 
@@ -277,129 +216,81 @@
     await muatSemuaData();
   }
 
-  // TAB 2: INPUT QUOTATION MULTI-VENDOR
   async function muatQuotation() {
     const { data } = await sb.from('purchase_request').select('*').eq('status', 'diverifikasi').order('created_at', {ascending:true});
     const el = document.getElementById('listQuotation');
-    const count = data ? data.length : 0;
-    document.getElementById('badgeQuotation').textContent = count;
-    document.getElementById('sQuotation').textContent = count;
+    document.getElementById('badgeQuotation').textContent = data ? data.length : 0;
+    document.getElementById('sQuotation').textContent = data ? data.length : 0;
 
-    if(!data || count === 0) { el.innerHTML = `<div class="empty-state">Tidak ada item yang menunggu pencarian rekanan vendor.</div>`; return; }
+    if(!data || data.length === 0) { el.innerHTML = `<div class="empty-state">Tidak ada item yang menunggu vendor.</div>`; return; }
     el.innerHTML = data.map(pr => `
       <div class="pr-item">
         <div class="pr-row">
-          <div style="flex:1">
-            <div class="pr-name">${pr.nama_barang}</div>
-            <div class="pr-meta">Kuantitas Target: <b>${pr.jumlah} Unit</b></div>
-          </div>
-          <span class="badge diverifikasi"><span class="badge-dot"></span>Mencari Vendor</span>
+          <div><div class="pr-name">${pr.nama_barang}</div><div class="pr-meta">Kuantitas: <b>${pr.jumlah} Unit</b></div></div>
+          <span class="badge diverifikasi">Cari Vendor</span>
         </div>
-        <div class="pr-actions">
-          <button class="btn btn-primary" onclick="bukaModalQuotation('${pr.id}', '${pr.nama_barang}', ${pr.jumlah})">➕ Input Penawaran Komersial</button>
-        </div>
+        <div class="pr-actions"><button class="btn btn-primary" onclick="bukaModalQuotation('${pr.id}', '${pr.nama_barang}', ${pr.jumlah})">➕ Input Penawaran</button></div>
       </div>`).join('');
   }
 
   function bukaModalQuotation(id, nama, jml) {
     currentPRId = id; rowCount = 0;
-    document.getElementById('qInfoPR').textContent = `📋 Komoditas Pengadaan: ${nama} (${jml} Unit)`;
+    document.getElementById('qInfoPR').textContent = `📋 Komoditas: ${nama} (${jml} Unit)`;
     document.getElementById('qSupplierList').innerHTML = '';
-    tambahSupplierRow(); tambahSupplierRow(); tambahSupplierRow();
+    tambahSupplierRow(); tambahSupplierRow();
     openModal('modalQuotation');
   }
 
   function tambahSupplierRow() {
     rowCount++; const n = rowCount;
-    const div = document.createElement('div');
-    div.className = 'quotation-row';
-    div.innerHTML = `
-      <div style="display:grid; grid-template-columns: 1.2fr 1fr; gap:10px;">
-        <input type="text" placeholder="Nama PT / CV Rekanan" id="v_nama_${n}" required>
-        <input type="number" placeholder="Harga Satuan Penawaran" id="v_harga_${n}" required>
-      </div>`;
+    const div = document.createElement('div'); div.className = 'quotation-row';
+    div.innerHTML = `<div style="display:grid; grid-template-columns: 1.2fr 1fr; gap:10px;"><input type="text" placeholder="Nama Vendor" id="v_nama_${n}" required><input type="number" placeholder="Harga Satuan" id="v_harga_${n}" required></div>`;
     document.getElementById('qSupplierList').appendChild(div);
   }
 
   async function simpanQuotation() {
     const records = [];
     for(let i=1; i<=rowCount; i++) {
-      const namaSupp = document.getElementById('v_nama_'+i)?.value.trim();
-      const hargaSatuan = document.getElementById('v_harga_'+i)?.value;
-      if(namaSupp && hargaSatuan) {
-        records.push({ pr_id: currentPRId, nama_supplier: namaSupp, harga: parseFloat(hargaSatuan), status: 'menunggu' });
-      }
+      const n = document.getElementById('v_nama_'+i)?.value.trim(), h = document.getElementById('v_harga_'+i)?.value;
+      if(n && h) records.push({ pr_id: currentPRId, nama_supplier: n, harga: parseFloat(h), status: 'menunggu' });
     }
-    if(records.length === 0) { alert("Harap masukkan minimal 1 opsi penawaran vendor!"); return; }
-    
+    if(records.length === 0) return;
     await sb.from('quotation').insert(records);
     await sb.from('purchase_request').update({ status: 'diproses' }).eq('id', currentPRId);
-    closeModal('modalQuotation');
-    await muatSemuaData();
+    closeModal('modalQuotation'); await muatSemuaData();
     switchTab('evaluasi', document.querySelectorAll('.tab')[2]);
   }
 
-  // TAB 3: EVALUASI VENDOR PEMENANG
   async function muatEvaluasi() {
-    const { data } = await sb.from('purchase_request').select('*').in('status', ['diproses', 'menunggu_approval', 'disetujui']).order('created_at', {ascending:true});
+    const { data } = await sb.from('purchase_request').select('*').in('status', ['diproses', 'menunggu_approval', 'po_dibuat']).order('created_at', {ascending:true});
     const el = document.getElementById('listEvaluasi');
-    const count = data ? data.length : 0;
-    document.getElementById('badgeEvaluasi').textContent = count;
-    
-    const prosesCount = data ? data.filter(d => ['diproses'].includes(d.status)).length : 0;
-    document.getElementById('sEvaluasi').textContent = prosesCount;
+    document.getElementById('badgeEvaluasi').textContent = data ? data.length : 0;
+    document.getElementById('sEvaluasi').textContent = data ? data.filter(d => d.status === 'diproses').length : 0;
+    document.getElementById('sVerifSJ').textContent = data ? data.filter(d => ['menunggu_approval', 'po_dibuat'].includes(d.status)).length : 0;
 
-    if(!data || count === 0) { el.innerHTML = `<div class="empty-state">Tidak ada dokumen penawaran dalam tahap komparasi komersial.</div>`; return; }
+    if(!data || data.length === 0) { el.innerHTML = `<div class="empty-state">Tidak ada draf penawaran.</div>`; return; }
 
     const barisRender = await Promise.all(data.map(async pr => {
       const { data: qts } = await sb.from('quotation').select('*').eq('pr_id', pr.id).order('harga', {ascending:true});
-      
-      let aksiTombol = '';
-      if(pr.status === 'diproses') {
-        aksiTombol = `<button class="btn btn-navy" onclick="bukaModalEvaluasi('${pr.id}', '${pr.nama_barang}', ${pr.jumlah})">⚖️ Pilih Pemenang Vendor & Terbitkan PO</button>`;
-      } else {
-        aksiTombol = `<span style="font-size:12px; color:var(--purple); font-weight:600; background:#f3e8ff; padding:6px 12px; border-radius:6px;">🚀 Berkas Telah Dikunci & Dikirim ke Manajer</span>`;
-      }
+      let aksi = (pr.status === 'diproses') 
+        ? `<button class="btn btn-navy" onclick="bukaModalEvaluasi('${pr.id}', '${pr.nama_barang}', ${pr.jumlah})">⚖️ Pilih Pemenang & Kirim</button>`
+        : `<span style="font-size:12px; color:var(--purple); font-weight:600;">🚀 Berkas Telah Terkirim Langsung ke Manajer</span>`;
 
-      const infoVendor = qts && qts.length > 0 
-        ? qts.map((q,idx) => `&bull; <b>${q.status === 'dipilih' ? '[PEMENANG] ' : ''}${q.nama_supplier}</b> (${fmtRupiah(q.harga)})`).join('<br>') 
-        : 'Belum ada data penawaran.';
-
-      return `
-        <div class="pr-item">
-          <div class="pr-row">
-            <div style="flex:1">
-              <div class="pr-name">${pr.nama_barang}</div>
-              <div class="pr-meta">Volume Kebutuhan: <b>${pr.jumlah} Unit</b></div>
-              <div class="pr-meta" style="margin-top:6px; background:#f8fafc; padding:8px; border-radius:4px; max-width:450px;">${infoVendor}</div>
-            </div>
-            <span class="badge ${pr.status}"><span class="badge-dot"></span>${MAP_STATUS[pr.status] || pr.status}</span>
-          </div>
-          <div class="pr-actions">${aksiTombol}</div>
-        </div>`;
+      const info = qts ? qts.map(q => `&bull; <b>${q.status==='dipilih'?'[OK] ':''}${q.nama_supplier}</b> (${fmtRupiah(q.harga)})`).join('<br>') : '';
+      return `<div class="pr-item"><div class="pr-row"><div><div class="pr-name">${pr.nama_barang}</div><div class="pr-meta">${info}</div></div><span class="badge ${pr.status}">${MAP_STATUS[pr.status] || pr.status}</span></div><div class="pr-actions">${aksi}</div></div>`;
     }));
     el.innerHTML = barisRender.join('');
   }
 
   async function bukaModalEvaluasi(id, nama, jml) {
     currentPRId = id; selectedQuotationId = null;
-    document.getElementById('evalInfoPR').textContent = `⚖️ Komparasi Harga: ${nama} (${jml} Unit)`;
+    document.getElementById('evalInfoPR').textContent = `⚖️ Komparasi: ${nama}`;
     document.getElementById('draftNoPO').value = 'PO/ITK/' + new Date().getFullYear() + '/' + Math.floor(1000 + Math.random()*9000);
-
-    const { data: qts } = await sb.from('quotation').select('*').eq('pr_id', id).order('harga', {ascending:true});
-    const listEl = document.getElementById('evalQuotationList');
-    
-    if(!qts || qts.length === 0) {
-      listEl.innerHTML = `<p style="font-size:12px; color:var(--danger)">Penawaran harga kosong.</p>`;
-    } else {
-      listEl.innerHTML = qts.map((q, idx) => `
-        <div class="quotation-row" id="qbox_${q.id}" onclick="pilihVendorPemenang('${q.id}')" style="cursor:pointer;">
-          <div style="display:flex; justify-content:space-between; align-items:center;">
-            <div style="font-size:14px; font-weight:600; color:var(--navy);">${idx===0?'🥇 ':''}${q.nama_supplier}</div>
-            <div style="font-family:'DM Mono', monospace; font-weight:600; color:var(--accent);">${fmtRupiah(q.harga)}</div>
-          </div>
-        </div>`).join('');
-    }
+    const { data } = await sb.from('quotation').select('*').eq('pr_id', id).order('harga', {ascending:true});
+    document.getElementById('evalQuotationList').innerHTML = data.map(q => `
+      <div class="quotation-row" id="qbox_${q.id}" onclick="pilihVendorPemenang('${q.id}')" style="cursor:pointer;">
+        <div style="display:flex; justify-content:space-between;"><b>${q.nama_supplier}</b> <span style="color:var(--accent)">${fmtRupiah(q.harga)}</span></div>
+      </div>`).join('');
     openModal('modalEvaluasi');
   }
 
@@ -409,101 +300,44 @@
     document.getElementById('qbox_' + qId).classList.add('quotation-selected');
   }
 
-  // ALUR TERPADU BARU: KLIK LANGSUNG TEMBAK KE PORTAL MANAJER (ANTI-TOMBOL GAIB)
-  async function simpanDrafPO() {
+  // ALUR ANTI-LOG GAIB: STATUS DOUBLE CHECK AGAR MANAJER PASTI BISA MEMBACA
+  async function simpanDrafPOTerpadu() {
     const noPo = document.getElementById('draftNoPO').value.trim();
-    if(!noPo) { alert("Nomor urut dokumen PO wajib diisi!"); return; }
-
-    let supplierTerpilih = "Mitra Logistik Utama";
-    let hargaPemenang = 250000;
+    if(!noPo) return;
+    let vendor = "Mitra Utama", harga = 500000;
 
     if(selectedQuotationId) {
       const { data: q } = await sb.from('quotation').select('*').eq('id', selectedQuotationId).single();
-      supplierTerpilih = q.nama_supplier;
-      hargaPemenang = q.harga;
+      vendor = q.nama_supplier; harga = q.harga;
       await sb.from('quotation').update({ status: 'dipilih' }).eq('id', selectedQuotationId);
     }
-    
-    // 1. Bersihkan draf lama jika ada di database
+
     await sb.from('purchase_order').delete().eq('pr_id', currentPRId);
-    
-    // 2. Masukkan data ke tabel purchase_order
     await sb.from('purchase_order').insert({
-      pr_id: currentPRId,
-      no_po: noPo,
-      nama_supplier: supplierTerpilih,
-      harga_total: hargaPemenang,
-      total_harga: hargaPemenang,
-      status: 'draf',
-      tanggal_po: new Date().toISOString()
+      pr_id: currentPRId, no_po: noPo, nama_supplier: vendor, harga_total: harga, total_harga: harga, status: 'menunggu_approval', tanggal_po: new Date().toISOString()
     });
 
-    // 3. LOGIKA BARU: Status langsung ditembak ke 'menunggu_approval' (Langsung Terkirim ke Manajer)
-    await sb.from('purchase_request').update({ 
-      status: 'menunggu_approval', 
-      harga_estimasi: hargaPemenang 
-    }).eq('id', currentPRId);
-    
-    // 4. Tutup modal dan refresh layar
-    closeModal('modalEvaluasi');
-    await muatSemuaData(); 
-    
-    alert(`Sukses! Draf PO ${noPo} telah dikunci dan data OTOMATIS langsung meluncur ke Portal Manajer.`);
+    // Tembak status ke 'menunggu_approval' agar query manajer tembus
+    await sb.from('purchase_request').update({ status: 'menunggu_approval', harga_estimasi: harga }).eq('id', currentPRId);
+
+    closeModal('modalEvaluasi'); await muatSemuaData();
+    alert("Sukses! Data dikunci dan dikirim ke Manajer.");
   }
 
-  // ARSIP DATA LOG & FILTER HAPUS DATA YANG STUCK/MENYANGKUT
   async function muatRiwayat() {
     const { data } = await sb.from('purchase_request').select('*').order('created_at', {ascending:false});
     const el = document.getElementById('listRiwayat');
-    if(!data || data.length === 0) { el.innerHTML = `<div class="empty-state">Database kosong melompong.</div>`; return; }
-
-    el.innerHTML = `
-      <table style="width:100%; border-collapse:collapse; font-size:13px; text-align:left;">
-        <thead>
-          <tr style="background:#f8fafc; border-bottom:2px solid var(--border)">
-            <th style="padding:10px;">Nama Komoditas</th>
-            <th style="padding:10px;">Status Sistem</th>
-            <th style="padding:10px; text-align:center;">Tindakan Force Delete</th>
-          </tr>
-        </thead>
-        <tbody>
-          ${data.map(d => `
-            <tr style="border-bottom:1px solid var(--border)">
-              <td style="padding:10px; font-weight:600;">${d.nama_barang}</td>
-              <td style="padding:10px;"><span class="badge ${d.status}">${MAP_STATUS[d.status] || d.status}</span></td>
-              <td style="padding:10px; text-align:center;">
-                <button class="btn btn-danger" style="padding:4px 10px; font-size:11px;" onclick="paksaHapusBersihData('${d.id}', '${d.nama_barang}')">🗑️ Paksa Hapus Bersih</button>
-              </td>
-            </tr>
-          `).join('')}
-        </tbody>
-      </table>`;
+    if(!data || data.length === 0) { el.innerHTML = `Kosong.`; return; }
+    el.innerHTML = `<table style="width:100%; font-size:13px;">${data.map(d => `<tr><td><b>${d.nama_barang}</b></td><td><span class="badge ${d.status}">${MAP_STATUS[d.status]||d.status}</span></td><td><button class="btn btn-danger" style="padding:4px;" onclick="forceDelete('${d.id}')">🗑️ Reset Item</button></td></tr>`).join('')}</table>`;
   }
 
-  // MASTER ACTION: ANTI-FOREIGN KEY CONSTRAINT VIOLATION
-  async function paksaHapusBersihData(id, nama) {
-    if(confirm(`PERINGATAN AKURAT:\nApakah Anda yakin ingin menghapus total "${nama}"? Semua data quotation, PO, surat jalan, dan invoice finansial yang menyangkut akan dibasmi sampai akar.`)) {
-      try {
-        await sb.from('quotation').delete().eq('pr_id', id);
-        await sb.from('invoices').delete().eq('pr_id', id);
-        await sb.from('purchase_order').delete().eq('pr_id', id);
-        
-        const { error } = await sb.from('purchase_request').delete().eq('id', id);
-        if(!error) {
-          alert(`Sukses! Data "${nama}" berhasil dibasmi total dari sistem.`);
-          await muatSemuaData();
-        } else {
-          throw error;
-        }
-      } catch (err) {
-        // Jalur Alternatif Bypass
-        await sb.from('purchase_request').update({ status: 'menunggu', nomor_invoice: null, surat_jalan: null }).eq('id', id);
-        await sb.from('purchase_order').delete().eq('pr_id', id);
-        await sb.from('invoices').delete().eq('pr_id', id);
-        await sb.from('purchase_request').delete().eq('id', id);
-        await muatSemuaData();
-        alert(`Sukses lewat jalur bypass! Data "${nama}" telah dibersihkan.`);
-      }
+  async function forceDelete(id) {
+    if(confirm("Hapus item ini?")) {
+      await sb.from('quotation').delete().eq('pr_id', id);
+      await sb.from('invoices').delete().eq('pr_id', id);
+      await sb.from('purchase_order').delete().eq('pr_id', id);
+      await sb.from('purchase_request').delete().eq('id', id);
+      await muatSemuaData();
     }
   }
 
