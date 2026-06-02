@@ -96,37 +96,43 @@
   const sb = supabase.createClient(SB_URL, SB_KEY);
 
   async function muatTabelPengadaan() {
-    const { data: prs } = await sb.from('purchase_request').select('*').order('created_at', { ascending: false });
-    const tbody = document.getElementById('tabelPR');
-    tbody.innerHTML = "";
+    try {
+      const { data: prs, error } = await sb.from('purchase_request').select('*').order('created_at', { ascending: false });
+      if (error) throw error;
+      
+      const tbody = document.getElementById('tabelPR');
+      tbody.innerHTML = "";
 
-    if(!prs || prs.length === 0) {
-      tbody.innerHTML = `<tr><td colspan="7" style="text-align:center; color:#64748b; padding:2rem;">Belum ada data riwayat permintaan barang.</td></tr>`;
-      return;
+      if(!prs || prs.length === 0) {
+        tbody.innerHTML = `<tr><td colspan="7" style="text-align:center; color:#64748b; padding:2rem;">Belum ada data riwayat permintaan barang.</td></tr>`;
+        return;
+      }
+
+      prs.forEach(pr => {
+        const qty = Number(pr.jumlah) || 0;
+        const satuan = Number(pr.harga_estimasi) || 0;
+        const total = qty * satuan;
+        const statusText = pr.status || 'pending';
+
+        let badgeStyle = "badge-status";
+        if(statusText === 'lunas') badgeStyle += " status-lunas";
+        if(statusText === 'invoice_dikirim') badgeStyle += " status-invoice";
+
+        tbody.innerHTML += `
+          <tr>
+            <td>#${pr.id.substring(0,5)}</td>
+            <td><b>${pr.nama_barang || '—'}</b></td>
+            <td>${qty} Unit</td>
+            <td>Rp ${satuan.toLocaleString('id-ID')}</td>
+            <td><b>Rp ${total.toLocaleString('id-ID')}</b></td>
+            <td><span class="${badgeStyle}">${statusText}</span></td>
+            <td style="color: #64748b;">Diteruskan</td>
+          </tr>
+        `;
+      });
+    } catch (e) {
+      console.error(e);
     }
-
-    prs.forEach(pr => {
-      const qty = Number(pr.jumlah) || 0;
-      const satuan = Number(pr.harga_estimasi) || 0;
-      const total = qty * satuan;
-      const statusText = pr.status || 'pending';
-
-      let badgeStyle = "badge-status";
-      if(statusText === 'lunas') badgeStyle += " status-lunas";
-      if(statusText === 'invoice_dikirim') badgeStyle += " status-invoice";
-
-      tbody.innerHTML += `
-        <tr>
-          <td>#${pr.id.substring(0,5)}</td>
-          <td><b>${pr.nama_barang || '—'}</b></td>
-          <td>${qty} Unit</td>
-          <td>Rp ${satuan.toLocaleString('id-ID')}</td>
-          <td><b>Rp ${total.toLocaleString('id-ID')}</b></td>
-          <td><span class="${badgeStyle}">${statusText}</span></td>
-          <td style="color: #64748b;">Diteruskan</td>
-        </tr>
-      `;
-    });
   }
 
   async function simpanPRBaru() {
