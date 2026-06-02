@@ -4,22 +4,23 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Sistem Procurement ITK — Login Portal</title>
-  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
-  <link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;700&display=swap" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700&display=swap" rel="stylesheet">
   <style>
     *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
-    body { font-family: 'DM Sans', sans-serif; background: #1e3a8a; display: flex; align-items: center; justify-content: center; min-height: 100vh; margin: 0; }
-    .login-container { background: white; padding: 2.5rem; border-radius: 16px; box-shadow: 0 10px 25px rgba(0,0,0,0.1); width: 100%; max-width: 420px; text-align: center; }
+    body { font-family: 'Plus Jakarta Sans', sans-serif; background: #0f2847; display: flex; align-items: center; justify-content: center; min-height: 100vh; margin: 0; }
+    .login-container { background: white; padding: 2.5rem; border-radius: 16px; box-shadow: 0 10px 25px rgba(0,0,0,0.2); width: 100%; max-width: 420px; text-align: center; }
     .logo-area { font-size: 24px; font-weight: 700; color: #0f2847; margin-bottom: 5px; }
     .logo-sub { font-size: 13px; color: #64748b; margin-bottom: 2rem; }
     .form-group { display: flex; flex-direction: column; gap: 6px; text-align: left; margin-bottom: 1.2rem; }
     .form-group label { font-size: 13px; font-weight: 600; color: #475569; }
-    input { padding: 12px; border: 1px solid #cbd5e1; border-radius: 8px; font-size: 14px; width: 100%; }
-    input:focus { outline: none; border-color: #0f2847; }
+    input { padding: 12px; border: 1px solid #cbd5e1; border-radius: 8px; font-size: 14px; width: 100%; outline: none; }
+    input:focus { border-color: #2563eb; box-shadow: 0 0 0 3px rgba(37,99,235,0.1); }
     .btn-group { display: flex; gap: 10px; margin-top: 1.5rem; }
-    .btn { flex: 1; border: none; padding: 12px; border-radius: 8px; font-size: 14px; font-weight: 700; cursor: pointer; }
+    .btn { flex: 1; border: none; padding: 12px; border-radius: 8px; font-size: 14px; font-weight: 700; cursor: pointer; transition: 0.15s; }
     .btn-login { background: #2563eb; color: white; }
+    .btn-login:hover { background: #1d4ed8; }
     .btn-register { background: #10b981; color: white; }
+    .btn-register:hover { background: #059669; }
   </style>
 </head>
 <body>
@@ -29,24 +30,25 @@
   <div class="logo-sub">Perancangan Sistem Informasi Logistik</div>
   
   <div class="form-group">
-    <label>Email</label>
+    <label>Email Pengguna</label>
     <input type="email" id="email" placeholder="contoh@itk.ac.id">
   </div>
   <div class="form-group">
-    <label>Password</label>
+    <label>Kata Sandi (Password)</label>
     <input type="password" id="password" placeholder="••••••••">
   </div>
   
   <div class="btn-group">
-    <button class="btn btn-login" onclick="aksiLogin()">Login</button>
-    <button class="btn btn-register" onclick="aksiDaftar()">Register</button>
+    <button class="btn btn-login" onclick="aksiLogin()">Masuk</button>
+    <button class="btn btn-register" onclick="aksiDaftar()">Daftar</button>
   </div>
 </div>
 
 <script>
-  const SB_URL = "https://bgtgeltkbanlnvymalum.supabase.co";
-  const SB_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImJndGdlbHRrYmFubG52eW1hbHVtIiwicm9sZSI6ImFub24iLCJpYXQiOjE3Nzk1MTAwNDksImV4cCI6MjA5NTA4NjA0OX0.-JlapeQpug44SjkEKgb1wyoX2_ftdGGcAnTHJhdzvwE";
-  const sb = supabase.createClient(SB_URL, SB_KEY);
+  // Menggunakan REST Endpoints Langsung — Mengeliminasi Error Build CDN Vercel
+  const AUTH_URL = "https://bgtgeltkbanlnvymalum.supabase.co/auth/v1";
+  const CONFIG_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImJndGdlbHRrYmFubG52eW1hbHVtIiwicm9sZSI6ImFub24iLCJpYXQiOjE3Nzk1MTAwNDksImV4cCI6MjA5NTA4NjA0OX0.-JlapeQpug44SjkEKgb1wyoX2_ftdGGcAnTHJhdzvwE";
+  const HEADERS_AUTH = { "apikey": CONFIG_KEY, "Content-Type": "application/json" };
 
   async function aksiLogin() {
     const email = document.getElementById('email').value.trim();
@@ -57,26 +59,35 @@
       return;
     }
 
-    // 1. Jalankan Auth Supabase
-    const { data, error } = await sb.auth.signInWithPassword({ email, password });
+    try {
+      const response = await fetch(`${AUTH_URL}/token?grant_type=password`, {
+        method: "POST",
+        headers: HEADERS_AUTH,
+        body: JSON.stringify({ email, password })
+      });
 
-    if(error) {
-      alert("Login Gagal: " + error.message);
-      return;
-    }
+      const resData = await response.json();
 
-    // 2. LOGIKA REDIRECT BERDASARKAN EMAIL AKUN
-    if(email === "staf.pengadaan@itk.ac.id") {
-     window.location.href = 'staf_v2.html';
-    } else if(email === "staf.keuangan@itk.ac.id") {
-      window.location.href = "staf-keuangan.html";
-    } else if(email === "manajer@itk.ac.id") {
-      window.location.href = "manajer.html";
-    } else if(email === "supplier@itk.ac.id") {
-      window.location.href = "supplier.html";
-    } else {
-      // Jika user umum / akun pendaftaran baru
-      window.location.href = "user.html";
+      if (!response.ok) {
+        alert("Login Gagal: " + (resData.error_description || resData.message || "Periksa kembali akun lu"));
+        return;
+      }
+
+      // REDIRECT ROUTING BERDASARKAN EMAIL (Sudah disesuaikan dengan file asli di Repo)
+      if(email === "staf.pengadaan@itk.ac.id") {
+        window.location.href = "staf_pengadaan.html"; 
+      } else if(email === "staf.keuangan@itk.ac.id") {
+        window.location.href = "staf-keuangan.html";
+      } else if(email === "manajer@itk.ac.id") {
+        window.location.href = "manajer.html";
+      } else if(email === "supplier@itk.ac.id") {
+        window.location.href = "supplier.html";
+      } else {
+        window.location.href = "user.html";
+      }
+    } catch (e) {
+      console.error(e);
+      alert("Sistem gagal terhubung ke Auth Server.");
     }
   }
 
@@ -89,11 +100,22 @@
       return;
     }
 
-    const { error } = await sb.auth.signUp({ email, password });
-    if(error) {
-      alert("Gagal Daftar: " + error.message);
-    } else {
-      alert("Pendaftaran Berhasil! Silakan klik tombol Login.");
+    try {
+      const response = await fetch(`${AUTH_URL}/signup`, {
+        method: "POST",
+        headers: HEADERS_AUTH,
+        body: JSON.stringify({ email, password })
+      });
+
+      const resData = await response.json();
+
+      if(response.ok) {
+        alert("Pendaftaran Berhasil! Silakan masuk menggunakan tombol login.");
+      } else {
+        alert("Gagal Daftar: " + (resData.message || "Kriteria password kurang aman."));
+      }
+    } catch (e) {
+      console.error(e);
     }
   }
 </script>
