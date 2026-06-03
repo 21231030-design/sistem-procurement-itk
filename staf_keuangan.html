@@ -26,17 +26,11 @@
       <span class="text-lg">⚖️</span>
       <div>
         <h1 class="text-base font-extrabold tracking-tight">Sistem Procurement ITK</h1>
-        <p class="text-[10px] text-slate-400 font-medium">Modul Audit Finansial & Pembayaran</p>
+        <p class="text-[10px] text-slate-400 font-medium">Modul Keuangan & Pelunasan Inkubator</p>
       </div>
     </div>
-    <div class="flex items-center gap-4">
-      <nav class="hidden md:flex items-center gap-2 text-xs font-bold text-slate-300">
-        <a href="staf_pengadaan.html" class="hover:text-white px-2 py-1 rounded bg-white/5">Staf</a>
-        <a href="manajer.html" class="hover:text-white px-2 py-1 rounded bg-white/5">Manajer</a>
-        <a href="staf_keuangan.html" class="text-amber-400 px-2 py-1 rounded bg-amber-500/10 border border-amber-500/20">Keuangan</a>
-        <a href="supplier.html" class="hover:text-white px-2 py-1 rounded bg-white/5">Supplier</a>
-      </nav>
-      <button onclick="location.href='index.html'" class="bg-white/5 hover:bg-red-500 px-3 py-1.5 rounded-lg text-xs font-bold transition">Keluar</button>
+    <div>
+      <button onclick="location.href='index.html'" class="bg-white/5 hover:bg-red-500 px-4 py-2 rounded-xl text-xs font-bold transition">Keluar Sistem</button>
     </div>
   </header>
 
@@ -44,16 +38,16 @@
 
     <div class="flex border-b border-slate-200 mb-6 gap-1 overflow-x-auto">
       <button onclick="pindahTab('audit')" id="t-audit" class="px-5 py-3 text-xs font-bold border-b-2 border-blue-600 text-blue-600 flex items-center gap-2 whitespace-nowrap">
-        🔎 1. Perlu Cocokkan Invoice (<span id="c-audit">0</span>)
+        🔎 1. Cek Invoice & PDF (<span id="c-audit">0</span>)
       </button>
       <button onclick="pindahTab('matching')" id="t-matching" class="px-5 py-3 text-xs font-bold border-b-2 border-transparent text-slate-500 hover:text-slate-800 flex items-center gap-2 whitespace-nowrap">
-        🤝 2. Invoice Cocok / Match (<span id="c-matching">0</span>)
+        🤝 2. Status Match (<span id="c-matching">0</span>)
       </button>
       <button onclick="pindahTab('cair')" id="t-cair" class="px-5 py-3 text-xs font-bold border-b-2 border-transparent text-slate-500 hover:text-slate-800 flex items-center gap-2 whitespace-nowrap">
         💰 3. Siap Pencairan Dana (<span id="c-cair">0</span>)
       </button>
       <button onclick="pindahTab('lunas')" id="t-lunas" class="px-5 py-3 text-xs font-bold border-b-2 border-transparent text-slate-500 hover:text-slate-800 flex items-center gap-2 whitespace-nowrap">
-        ✅ 4. Riwayat Selesai Lunas (<span id="c-lunas">0</span>)
+        ✅ 4. History Selesai Lunas (<span id="c-lunas">0</span>)
       </button>
     </div>
 
@@ -62,57 +56,52 @@
 
   </main>
 
-  <div id="wrapperCetakPDF" class="hidden bg-white p-8 text-slate-800" style="width: 680px; font-family: sans-serif; line-height: 1.4;">
-    <div style="border-b-2 border-slate-800 pb-3 mb-4 flex justify-between items-center">
-      <div>
-        <h2 style="font-size: 18px; font-weight: bold; color: #0f2847; margin: 0;">INSTITUT TEKNOLOGI KALIMANTAN</h2>
-        <p style="font-size: 10px; color: #475569; margin: 2px 0 0 0;">Bukti Validasi Transaksi & Pencairan Dana Pembayaran</p>
+  <div class="flex justify-center my-6 hidden" id="boxPratinjauPDF">
+    <div class="bg-white p-8 rounded-2xl border border-slate-300 shadow-xl" style="width: 680px; font-family: sans-serif; line-height: 1.4;">
+      <div style="border-b-2 border-slate-800 pb-3 mb-4 flex justify-between items-center">
+        <div>
+          <h2 style="font-size: 16px; font-weight: bold; color: #0f2847; margin: 0;">INSTITUT TEKNOLOGI KALIMANTAN</h2>
+          <p style="font-size: 9px; color: #475569; margin: 2px 0 0 0; font-weight: bold;">DIREKTORAT KEUANGAN — INVOICE AUDIT REPORT</p>
+        </div>
+        <div id="pdf-status-stamp" style="background: #e2e8f0; padding: 4px 10px; border-radius: 4px; font-size: 10px; font-weight: bold; color: #475569;">
+          PROSES PEMERIKSAAN
+        </div>
       </div>
-      <div style="background: #10b981; padding: 4px 10px; border-radius: 4px; font-size: 10px; font-weight: bold; color: white;">
-        PAID / LUNAS
+      
+      <div style="margin-bottom: 15px; background: #f8fafc; padding: 10px; border-radius: 6px; border: 1px solid #e2e8f0; font-size: 11px;">
+        <table style="width: 100%;">
+          <tr>
+            <td style="width: 35%; color: #64748b;">No. Invoice (Sistem)</td>
+            <td style="font-weight: bold; font-family: monospace;" id="pdf-no-inv"></td>
+          </tr>
+          <tr>
+            <td style="color: #64748b;">Tanggal Log Pemeriksaan</td>
+            <td style="font-weight: bold;" id="pdf-tgl"></td>
+          </tr>
+        </table>
       </div>
-    </div>
-    
-    <div style="margin-bottom: 15px; background: #f8fafc; padding: 10px; border-radius: 6px; border: 1px solid #e2e8f0; font-size: 11px;">
-      <table style="width: 100%;">
-        <tr>
-          <td style="width: 30%; color: #64748b;">No. Invoice Referensi</td>
-          <td style="font-weight: bold; font-family: monospace;" id="pdf-no-inv"></td>
-        </tr>
-        <tr>
-          <td style="color: #64748b;">Tanggal Validasi Keuangan</td>
-          <td style="font-weight: bold;" id="pdf-tgl"></td>
-        </tr>
+      
+      <table style="width: 100%; border-collapse: collapse; font-size: 11px; margin-bottom: 20px;">
+        <thead>
+          <tr style="background: #f1f5f9; border-bottom: 1px solid #cbd5e1;">
+            <th style="padding: 8px; text-align: left; border: 1px solid #e2e8f0;">Rincian Item Pengadaan</th>
+            <th style="padding: 8px; text-align: right; border: 1px solid #e2e8f0; width: 160px;">Total Tagihan</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td style="padding: 8px; border: 1px solid #e2e8f0;">
+              <span id="pdf-barang" style="font-weight: bold; font-size: 12px; color: #0f2847;"></span><br>
+              <span style="color: #64748b;">Pihak Supplier Mitra: </span><span id="pdf-vendor" style="font-weight: bold;"></span><br>
+              <span style="color: #64748b;">Catatan Lapangan: </span><span id="pdf-memo" style="font-style: italic;"></span>
+            </td>
+            <td style="padding: 8px; border: 1px solid #e2e8f0; text-align: right; font-size: 13px; font-weight: bold; color: #16a34a;" id="pdf-harga"></td>
+          </tr>
+        </tbody>
       </table>
-    </div>
-    
-    <table style="width: 100%; border-collapse: collapse; font-size: 11px; margin-bottom: 20px;">
-      <thead>
-        <tr style="background: #f1f5f9; border-bottom: 1px solid #cbd5e1;">
-          <th style="padding: 8px; text-align: left; border: 1px solid #e2e8f0;">Rincian Pengadaan / Komoditas</th>
-          <th style="padding: 8px; text-align: right; border: 1px solid #e2e8f0; width: 150px;">Total Dana</th>
-        </tr>
-      </thead>
-      <tbody>
-        <tr>
-          <td style="padding: 8px; border: 1px solid #e2e8f0;">
-            <span id="pdf-barang" style="font-weight: bold; font-size: 12px; color: #0f2847;"></span><br>
-            <span style="color: #64748b;">Mitra Supplier: </span><span id="pdf-vendor" style="font-weight: bold;"></span><br>
-            <span style="color: #64748b;">Keterangan Lapangan: </span><span id="pdf-memo" style="font-style: italic;"></span>
-          </td>
-          <td style="padding: 8px; border: 1px solid #e2e8f0; text-align: right; font-size: 13px; font-weight: bold; color: #16a34a;" id="pdf-harga"></td>
-        </tr>
-      </tbody>
-    </table>
 
-    <div style="display: flex; justify-content: space-between; align-items: center; margin-top: 40px; font-size: 10px;">
-      <div style="color: #94a3b8; max-width: 350px;">
-        *E-Kwitansi resmi diterbitkan otomatis oleh Sistem Finansial ITK dan dinyatakan sah sebagai bukti potong dana rekanan.
-      </div>
-      <div style="text-align: center; width: 180px;">
-        <p style="margin: 0 0 40px 0; color: #475569;">Bendahara Finansial ITK,</p>
-        <b style="text-decoration: underline;">Otomatisasi Sistem</b>
-      </div>
+      <div id="pdf-interactive-action" class="mt-6 pt-4 border-t border-dashed border-slate-200 flex justify-end gap-2">
+         </div>
     </div>
   </div>
 
@@ -126,7 +115,11 @@
 
     async function ambilDataProcurement() {
       const mainBox = document.getElementById('renderKonten');
+      const viewPDFBox = document.getElementById('boxPratinjauPDF');
       if(!mainBox) return;
+
+      // Setiap pindah tab, pratinjau PDF kita sembunyikan dulu biar bersih
+      viewPDFBox.classList.add('hidden');
 
       try {
         const res = await fetch(`${URL_API}?order=created_at.desc`, { method: "GET", headers: HEADERS_APP });
@@ -159,7 +152,7 @@
         else targetList = rawSelesaiLunas;
 
         if(targetList.length === 0) {
-          mainBox.innerHTML = `<div class="bg-white rounded-xl p-12 text-center text-slate-400 text-xs border border-slate-200">Tidak ada dokumen di tab ini.</div>`;
+          mainBox.innerHTML = `<div class="bg-white rounded-xl p-12 text-center text-slate-400 text-xs border border-slate-200">Tidak ada dokumen di alur tab ini.</div>`;
           return;
         }
 
@@ -167,31 +160,31 @@
           const shortId = item.id ? item.id.substring(0, 6) : '0000';
           const vendorName = item.supplier_terpilih || item.supplier || 'Vendor ITK';
           const kuantitas = item.jumlah || 1;
-          const memoLap = item.catatan_penerimaan || 'Diterima dengan baik.';
+          const memoLap = item.catatan_penerimaan || 'Konfirmasi unit aman.';
           
-          // AMBIL HARGA ASLI DARI DATABASE (Multi-kolom fallback agar tidak Rp 0 lagi)
-          let hargaAsli = Number(item.harga) || Number(item.harga_vendor) || Number(item.harga_supplier) || 0;
+          // MENGUNCI HARGA ASLI DATABASE AGAR TIDAK JADI RP 0
+          let hargaAsli = Number(item.harga_vendor) || Number(item.harga) || Number(item.harga_supplier) || 0;
 
           const autoInvoiceNum = `INV-ITK-${new Date(item.created_at || Date.now()).getFullYear()}-${shortId.toUpperCase()}`;
 
           let actionBlock = "";
 
           if(currentTab === 'audit') {
-            actionBlock = `<button onclick="ubahStateKe('${item.id}', 'step2')" class="bg-blue-600 hover:bg-blue-700 text-white text-xs font-bold px-4 py-2 rounded-xl transition">✔️ Cocokkan Invoice</button>`;
+            actionBlock = `<button onclick="bukaPratinjauPengecekan('${autoInvoiceNum}', '${item.nama_barang}', '${vendorName}', ${hargaAsli}, '${memoLap}', '${item.id}')" class="bg-blue-600 hover:bg-blue-700 text-white text-xs font-bold px-4 py-2 rounded-xl transition flex items-center gap-1">📄 Periksa Dokumen PDF</button>`;
           } else if(currentTab === 'matching') {
             actionBlock = `
               <div class="flex gap-2">
-                <button onclick="ubahStateKe('${item.id}', 'step1')" class="bg-slate-100 hover:bg-slate-200 text-slate-500 text-xs font-bold px-3 py-2 rounded-xl transition">Kembali</button>
-                <button onclick="ubahStateKe('${item.id}', 'step3')" class="bg-amber-500 hover:bg-amber-600 text-white text-xs font-bold px-4 py-2 rounded-xl transition">Lock Status Matching</button>
+                <button onclick="ubahStateKe('${item.id}', 'step1')" class="bg-slate-100 hover:bg-slate-200 text-slate-500 text-xs font-bold px-3 py-2 rounded-xl transition">Batal</button>
+                <button onclick="ubahStateKe('${item.id}', 'step3')" class="bg-amber-500 hover:bg-amber-600 text-white text-xs font-bold px-4 py-2 rounded-xl transition">Lock Status Match</button>
               </div>`;
           } else if(currentTab === 'cair') {
             actionBlock = `
               <div class="flex gap-2">
-                <button onclick="ubahStateKe('${item.id}', 'step2')" class="bg-slate-100 hover:bg-slate-200 text-slate-500 text-xs font-bold px-3 py-2 rounded-xl transition">Batal Lock</button>
-                <button onclick="prosesBayarFinal('${item.id}', ${hargaAsli}, '${autoInvoiceNum}', '${item.nama_barang}', '${vendorName}', '${memoLap}')" class="bg-emerald-600 hover:bg-emerald-700 text-white text-xs font-extrabold px-5 py-2 rounded-xl transition shadow-sm">🚀 Cairkan Dana & Kirim Supplier</button>
+                <button onclick="ubahStateKe('${item.id}', 'step2')" class="bg-slate-100 hover:bg-slate-200 text-slate-500 text-xs font-bold px-3 py-2 rounded-xl transition">Kembali</button>
+                <button onclick="prosesBayarFinal('${item.id}', ${hargaAsli}, '${autoInvoiceNum}', '${item.nama_barang}', '${vendorName}', '${memoLap}')" class="bg-emerald-600 hover:bg-emerald-700 text-white text-xs font-extrabold px-5 py-2 rounded-xl transition shadow-sm">🚀 Cairkan & Kirim Supplier</button>
               </div>`;
           } else {
-            actionBlock = `<button onclick="unduhBerkasPDF('${autoInvoiceNum}', '${item.nama_barang}', '${vendorName}', ${hargaAsli}, '${memoLap}')" class="bg-slate-100 hover:bg-slate-200 text-slate-700 text-xs font-bold px-4 py-2 rounded-xl border transition">📥 Unduh PDF</button>`;
+            actionBlock = `<button onclick="unduhBerkasPDFEksternal('${autoInvoiceNum}', '${item.nama_barang}', '${vendorName}', ${hargaAsli}, '${memoLap}')" class="bg-slate-100 hover:bg-slate-200 text-slate-700 text-xs font-bold px-4 py-2 rounded-xl border transition">📥 Download Ulang PDF</button>`;
           }
 
           mainBox.innerHTML += `
@@ -199,14 +192,14 @@
               <div>
                 <div class="flex items-center gap-2 mb-1.5">
                   <span class="text-xs font-mono bg-slate-100 px-2 py-0.5 rounded text-slate-600 font-bold">${autoInvoiceNum}</span>
-                  <span class="text-[10px] text-slate-400 font-medium">Ref ID: #PR-${shortId}</span>
+                  <span class="text-[10px] text-slate-400 font-medium">ID Ref: #PR-${shortId}</span>
                 </div>
-                <h4 class="text-sm font-extrabold text-slate-900 capitalize">${item.nama_barang || 'Unit Komoditas'}</h4>
-                <p class="text-xs text-slate-500 mt-1">Vendor: <span class="text-slate-800 font-bold">${vendorName}</span> • Qty: <span class="text-slate-800 font-bold">${kuantitas} Unit</span> • Memo: <span class="italic text-slate-400">"${memoLap}"</span></p>
+                <h4 class="text-sm font-extrabold text-slate-900 capitalize">${item.nama_barang || 'Unit Barang'}</h4>
+                <p class="text-xs text-slate-500 mt-1">Vendor: <span class="text-slate-800 font-bold">${vendorName}</span> • Jumlah: <span class="text-slate-800 font-bold">${kuantitas} Unit</span></p>
               </div>
               <div class="flex items-center gap-4 justify-between md:justify-end border-t md:border-t-0 pt-3 md:pt-0">
                 <div class="text-left md:text-right">
-                  <p class="text-[10px] text-slate-400 font-bold uppercase tracking-wider">Total Tagihan</p>
+                  <p class="text-[10px] text-slate-400 font-bold uppercase tracking-wider">Nilai Tagihan</p>
                   <p class="text-sm font-black text-emerald-600">Rp ${hargaAsli.toLocaleString('id-ID')}</p>
                 </div>
                 ${actionBlock}
@@ -217,6 +210,32 @@
       } catch (err) {
         console.error(err);
       }
+    }
+
+    // FUNGSI BARU: MENAMPILKAN PENGECEKAN INVOICE DENGAN TAMPILAN LAYOUT PDF LANGSUNG
+    function bukaPratinjauPengecekan(noInvoice, barang, vendor, total, memo, id) {
+      document.getElementById('pdf-no-inv').innerText = noInvoice;
+      document.getElementById('pdf-tgl').innerText = new Date().toLocaleDateString('id-ID', { year: 'numeric', month: 'long', day: 'numeric' });
+      document.getElementById('pdf-barang').innerText = barang;
+      document.getElementById('pdf-vendor').innerText = vendor;
+      document.getElementById('pdf-memo').innerText = memo;
+      document.getElementById('pdf-harga').innerText = `Rp ${total.toLocaleString('id-ID')}`;
+      
+      const stamp = document.getElementById('pdf-status-stamp');
+      stamp.innerText = "SEDANG DICEK KEUANGAN";
+      stamp.style.background = "#f59e0b";
+      stamp.style.color = "#ffffff";
+
+      // Sisipkan Tombol Aksi Langsung Di Bawah Kertas PDF Berkas
+      const actionDock = document.getElementById('pdf-interactive-action');
+      actionDock.innerHTML = `
+        <button onclick="document.getElementById('boxPratinjauPDF').classList.add('hidden')" class="px-4 py-2 bg-slate-100 hover:bg-slate-200 rounded-xl text-xs font-bold text-slate-600">Tutup Pratonton</button>
+        <button onclick="ubahStateKe('${id}', 'step2')" class="px-5 py-2 bg-emerald-600 hover:bg-emerald-700 text-white rounded-xl text-xs font-black">✔️ Sesuai, Setujui Match!</button>
+      `;
+
+      const viewPDFBox = document.getElementById('boxPratinjauPDF');
+      viewPDFBox.classList.remove('hidden');
+      viewPDFBox.scrollIntoView({ behavior: 'smooth' });
     }
 
     function ubahStateKe(id, nextState) {
@@ -238,49 +257,64 @@
       ambilDataProcurement();
     }
 
+    // FUNGSI CAIRKAN: MENJAGA SUPABAYA TETAP MENYIMPAN NILAI HARGA_VENDOR AGAR TIDAK MENCERMATI RP 0 DI HISTORY
     async function prosesBayarFinal(id, nominal, noInv, barang, vendor, memo) {
-      if(!confirm(`Konfirmasi Akhir:\nAnda akan mencairkan dana Rp ${nominal.toLocaleString('id-ID')} untuk invoice ${noInv}. Status akan terkirim lunas ke supplier.`)) return;
+      if(!confirm(`Konfirmasi Akhir Finansial:\nAnda mencairkan dana Rp ${nominal.toLocaleString('id-ID')} untuk invoice ${noInv}. Status terkirim lunas ke supplier.`)) return;
 
       try {
         const kirim = await fetch(`${URL_API}?id=eq.${id}`, {
           method: "PATCH",
           headers: HEADERS_APP,
           body: JSON.stringify({ 
-            status: 'selesai'
+            status: 'selesai',
+            harga_vendor: nominal // Kunci nilai harga ini agar riwayat lunas di database tidak ter-reset menjadi nol
           })
         });
 
         if(kirim.ok) {
-          alert("Pencairan Berhasil! Berkas dipindahkan ke riwayat lunas & otomatis mengunduh bukti PDF.");
-          unduhBerkasPDF(noInv, barang, vendor, nominal, memo);
+          alert("Dana Berhasil Didebet! Berkas dipindahkan ke history lunas.");
+          
+          // Otomatis cetak/download PDF resmi
+          unduhBerkasPDFEksternal(noInv, barang, vendor, nominal, memo);
+          
+          // Pindahkan paksa ke Tab 4 (History Selesai Lunas)
           pindahTab('lunas');
         } else {
-          alert("Gagal memperbarui status pelunasan.");
+          alert("Gagal sinkron status pembayaran.");
         }
       } catch(e) { console.error(e); }
     }
 
-    function unduhBerkasPDF(noInvoice, barang, vendor, total, memo) {
+    // FUNGSI DOWNLOAD UTAMA PDF (PAS UKURAN KERTAS A4 & ANTI KEPOTONG)
+    function unduhBerkasPDFEksternal(noInvoice, barang, vendor, total, memo) {
       document.getElementById('pdf-no-inv').innerText = noInvoice;
       document.getElementById('pdf-tgl').innerText = new Date().toLocaleDateString('id-ID', { year: 'numeric', month: 'long', day: 'numeric' });
       document.getElementById('pdf-barang').innerText = barang;
       document.getElementById('pdf-vendor').innerText = vendor;
       document.getElementById('pdf-memo').innerText = memo;
       document.getElementById('pdf-harga').innerText = `Rp ${total.toLocaleString('id-ID')}`;
+      
+      const stamp = document.getElementById('pdf-status-stamp');
+      stamp.innerText = "PAID / LUNAS";
+      stamp.style.background = "#10b981";
+      stamp.style.color = "#ffffff";
 
-      const targetElemen = document.getElementById('wrapperCetakPDF');
+      // Hapus tombol interaktif sementara saat dicetak ke PDF agar file bersih resmi
+      document.getElementById('pdf-interactive-action').innerHTML = "";
+
+      const targetElemen = document.getElementById('boxPratinjauPDF');
       targetElemen.classList.remove('hidden');
 
       const opsiCetak = {
         margin:       [10, 10, 10, 10], 
-        filename:     `Bukti_Lunas_ITK_${noInvoice}.pdf`,
+        filename:     `Kwitansi_Resmi_ITK_${noInvoice}.pdf`,
         image:        { type: 'jpeg', quality: 0.98 },
         html2canvas:  { scale: 2, useCORS: true, logging: false },
         jsPDF:        { unit: 'mm', format: 'a4', orientation: 'portrait' }
       };
 
       html2pdf().set(opsiCetak).from(targetElemen).save().then(() => {
-        targetElemen.classList.add('hidden');
+        targetElemen.classList.add('hidden'); // Amankan kembali setelah diunduh
       });
     }
 
