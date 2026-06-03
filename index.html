@@ -77,42 +77,46 @@
     }
 
     async function login() {
-      const email = document.getElementById('email').value.trim()
-      const pass = document.getElementById('password').value
-      const pesan = document.getElementById('pesan')
+      const email = document.getElementById('email').value.trim();
+      const pass = document.getElementById('password').value;
+      const pesan = document.getElementById('pesan');
 
       if (!email || !pass) {
-        pesan.textContent = 'Email dan password wajib diisi!'
-        pesan.className = 'text-red-500 text-sm text-center mt-4'
-        return
+        pesan.textContent = 'Email dan password wajib diisi!';
+        pesan.className = 'text-red-500 text-sm text-center mt-4';
+        return;
       }
 
-      pesan.textContent = 'Memproses login...'
-      pesan.className = 'text-blue-500 text-sm text-center mt-4'
+      pesan.textContent = 'Memproses login...';
+      pesan.className = 'text-blue-500 text-sm text-center mt-4';
 
       // Ambil base URL secara dinamis agar COCOK di localhost maupun link Vercel baru lu
       const currentUrl = window.location.href;
       let baseUrl = currentUrl.substring(0, currentUrl.lastIndexOf('/') + 1);
       if (!baseUrl.startsWith('http')) baseUrl = "./";
 
-      // TRIK ROUTER SAKTI: Cek email langsung lempar ke file yang BENAR tanpa macet token
+      // Jalankan fungsi autentikasi Supabase terlebih dahulu agar session token tersimpan valid
+      const { data, error } = await sb.auth.signInWithPassword({ email: email, password: pass });
+
+      if (error) {
+        pesan.textContent = 'Login gagal! Periksa email & password lu.';
+        pesan.className = 'text-red-500 text-sm text-center mt-4';
+        return;
+      }
+
+      // ROUTER FILTER SAKTI (Memastikan pembagian aktor murni tanpa ada kebocoran email)
       if (email === "staf.pengadaan@itk.ac.id") {
         location.href = baseUrl + "staf_pengadaan.html";
       } else if (email === "manajer@itk.ac.id") {
         location.href = baseUrl + "manajer.html";
       } else if (email === "staf.keuangan@itk.ac.id") {
         location.href = baseUrl + "staf_keuangan.html";
-      } else if (email === "supplier@itk.ac.id") {
+      } else if (email === "supplier@itk.ac.id" || email === "supplier@example.com") {
+        // PERBAIKAN UTAMA: Email testing supplier@example.com sekarang dijamin masuk ke portal supplier!
         location.href = baseUrl + "supplier.html";
       } else {
-        // Jika pakai email demo lain, coba autentikasi reguler Supabase
-        const { data, error } = await sb.auth.signInWithPassword({ email: email, password: pass })
-        if (error) {
-          pesan.textContent = 'Login gagal! Periksa email & password lu.';
-          pesan.className = 'text-red-500 text-sm text-center mt-4';
-        } else {
-          location.href = baseUrl + 'user.html';
-        }
+        // Semua sisa email user/karyawan regular dilempar ke sini
+        location.href = baseUrl + "user.html";
       }
     }
   </script>
