@@ -83,7 +83,7 @@
         const res = await fetch(`${URL_API}?order=created_at.desc`, { method: "GET", headers: HEADERS_APP });
         const data = await res.json();
 
-        // Filter murni: lunas masuk tab selesai, sisanya masuk tab berjalan/proses
+        // Murni memilah kategori tab berdasarkan status database
         const kontrakAktif = data.filter(i => i.status !== 'lunas').length;
         const kontrakLunas = data.filter(i => i.status === 'lunas').length;
 
@@ -122,17 +122,20 @@
 
       filtered.forEach(item => {
         const itemFix = item.nama_barang || 'Material Logistik';
-        const vendorFix = item.supplier_terpilih || item.supplier || localStorage.getItem(`v_bk_${item.id}`) || "PT. Mitra Rekanan ITK";
+        const vendorFix = item.supplier_terpilih || item.supplier || "PT. Mitra Rekanan ITK";
         
-        let hargaFix = Number(item.harga_vendor) || Number(item.harga) || Number(item.harga_supplier) || Number(localStorage.getItem(`p_hg_${item.id}`)) || 0;
+        let hargaFix = Number(item.harga_vendor) || Number(item.harga) || Number(item.harga_supplier) || 0;
         if(hargaFix <= 0) hargaFix = sinkronisasiHargaBackup(itemFix) * (item.jumlah || 1);
-        
-        localStorage.setItem(`v_bk_${item.id}`, vendorFix);
-        localStorage.setItem(`p_hg_${item.id}`, hargaFix);
 
-        // Baca data inputan SJ / Invoice lokal khusus dari localStorage agar terikat permanen di sisi vendor eksternal
-        const nomorSJSaved = localStorage.getItem(`sj_no_${item.id}`) || null;
-        const nomorInvSaved = localStorage.getItem(`inv_no_${item.id}`) || null;
+        // Membongkar data string No. SJ & Invoice dari kolom catatan_penerimaan Supabase
+        let nomorSJSaved = null;
+        let nomorInvSaved = "INV-OFFICIAL/ITK";
+        
+        if (item.catatan_penerimaan && item.catatan_penerimaan.includes("SJ:")) {
+          const part = item.catatan_penerimaan.split(" | ");
+          nomorSJSaved = part[0].replace("[VENDOR] SJ: ", "");
+          if(part[1]) nomorInvSaved = part[1].replace("INV: ", "");
+        }
 
         let borderWarna = "border-l-purple-500";
         let labelStatus = "PO Aktif — Siapkan Pengiriman";
@@ -140,11 +143,13 @@
         
         let tombolKontrol = `<button onclick="prosesPengirimanForm('${item.id}', '${itemFix}', ${hargaFix}, '${vendorFix}')" class="bg-purple-600 hover:bg-purple-700 text-white text-xs font-bold px-4 py-2.5 rounded-xl transition shadow-sm">🚀 Input SJ &amp; Tagih Invoice</button>`;
 
-        if(nomorSJSaved) {
+        // Jika status di DB sudah dikirim/diterima/selesai, kunci tombol input agar tidak duplikat
+        if(item.status === 'dikirim' || nomorSJSaved || item.status === 'diterima' || item.status === 'selesai') {
           borderWarna = "border-l-pink-500";
-          labelStatus = "SJ &amp; Invoice Terkirim (Menunggu Audit)";
+          labelStatus = "SJ &amp; Invoice Terkirim (Proses Audit Kampus)";
           statusBadge = "bg-pink-50 text-pink-700 border-pink-200";
           tombolKontrol = `<span class="text-pink-700 font-bold text-xs bg-pink-50 border border-pink-200 px-4 py-2 rounded-xl">⏳ Menunggu Audit Internal</span>`;
+          if(!nomorSJSaved) nomorSJSaved = "SJ/PRO-ITK/2026";
         }
 
         if(item.status === 'lunas') {
@@ -196,7 +201,7 @@
           <div class="flex flex-col gap-1.5">
             <label class="text-[11px] font-bold text-slate-400 uppercase tracking-wider">Nilai Tagihan Pajak Kontrak (Deal Awal)</label>
             <div class="h-11 px-4 border border-purple-200 rounded-xl text-xs font-black bg-purple-50/50 flex items-center text-purple-900">
-              Rp ${hargaKunci.toLocaleString('id-ID')} (TIDAK BISA DIUBAH VENDOR)
+              Rp ${hargaKunci.toLocaleString('id-ID')}
             </div>
           </div>
           <div class="flex gap-2 md:col-span-3 justify-end mt-2">
@@ -215,24 +220,24 @@
         return; 
       }
 
-      // Simpan data dokumen pengiriman secara lokal di sisi vendor agar tidak meng-override status alur logistik internal kampus
-      localStorage.setItem(`sj_no_${id}`, sjInput);
-      localStorage.setItem(`inv_no_${id}`, invInput);
-
       try {
-        // Melakukan sinkronisasi data harga dan nama vendor ke DB tanpa merusak flow status internal
-        await fetch(`${URL_API}?id=eq.${id}`, {
+        // MENEMBAK UPDATE KE DATABASE GLOBAL SUPABASE
+        const res = await fetch(`${URL_API}?id=eq.${id}`, {
           method: "PATCH",
           headers: HEADERS_APP,
           body: JSON.stringify({ 
+            status: 'dikirim', // Mengubah status menjadi dikirim agar memicu counter menu 5 naik jadi 1
+            catatan_penerimaan: `[VENDOR] SJ: ${sjInput} | INV: ${invInput}`,
             harga_vendor: hargaKunci,
             supplier_terpilih: vendorKunci
           })
         });
 
-        document.getElementById('formKirimEksternal').classList.add('hidden');
-        setTabSupplier('kontrak_aktif');
-        alert("Surat Jalan dan Invoice berhasil dikirim ke Biro Logistik & Keuangan ITK!");
+        if(res.ok) {
+          document.getElementById('formKirimEksternal').classList.add('hidden');
+          setTabSupplier('kontrak_aktif');
+          alert("Surat Jalan & Invoice berhasil dikirim ke Supabase! Periksa Menu Audit Staf Pengadaan.");
+        }
       } catch(e) { console.error(e); }
     }
 
