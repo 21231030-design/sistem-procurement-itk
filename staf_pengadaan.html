@@ -3,80 +3,119 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Sistem Pengadaan ITK — Staf Pengadaan</title>
+  <title>Sistem Procurement ITK — Dashboard Staf Pengadaan</title>
   <script src="https://cdn.tailwindcss.com"></script>
-  <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700&display=swap" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet">
   <style>
-    body { font-family: 'Plus Jakarta Sans', sans-serif; background-color: #f1f5f9; }
+    body { 
+      font-family: 'Plus Jakarta Sans', sans-serif; 
+      background: linear-gradient(180deg, #f8fafc 0%, #f1f5f9 100%);
+    }
+    .custom-shadow {
+      box-shadow: 0 4px 20px -2px rgba(15, 40, 71, 0.05), 0 2px 8px -1px rgba(15, 40, 71, 0.03);
+    }
+    .card-glow:hover {
+      box-shadow: 0 12px 30px -4px rgba(15, 40, 71, 0.08);
+      transform: translateY(-2px);
+    }
   </style>
 </head>
-<body class="text-slate-800 pb-12">
+<body class="text-slate-800 pb-24 min-h-screen">
 
-  <header class="bg-[#0f2847] text-white px-8 h-[75px] flex items-center justify-between shadow-md">
-    <div class="flex items-center gap-3">
-      <div class="bg-amber-500 p-2 rounded-lg text-white font-bold text-lg shadow-inner">📦</div>
+  <header class="bg-[#0f2847] text-white px-10 h-[80px] flex items-center justify-between shadow-md border-b border-white/10 sticky top-0 z-50">
+    <div class="flex items-center gap-4">
+      <div class="bg-amber-500 w-10 h-10 rounded-xl flex items-center justify-center text-xl shadow-md font-bold">⚙️</div>
       <div>
-        <span class="text-lg font-bold block leading-none">Sistem Pengadaan ITK</span>
-        <span class="text-xs text-slate-400 font-medium">Verifikasi Kelayakan Logistik & Rekanan Vendor</span>
+        <h1 class="text-lg font-extrabold tracking-tight block leading-tight">Sistem Procurement ITK</h1>
+        <p class="text-[11px] text-slate-400 font-medium tracking-wide">Direktorat Logistik & Pengelolaan Vendor Rekanan</p>
       </div>
     </div>
-    <div class="flex items-center gap-4">
-      <button onclick="location.href='index.html'" class="bg-white/10 hover:bg-white/20 border border-white/20 px-4 py-2 rounded-lg text-xs font-semibold transition">Keluar</button>
+    <div class="flex items-center gap-6">
+      <div class="text-right">
+        <span class="text-xs font-bold bg-blue-500/20 text-blue-300 px-3 py-1 rounded-full border border-blue-500/30">Aktor: Staf Pengadaan</span>
+      </div>
+      <button onclick="location.href='index.html'" class="bg-white/5 hover:bg-red-500 border border-white/10 hover:border-red-500 px-4 py-2 rounded-xl text-xs font-bold transition-all duration-200 shadow-sm">Keluar Portal</button>
     </div>
   </header>
 
-  <div class="max-w-7xl mx-auto px-6 mt-8">
+  <main class="max-w-7xl mx-auto px-8 mt-10">
     
-    <div class="grid grid-cols-1 md:grid-cols-5 gap-4 mb-8">
-      <div class="bg-white p-5 rounded-xl border border-slate-200 shadow-sm text-center">
-        <div class="text-3xl font-extrabold text-amber-600 mb-1" id="stat-1">0</div>
-        <div class="text-xs font-bold text-slate-500">1. Perlu Dicek</div>
+    <div class="grid grid-cols-2 md:grid-cols-5 gap-5 mb-10">
+      <div class="bg-white p-6 rounded-2xl border border-slate-200/80 custom-shadow text-center relative overflow-hidden">
+        <div class="absolute top-0 left-0 w-full h-1 bg-amber-500"></div>
+        <div class="text-3xl font-black text-amber-600 mb-1 tracking-tight" id="stat-1">0</div>
+        <div class="text-[11px] font-bold text-slate-400 uppercase tracking-wider">1. Perlu Dicek</div>
       </div>
-      <div class="bg-white p-5 rounded-xl border border-slate-200 shadow-sm text-center">
-        <div class="text-3xl font-extrabold text-teal-600 mb-1" id="stat-2">0</div>
-        <div class="text-xs font-bold text-slate-500">2. Cari Vendor</div>
+      <div class="bg-white p-6 rounded-2xl border border-slate-200/80 custom-shadow text-center relative overflow-hidden">
+        <div class="absolute top-0 left-0 w-full h-1 bg-cyan-500"></div>
+        <div class="text-3xl font-black text-cyan-600 mb-1 tracking-tight" id="stat-2">0</div>
+        <div class="text-[11px] font-bold text-slate-400 uppercase tracking-wider">2. Cari Vendor</div>
       </div>
-      <div class="bg-white p-5 rounded-xl border border-slate-200 shadow-sm text-center">
-        <div class="text-3xl font-extrabold text-indigo-600 mb-1" id="stat-3">0</div>
-        <div class="text-xs font-bold text-slate-500">3. Evaluasi & Kirim</div>
+      <div class="bg-white p-6 rounded-2xl border border-slate-200/80 custom-shadow text-center relative overflow-hidden">
+        <div class="absolute top-0 left-0 w-full h-1 bg-indigo-500"></div>
+        <div class="text-3xl font-black text-indigo-600 mb-1 tracking-tight" id="stat-3">0</div>
+        <div class="text-[11px] font-bold text-slate-400 uppercase tracking-wider">3. Evaluasi Harga</div>
       </div>
-      <div class="bg-white p-5 rounded-xl border border-slate-200 shadow-sm text-center">
-        <div class="text-3xl font-extrabold text-orange-600 mb-1" id="stat-4">0</div>
-        <div class="text-xs font-bold text-slate-500">4. Audit SJ</div>
+      <div class="bg-white p-6 rounded-2xl border border-slate-200/80 custom-shadow text-center relative overflow-hidden">
+        <div class="absolute top-0 left-0 w-full h-1 bg-purple-500"></div>
+        <div class="text-3xl font-black text-purple-600 mb-1 tracking-tight" id="stat-4">0</div>
+        <div class="text-[11px] font-bold text-slate-400 uppercase tracking-wider">4. Approval Manajer</div>
       </div>
-      <div class="bg-white p-5 rounded-xl border border-slate-200 shadow-sm text-center">
-        <div class="text-3xl font-extrabold text-emerald-600 mb-1" id="stat-5">0</div>
-        <div class="text-xs font-bold text-slate-500">5. Selesai Lunas</div>
+      <div class="bg-white p-6 rounded-2xl border border-slate-200/80 custom-shadow text-center relative overflow-hidden">
+        <div class="absolute top-0 left-0 w-full h-1 bg-emerald-500"></div>
+        <div class="text-3xl font-black text-emerald-600 mb-1 tracking-tight" id="stat-5">0</div>
+        <div class="text-[11px] font-bold text-slate-400 uppercase tracking-wider">5. Selesai Lunas</div>
       </div>
     </div>
 
-    <div class="flex flex-wrap items-center justify-between gap-3 bg-white p-3 rounded-xl border border-slate-200 shadow-sm mb-8">
-      <div class="flex flex-wrap gap-2">
-        <button onclick="setFilter('pending')" class="px-4 py-2 rounded-lg text-xs font-bold transition flex items-center gap-2 bg-slate-100 text-slate-700" id="tab-pending">1. Cek PR <span class="bg-red-500 text-white px-1.5 py-0.5 rounded-full text-[10px]" id="badge-pending">0</span></button>
-        <button onclick="setFilter('pr_terverifikasi')" class="px-4 py-2 rounded-lg text-xs font-bold transition flex items-center gap-2" id="tab-verif">2. Cari Vendor <span class="bg-red-500 text-white px-1.5 py-0.5 rounded-full text-[10px]" id="badge-verif">0</span></button>
-        <button onclick="setFilter('input_quotation')" class="px-4 py-2 rounded-lg text-xs font-bold transition flex items-center gap-2" id="tab-eval">3. Evaluasi & Kirim <span class="bg-red-500 text-white px-1.5 py-0.5 rounded-full text-[10px]" id="badge-eval">0</span></button>
-        <button onclick="setFilter('dikirim_ke_manajer')" class="px-4 py-2 rounded-lg text-xs font-bold transition flex items-center gap-2" id="tab-audit">4. Menunggu Approval</button>
+    <div class="flex flex-col lg:flex-row lg:items-center justify-between gap-4 bg-white/80 backdrop-blur-md p-3 rounded-2xl border border-slate-200/60 shadow-sm mb-8">
+      <div class="flex flex-wrap gap-1.5">
+        <button onclick="setFilter('pending')" id="tab-pending" class="px-5 py-2.5 rounded-xl text-xs font-bold transition-all duration-200 flex items-center gap-2">
+          📁 1. Cek Berkas PR
+          <span class="bg-slate-200 text-slate-700 px-2 py-0.5 rounded-md text-[10px] font-extrabold" id="badge-pending">0</span>
+        </button>
+        <button onclick="setFilter('pr_terverifikasi')" id="tab-verif" class="px-5 py-2.5 rounded-xl text-xs font-bold transition-all duration-200 flex items-center gap-2">
+          🤝 2. Cari Vendor
+          <span class="bg-slate-200 text-slate-700 px-2 py-0.5 rounded-md text-[10px] font-extrabold" id="badge-verif">0</span>
+        </button>
+        <button onclick="setFilter('input_quotation')" id="tab-eval" class="px-5 py-2.5 rounded-xl text-xs font-bold transition-all duration-200 flex items-center gap-2">
+          ⚖️ 3. Evaluasi & Kirim
+          <span class="bg-slate-200 text-slate-700 px-2 py-0.5 rounded-md text-[10px] font-extrabold" id="badge-eval">0</span>
+        </button>
+        <button onclick="setFilter('dikirim_ke_manajer')" id="tab-audit" class="px-5 py-2.5 rounded-xl text-xs font-bold transition-all duration-200 flex items-center gap-2">
+          ⏳ 4. Menunggu Approval
+        </button>
       </div>
-      <button onclick="bersihkanSemuaHistory()" class="bg-[#0f2847] hover:bg-slate-800 text-white text-xs font-bold px-4 py-2 rounded-lg transition shadow-sm">Semua Arsip (Fitur Hapus)</button>
+      <button onclick="bersihkanSemuaHistory()" class="bg-red-50 hover:bg-red-100 text-red-600 border border-red-200/60 text-xs font-bold px-5 py-2.5 rounded-xl transition-all duration-200">
+        🗑️ Kosongkan Seluruh Riwayat Uji Coba
+      </button>
     </div>
 
-    <div id="panelFormSakti" class="bg-amber-50 border border-amber-200 p-6 rounded-xl mb-8 shadow-sm hidden">
-      <h3 class="text-sm font-bold text-slate-800 mb-3" id="judulPanelSakti">Form Penguncian Harga</h3>
+    <div id="panelFormSakti" class="bg-white border border-amber-200 p-6 rounded-2xl mb-8 shadow-md hidden bg-gradient-to-r from-amber-50/50 to-transparent">
+      <div class="flex items-center gap-2 mb-4">
+        <span class="flex h-2 w-2 relative">
+          <span class="animate-ping absolute inline-flex h-full w-full rounded-full bg-amber-400 opacity-75"></span>
+          <span class="relative inline-flex rounded-full h-2 w-2 bg-amber-500"></span>
+        </span>
+        <h3 class="text-xs font-bold uppercase tracking-wider text-amber-800" id="judulPanelSakti">Form Interaksi</h3>
+      </div>
       <div id="kontenPanelSakti"></div>
     </div>
 
-    <div class="bg-white rounded-xl p-6 border border-slate-200 shadow-sm">
-      <div class="text-sm font-bold text-slate-700 mb-4 flex items-center gap-2">
-        <span class="w-1.5 h-4 bg-blue-600 rounded-full"></span>
-        Master Log & Bersihkan History Pengadaan
+    <div class="space-y-4">
+      <div class="flex items-center justify-between px-2">
+        <h3 class="text-xs font-extrabold uppercase tracking-wider text-slate-400 flex items-center gap-2">
+          <span class="w-2 h-2 rounded-full bg-blue-600"></span>
+          Log Alur Berkas Pengadaan Aktif
+        </h3>
+        <span class="text-[11px] text-slate-400 font-medium">Gunakan tombol 'Hapus' di kanan kartu untuk membuang data demo sampah</span>
       </div>
-      <p class="text-xs text-red-500 mb-6 font-medium">Silakan klik tombol hapus jika ada data uji coba (Sapu, Sabun, dll) yang ingin dibersihkan.</p>
       
       <div class="flex flex-col gap-4" id="kontenCardsPR">
         </div>
     </div>
 
-  </div>
+  </main>
 
   <script>
     const URL_API = "https://bgtgeltkbanlnvymalum.supabase.co/rest/v1/purchase_request";
@@ -90,15 +129,15 @@
         const res = await fetch(`${URL_API}?order=created_at.desc`, { method: "GET", headers: HEADERS_APP });
         const data = await res.json();
         
-        // Update Counter Ringkasan Atas
-        document.getElementById('stat-1').innerText = data.filter(i => i.status === 'pending').length;
+        // Perhitungan counter angka secara realtime
+        document.getElementById('stat-1').innerText = data.filter(i => i.status === 'pending' || !i.status).length;
         document.getElementById('stat-2').innerText = data.filter(i => i.status === 'pr_terverifikasi').length;
         document.getElementById('stat-3').innerText = data.filter(i => i.status === 'input_quotation').length;
         document.getElementById('stat-4').innerText = data.filter(i => i.status === 'dikirim_ke_manajer').length;
         document.getElementById('stat-5').innerText = data.filter(i => i.status === 'po_terbit').length;
 
-        // Update Badge Tab
-        document.getElementById('badge-pending').innerText = data.filter(i => i.status === 'pending').length;
+        // Perhitungan badge angka pada tab menu
+        document.getElementById('badge-pending').innerText = data.filter(i => i.status === 'pending' || !i.status).length;
         document.getElementById('badge-verif').innerText = data.filter(i => i.status === 'pr_terverifikasi').length;
         document.getElementById('badge-eval').innerText = data.filter(i => i.status === 'input_quotation').length;
 
@@ -108,15 +147,14 @@
 
     function setFilter(statusFilter) {
       currentFilter = statusFilter;
-      // Reset style tab active
       ['tab-pending', 'tab-verif', 'tab-eval', 'tab-audit'].forEach(id => {
-        document.getElementById(id).className = "px-4 py-2 rounded-lg text-xs font-bold transition flex items-center gap-2 text-slate-600 hover:bg-slate-50";
+        document.getElementById(id).className = "px-5 py-2.5 rounded-xl text-xs font-bold transition-all duration-200 flex items-center gap-2 text-slate-500 hover:bg-slate-100 hover:text-slate-800";
       });
       
-      if(statusFilter === 'pending') document.getElementById('tab-pending').className = "px-4 py-2 rounded-lg text-xs font-bold transition flex items-center gap-2 bg-slate-100 text-slate-700";
-      if(statusFilter === 'pr_terverifikasi') document.getElementById('tab-verif').className = "px-4 py-2 rounded-lg text-xs font-bold transition flex items-center gap-2 bg-slate-100 text-slate-700";
-      if(statusFilter === 'input_quotation') document.getElementById('tab-eval').className = "px-4 py-2 rounded-lg text-xs font-bold transition flex items-center gap-2 bg-slate-100 text-slate-700";
-      if(statusFilter === 'dikirim_ke_manajer') document.getElementById('tab-audit').className = "px-4 py-2 rounded-lg text-xs font-bold transition flex items-center gap-2 bg-slate-100 text-slate-700";
+      if(statusFilter === 'pending') document.getElementById('tab-pending').className = "px-5 py-2.5 rounded-xl text-xs font-bold transition-all duration-200 flex items-center gap-2 bg-[#0f2847] text-white shadow-sm";
+      if(statusFilter === 'pr_terverifikasi') document.getElementById('tab-verif').className = "px-5 py-2.5 rounded-xl text-xs font-bold transition-all duration-200 flex items-center gap-2 bg-[#0f2847] text-white shadow-sm";
+      if(statusFilter === 'input_quotation') document.getElementById('tab-eval').className = "px-5 py-2.5 rounded-xl text-xs font-bold transition-all duration-200 flex items-center gap-2 bg-[#0f2847] text-white shadow-sm";
+      if(statusFilter === 'dikirim_ke_manajer') document.getElementById('tab-audit').className = "px-5 py-2.5 rounded-xl text-xs font-bold transition-all duration-200 flex items-center gap-2 bg-[#0f2847] text-white shadow-sm";
 
       loadDataSistem();
     }
@@ -126,12 +164,15 @@
       container.innerHTML = "";
 
       const filtered = allData.filter(item => {
-        if (!item.status && currentFilter === 'pending') return true; // Atasi status NULL masuk ke pending
+        if (!item.status && currentFilter === 'pending') return true; // Amankan null masuk pending
         return item.status === currentFilter;
       });
 
       if(filtered.length === 0) {
-        container.innerHTML = `<div class="text-center p-8 text-slate-400 text-xs">Tidak ada log berkas pada antrean tab ini.</div>`;
+        container.innerHTML = `
+          <div class="bg-white rounded-2xl border border-slate-200/80 p-12 text-center text-slate-400 text-xs custom-shadow">
+             ✨ Tidak ada antrean dokumen pengadaan pada kategori tab ini.
+          </div>`;
         return;
       }
 
@@ -139,31 +180,45 @@
         const vendor = item.supplier_terpilih || '—';
         const hargaReal = Number(item.harga_vendor) || 0;
         
+        let warnaSamping = "bg-amber-500";
+        let labelStatus = "Perlu Dicek Staf";
+        let badgeWarna = "bg-amber-50 text-amber-700 border-amber-200";
+        
+        if(item.status === 'pr_terverifikasi') { warnaSamping = "bg-cyan-500"; labelStatus = "Pencarian Vendor"; badgeWarna = "bg-cyan-50 text-cyan-700 border-cyan-200"; }
+        if(item.status === 'input_quotation') { warnaSamping = "bg-indigo-500"; labelStatus = "Evaluasi Komparasi"; badgeWarna = "bg-indigo-50 text-indigo-700 border-indigo-200"; }
+        if(item.status === 'dikirim_ke_manajer') { warnaSamping = "bg-purple-500"; labelStatus = "Menunggu Approval"; badgeWarna = "bg-purple-50 text-purple-700 border-purple-200"; }
+
         let aksiTombol = "";
         if(!item.status || item.status === 'pending') {
-          aksiTombol = `<button onclick="prosesStatus('${item.id}', 'pr_terverifikasi')" class="bg-blue-600 hover:bg-blue-700 text-white text-xs font-bold px-4 py-2 rounded-lg transition shadow-sm">✓ Verifikasi PR</button>`;
+          aksiTombol = `<button onclick="prosesStatus('${item.id}', 'pr_terverifikasi')" class="bg-blue-600 hover:bg-blue-700 text-white text-xs font-bold px-5 py-2.5 rounded-xl transition shadow-sm">✓ Verifikasi PR</button>`;
         } else if(item.status === 'pr_terverifikasi') {
-          aksiTombol = `<button onclick="bukaFormKunci('${item.id}', '${item.nama_barang}')" class="bg-teal-600 hover:bg-teal-700 text-white text-xs font-bold px-4 py-2 rounded-lg transition shadow-sm">📄 Input Penawaran Vendor</button>`;
+          aksiTombol = `<button onclick="bukaFormKunci('${item.id}', '${item.nama_barang}')" class="bg-cyan-600 hover:bg-cyan-700 text-white text-xs font-bold px-5 py-2.5 rounded-xl transition shadow-sm">📄 Hubungkan Vendor & Harga</button>`;
         } else if(item.status === 'input_quotation') {
-          aksiTombol = `<button onclick="bukaFormKirimManajer('${item.id}', '${item.nama_barang}', '${vendor}', ${hargaReal})" class="bg-indigo-600 hover:bg-indigo-700 text-white text-xs font-bold px-4 py-2 rounded-lg transition shadow-sm">🚀 Kirim ke Manajer (Kunci Nilai)</button>`;
+          aksiTombol = `<button onclick="bukaFormKirimManajer('${item.id}', '${item.nama_barang}', '${vendor}', ${hargaReal})" class="bg-indigo-600 hover:bg-indigo-700 text-white text-xs font-bold px-5 py-2.5 rounded-xl transition shadow-sm">🚀 Kirim ke Manajer (Kunci)</button>`;
         } else {
-          aksiTombol = `<span class="text-emerald-600 font-bold text-xs bg-emerald-50 border border-emerald-200 px-3 py-1.5 rounded-lg flex items-center gap-1">🔒 Berkas & Harga Terkunci</span>`;
+          aksiTombol = `<span class="text-emerald-700 font-bold text-xs bg-emerald-50 border border-emerald-200 px-4 py-2 rounded-xl flex items-center gap-1.5">🔒 Nilai Aman Terkunci</span>`;
         }
 
         container.innerHTML += `
-          <div class="bg-white border border-slate-200 rounded-xl p-5 shadow-sm flex flex-col md:flex-row md:items-center justify-between gap-4 hover:border-slate-300 transition">
+          <div class="bg-white border border-slate-200 rounded-2xl custom-shadow flex flex-col md:flex-row md:items-center justify-between gap-6 card-glow transition-all duration-300 relative overflow-hidden p-6 pl-8">
+            <div class="absolute top-0 left-0 w-2 h-full ${warnaSamping}"></div>
+            
             <div class="flex-1">
-              <h4 class="text-base font-bold text-slate-800 capitalize mb-1">${item.nama_barang || 'Item Tanpa Nama'}</h4>
-              <div class="flex flex-wrap gap-x-6 gap-y-1 text-xs text-slate-500 font-medium">
-                <div>Jumlah: <span class="text-slate-700 font-bold">${item.jumlah || 1} Unit</span></div>
-                <div>Vendor Terpilih: <span class="text-blue-600 font-bold">${vendor}</span></div>
-                <div>Harga Deal: <span class="text-slate-900 font-bold">${hargaReal > 0 ? 'Rp ' + hargaReal.toLocaleString('id-ID') : '—'}</span></div>
-                <div>Status Sistem: <span class="text-indigo-600 font-bold capitalize">${item.status || 'pending'}</span></div>
+              <div class="flex items-center gap-3 mb-2">
+                <h4 class="text-base font-extrabold text-slate-800 capitalize tracking-tight">${item.nama_barang || 'Item Kosong'}</h4>
+                <span class="text-[10px] font-bold uppercase tracking-wider px-2 py-0.5 border rounded-md ${badgeWarna}">${labelStatus}</span>
+              </div>
+              <div class="grid grid-cols-2 md:grid-cols-4 gap-y-2 gap-x-4 text-xs font-medium text-slate-500">
+                <div>Kuantitas: <span class="text-slate-800 font-bold">${item.jumlah || 1} Unit</span></div>
+                <div>Vendor: <span class="text-blue-600 font-bold">${vendor}</span></div>
+                <div>Harga Real Deal: <span class="text-slate-900 font-extrabold">${hargaReal > 0 ? 'Rp ' + hargaReal.toLocaleString('id-ID') : '—'}</span></div>
+                <div class="text-[10px] font-mono text-slate-400">ID: #PR-${item.id.substring(0,6)}</div>
               </div>
             </div>
-            <div class="flex items-center gap-3 self-end md:self-auto">
+            
+            <div class="flex items-center gap-2 self-end md:self-auto border-t md:border-t-0 pt-3 md:pt-0 w-full md:w-auto justify-end">
               ${aksiTombol}
-              <button onclick="hapusBaris('${item.id}')" class="bg-red-500 hover:bg-red-600 text-white text-xs font-bold px-4 py-2 rounded-lg transition shadow-sm">Paksa Hapus Bersih</button>
+              <button onclick="hapusBaris('${item.id}')" class="bg-slate-50 hover:bg-red-50 text-slate-400 hover:text-red-500 text-xs font-bold px-4 py-2.5 rounded-xl border border-slate-200/60 hover:border-red-200 transition-all duration-200">Hapus</button>
             </div>
           </div>
         `;
@@ -173,20 +228,20 @@
     function bukaFormKunci(id, namaBarang) {
       const pnl = document.getElementById('panelFormSakti');
       pnl.classList.remove('hidden');
-      document.getElementById('judulPanelSakti').innerText = `Langkah 2: Pilih Vendor & Input Harga Real — ${namaBarang}`;
+      document.getElementById('judulPanelSakti').innerText = `Langkah 2: Sinkronisasi Harga Rekanan — ${namaBarang}`;
       document.getElementById('kontenPanelSakti').innerHTML = `
         <div class="grid grid-cols-1 md:grid-cols-3 gap-4 items-end">
-          <div class="flex flex-col gap-1">
-            <label class="text-xs font-bold text-slate-600">Nama Supplier / Rekanan Vendor</label>
-            <input type="text" id="v_nama" placeholder="Contoh: PT. Borneo Jaya" class="h-10 px-3 border border-slate-300 rounded-lg text-xs outline-none bg-white">
+          <div class="flex flex-col gap-1.5">
+            <label class="text-[11px] font-bold text-slate-500 uppercase tracking-wider">Nama Perusahaan Vendor</label>
+            <input type="text" id="v_nama" placeholder="Contoh: PT. ITK Solusi Mandiri" class="h-11 px-4 border border-slate-200 rounded-xl text-xs font-semibold outline-none focus:border-blue-500 bg-white shadow-inner">
           </div>
-          <div class="flex flex-col gap-1">
-            <label class="text-xs font-bold text-slate-600">Harga Kesepakatan Real (Satuan)</label>
-            <input type="number" id="v_harga" placeholder="Rp 0" class="h-10 px-3 border border-slate-300 rounded-lg text-xs outline-none bg-white">
+          <div class="flex flex-col gap-1.5">
+            <label class="text-[11px] font-bold text-slate-500 uppercase tracking-wider">Harga Penawaran Final (Satuan)</label>
+            <input type="number" id="v_harga" placeholder="Rp 0" class="h-11 px-4 border border-slate-200 rounded-xl text-xs font-semibold outline-none focus:border-blue-500 bg-white shadow-inner">
           </div>
           <div class="flex gap-2">
-            <button onclick="simpanKunciHarga('${id}')" class="bg-teal-600 text-white text-xs font-bold h-10 px-4 rounded-lg flex-1">Simpan ke DB</button>
-            <button onclick="document.getElementById('panelFormSakti').classList.add('hidden')" class="bg-slate-300 text-slate-700 text-xs font-bold h-10 px-3 rounded-lg">Batal</button>
+            <button onclick="simpanKunciHarga('${id}')" class="bg-cyan-600 hover:bg-cyan-700 text-white text-xs font-bold h-11 px-4 rounded-xl flex-1 shadow-sm transition">Kunci & Tulis ke Database</button>
+            <button onclick="document.getElementById('panelFormSakti').classList.add('hidden')" class="bg-slate-100 hover:bg-slate-200 text-slate-600 text-xs font-bold h-11 px-4 rounded-xl transition">Batal</button>
           </div>
         </div>
       `;
@@ -195,59 +250,75 @@
     async function simpanKunciHarga(id) {
       const vendor = document.getElementById('v_nama').value.trim();
       const harga = parseFloat(document.getElementById('v_harga').value) || 0;
-      if(!vendor || harga <= 0) { alert("Data vendor dan harga deal tidak boleh kosong!"); return; }
+      if(!vendor || harga <= 0) { alert("Data vendor dan harga tidak valid!"); return; }
 
       try {
-        await fetch(`${URL_API}?id=eq.${id}`, {
+        const res = await fetch(`${URL_API}?id=eq.${id}`, {
           method: "PATCH",
           headers: HEADERS_APP,
           body: JSON.stringify({ supplier_terpilih: vendor, harga_vendor: harga, status: 'input_quotation' })
         });
-        document.getElementById('panelFormSakti').classList.add('hidden');
-        setFilter('input_quotation');
+        if(res.ok) {
+          document.getElementById('panelFormSakti').classList.add('hidden');
+          setFilter('input_quotation');
+        }
       } catch(e) { console.error(e); }
     }
 
     function bukaFormKirimManajer(id, namaBarang, vendor, harga) {
       const pnl = document.getElementById('panelFormSakti');
       pnl.classList.remove('hidden');
-      document.getElementById('judulPanelSakti').innerText = `Langkah 3: Amankan Dokumen & Teruskan`;
+      document.getElementById('judulPanelSakti').innerText = `Langkah 3: Konformitas Penguncian & Pengiriman Berkas`;
       document.getElementById('kontenPanelSakti').innerHTML = `
-        <div class="text-xs text-slate-700 font-medium mb-3">
-          Sistem mengunci nominal <strong>Rp ${harga.toLocaleString('id-ID')}</strong> dari <strong>${vendor}</strong> untuk pengadaan item <strong>${namaBarang}</strong>. Sekali dikirim, data tidak bisa diubah kembali oleh staf.
+        <div class="bg-indigo-50/50 border border-indigo-100 rounded-xl p-4 text-xs text-indigo-900 font-medium mb-4 leading-relaxed">
+          ⚠️ <strong>Arsitektur Keamanan Data:</strong> Nominal senilai <strong>Rp ${harga.toLocaleString('id-ID')}</strong> yang diajukan oleh <strong>${vendor}</strong> untuk pengadaan <strong>${namaBarang}</strong> akan dikunci permanen. Angka ini yang dikirim mutlak ke dashboard Manajer & Staf Keuangan untuk mencegah fraud.
         </div>
         <div class="flex gap-2 justify-end">
-          <button onclick="document.getElementById('panelFormSakti').classList.add('hidden')" class="bg-slate-300 text-slate-700 text-xs font-bold px-4 py-2 rounded-lg">Batal</button>
-          <button onclick="prosesStatus('${id}', 'dikirim_ke_manajer')" class="bg-indigo-600 text-white text-xs font-bold px-4 py-2 rounded-lg shadow-sm">🚀 Kirim Berkas Ke Meja Manajer</button>
+          <button onclick="document.getElementById('panelFormSakti').classList.add('hidden')" class="bg-slate-100 text-slate-600 text-xs font-bold px-4 py-2.5 rounded-xl">Batal Periksa</button>
+          <button onclick="prosesStatus('${id}', 'dikirim_ke_manajer')" class="bg-indigo-600 hover:bg-indigo-700 text-white text-xs font-bold px-5 py-2.5 rounded-xl shadow-sm transition">🚀 Kirim Berkas Berwenang</button>
         </div>
       `;
     }
 
     async function prosesStatus(id, statusBaru) {
       try {
-        await fetch(`${URL_API}?id=eq.${id}`, {
+        const res = await fetch(`${URL_API}?id=eq.${id}`, {
           method: "PATCH",
           headers: HEADERS_APP,
           body: JSON.stringify({ status: statusBaru })
         });
-        document.getElementById('panelFormSakti').classList.add('hidden');
-        setFilter(statusBaru);
+        if(res.ok) {
+          document.getElementById('panelFormSakti').classList.add('hidden');
+          setFilter(statusBaru);
+        }
       } catch(e) { console.error(e); }
     }
 
+    // FITUR HAPUS PER BARIS BARANG (MENYESUAIKAN KRITERIA)
     async function hapusBaris(id) {
-      if(!confirm("Apakah Anda yakin ingin menghapus bersih data pengadaan ini dari log database?")) return;
+      if(!confirm("Apakah Anda yakin ingin menghapus bersih baris data pengadaan ini dari server database?")) return;
       try {
-        await fetch(`${URL_API}?id=eq.${id}`, { method: "DELETE", headers: HEADERS_APP });
-        loadDataSistem();
+        const res = await fetch(`${URL_API}?id=eq.${id}`, { 
+          method: "DELETE", 
+          headers: HEADERS_APP 
+        });
+        if(res.ok) {
+          loadDataSistem(); // Sinkronisasi ulang tampilan setelah sukses terhapus
+        }
       } catch(e) { console.error(e); }
     }
 
+    // FITUR KOSONGKAN RIWAYAT TOTAL (SABON/SAPU)
     async function bersihkanSemuaHistory() {
-      if(!confirm("PERINGATAN! Fitur ini akan mengosongkan semua arsip riwayat pengadaan di tabel Anda. Lanjutkan?")) return;
+      if(!confirm("PERINGATAN SEAAKTI! Seluruh data history procurement di tabel Supabase akan di-wipe out (dihapus permanen). Lanjutkan?")) return;
       try {
-        await fetch(`${URL_API}?id=neq.0`, { method: "DELETE", headers: HEADERS_APP });
-        loadDataSistem();
+        const res = await fetch(`${URL_API}?id=neq.00000000-0000-0000-0000-000000000000`, { 
+          method: "DELETE", 
+          headers: HEADERS_APP 
+        });
+        if(res.ok) {
+          loadDataSistem();
+        }
       } catch(e) { console.error(e); }
     }
 
