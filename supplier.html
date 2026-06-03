@@ -36,7 +36,6 @@
   </header>
 
   <main class="max-w-7xl mx-auto px-8 mt-10">
-    
     <div class="bg-white/80 backdrop-blur-md p-3 rounded-2xl border border-slate-200/60 shadow-sm mb-8">
       <div class="flex flex-wrap gap-1.5">
         <button onclick="setTabSupplier('kontrak_aktif')" id="v-tab-aktif" class="px-5 py-2.5 rounded-xl text-xs font-bold transition-all duration-200 flex items-center gap-2">
@@ -50,18 +49,14 @@
       </div>
     </div>
 
-    <div id="formKirimEksternal" class="bg-white border-2 border-purple-300 p-6 rounded-2xl mb-8 shadow-lg hidden bg-gradient-to-r from-purple-50/30 to-transparent">
-      <div class="text-xs font-bold uppercase text-purple-800 tracking-wider mb-4 flex items-center gap-1.5">📝 PENERBITAN SURAT JALAN &amp; INVOICE PENAGIHAN VENDOR</div>
+    <div id="formKirimEksternal" class="bg-white border-2 border-purple-300 p-6 rounded-2xl mb-8 shadow-lg hidden">
+      <div class="text-xs font-bold uppercase text-purple-800 tracking-wider mb-4">📝 PENERBITAN SURAT JALAN &amp; INVOICE PENAGIHAN VENDOR</div>
       <div id="kontenFormEksternal"></div>
     </div>
 
     <div class="space-y-4">
-      <div class="flex items-center justify-between px-2">
-        <h3 class="text-xs font-extrabold uppercase tracking-wider text-slate-400">Daftar Purchase Order Berdasarkan Penawaran Awal</h3>
-      </div>
       <div class="flex flex-col gap-4" id="containerOrderVendor"></div>
     </div>
-
   </main>
 
   <script>
@@ -72,14 +67,6 @@
     );
 
     let currentTab = 'kontrak_aktif';
-
-    function sinkronisasiHargaBackup(namaBarang) {
-      const nama = namaBarang.toLowerCase();
-      if(nama.includes('oli')) return 450000;
-      if(nama.includes('busi')) return 120000;
-      if(nama.includes('pipa')) return 850000;
-      return 250000;
-    }
 
     async function AmbilDataEksternal() {
       try {
@@ -93,13 +80,13 @@
         document.getElementById('v-badge-lunas').innerText = kontrakLunas;
 
         TampilkanKartuVendor(data);
-      } catch (e) { console.error("Eror Load Data: ", e); }
+      } catch (e) { console.error(e); }
     }
 
     function setTabSupplier(tabBaru) {
       currentTab = tabBaru;
-      document.getElementById('v-tab-aktif').className = "px-5 py-2.5 rounded-xl text-xs font-bold text-slate-500 hover:bg-slate-100 transition-all duration-200";
-      document.getElementById('v-tab-lunas').className = "px-5 py-2.5 rounded-xl text-xs font-bold text-slate-500 hover:bg-slate-100 transition-all duration-200";
+      document.getElementById('v-tab-aktif').className = "px-5 py-2.5 rounded-xl text-xs font-bold text-slate-500 hover:bg-slate-100";
+      document.getElementById('v-tab-lunas').className = "px-5 py-2.5 rounded-xl text-xs font-bold text-slate-500 hover:bg-slate-100";
       
       if(currentTab === 'kontrak_aktif') {
         document.getElementById('v-tab-aktif').className = "px-5 py-2.5 rounded-xl text-xs font-bold bg-[#2e1065] text-white shadow-sm flex items-center gap-2";
@@ -118,20 +105,17 @@
       });
 
       if(filtered.length === 0) {
-        container.innerHTML = `<div class="bg-white rounded-2xl border border-slate-200 p-12 text-center text-slate-400 text-xs shadow-sm">✨ Tidak ada lembar PO vendor pada kategori ini.</div>`;
+        container.innerHTML = `<div class="bg-white rounded-2xl border p-12 text-center text-slate-400 text-xs shadow-sm">✨ Tidak ada lembar PO vendor pada kategori ini.</div>`;
         return;
       }
 
       filtered.forEach(item => {
         const itemFix = item.nama_barang || 'Material Logistik';
         const vendorFix = item.supplier_terpilih || item.supplier || "PT. Mitra Rekanan ITK";
-        
-        let hargaFix = Number(item.harga_vendor) || Number(item.harga) || Number(item.harga_supplier) || 0;
-        if(hargaFix <= 0) hargaFix = sinkronisasiHargaBackup(itemFix) * (item.jumlah || 1);
+        const hargaFix = Number(item.harga) || Number(item.harga_supplier) || 250000;
 
         let nomorSJSaved = null;
         let nomorInvSaved = "INV-OFFICIAL/ITK";
-        
         if (item.catatan_penerimaan && item.catatan_penerimaan.includes("SJ:")) {
           const part = item.catatan_penerimaan.split(" | ");
           nomorSJSaved = part[0].replace("[VENDOR] SJ: ", "");
@@ -141,106 +125,103 @@
         let borderWarna = "border-l-purple-500";
         let labelStatus = "PO Aktif — Siapkan Pengiriman";
         let statusBadge = "bg-purple-50 text-purple-700 border-purple-200";
-        
-        let tombolKontrol = `<button onclick="prosesPengirimanForm('${item.id}', '${itemFix}', ${hargaFix}, '${vendorFix}')" class="bg-purple-600 hover:bg-purple-700 text-white text-xs font-bold px-4 py-2.5 rounded-xl transition shadow-sm">🚀 Input SJ &amp; Tagih Invoice</button>`;
+        let tombolKontrol = `<button onclick="prosesPengirimanForm('${item.id}', ${hargaFix})" class="bg-purple-600 hover:bg-purple-700 text-white text-xs font-bold px-4 py-2.5 rounded-xl transition shadow-sm">🚀 Input SJ &amp; Tagih Invoice</button>`;
 
         if(item.status === 'dikirim' || nomorSJSaved || item.status === 'diterima' || item.status === 'selesai') {
           borderWarna = "border-l-pink-500";
           labelStatus = "SJ &amp; Invoice Terkirim (Proses Audit Kampus)";
           statusBadge = "bg-pink-50 text-pink-700 border-pink-200";
           tombolKontrol = `<span class="text-pink-700 font-bold text-xs bg-pink-50 border border-pink-200 px-4 py-2 rounded-xl">⏳ Menunggu Audit Internal</span>`;
-          if(!nomorSJSaved) nomorSJSaved = "SJ/PRO-ITK/2026";
         }
 
+        // KONDISI APABILA SUDAH DIBAYAR BENDAHARA (LUNAS)
         if(item.status === 'lunas') {
           borderWarna = "border-l-emerald-500";
           labelStatus = "Tagihan Lunas / PAID";
           statusBadge = "bg-emerald-50 text-emerald-700 border-emerald-200";
-          tombolKontrol = `<span class="text-emerald-700 font-extrabold text-xs bg-emerald-50 border border-emerald-200 px-4 py-2 rounded-xl">💵 INVOICE PAID (CAIR)</span>`;
+          tombolKontrol = `
+            <button onclick="UnduhBuktiLunasSupplier('${itemFix}', '${vendorFix}', '${nomorInvSaved}', ${hargaFix}, '${item.link_bukti_lunas || 'TRF-BANK/ITK/9982'}')" class="bg-emerald-600 hover:bg-emerald-700 text-white text-xs font-bold px-4 py-2.5 rounded-xl transition shadow-sm flex items-center gap-1.5">
+              📥 Unduh Bukti Pembayaran Dana (PDF)
+            </button>
+          `;
         }
 
-        const shortId = item.id ? String(item.id).substring(0,6) : '0000';
-
         container.innerHTML += `
-          <div class="bg-white border border-slate-200 rounded-2xl custom-shadow flex flex-col md:flex-row md:items-center justify-between gap-6 transition-all duration-300 relative overflow-hidden p-6 pl-8 border-l-4 ${borderWarna}">
+          <div class="bg-white border border-slate-200 rounded-2xl custom-shadow flex flex-col md:flex-row md:items-center justify-between p-6 pl-8 border-l-4 ${borderWarna}">
             <div class="flex-1">
               <div class="flex items-center gap-3 mb-2">
-                <h4 class="text-base font-extrabold text-slate-800 capitalize tracking-tight">${itemFix}</h4>
-                <span class="text-[10px] font-bold uppercase border rounded-md px-2 py-0.5 ${statusBadge}">${labelStatus}</span>
+                <h4 class="text-base font-extrabold text-slate-800 capitalize">${itemFix}</h4>
+                <span class="text-[10px] font-bold border rounded-md px-2 py-0.5 ${statusBadge}">${labelStatus}</span>
               </div>
-              <div class="grid grid-cols-2 md:grid-cols-4 gap-y-2 gap-x-4 text-xs font-medium text-slate-500">
+              <div class="grid grid-cols-2 md:grid-cols-3 gap-y-2 text-xs font-medium text-slate-500">
                 <div>Volume: <span class="text-slate-800 font-bold">${item.jumlah || 1} Pcs</span></div>
-                <div>Nama Vendor: <span class="text-purple-700 font-extrabold">${vendorFix}</span></div>
-                <div>Nilai Invoice Terkunci: <span class="text-emerald-600 font-black text-sm">Rp ${hargaFix.toLocaleString('id-ID')}</span></div>
-                <div class="text-[10px] font-mono text-slate-400">PO-REF: #ITK-PO-${shortId}</div>
+                <div>Nilai Invoice: <span class="text-emerald-600 font-black">Rp ${hargaFix.toLocaleString('id-ID')}</span></div>
+                ${item.link_bukti_lunas && item.status==='lunas' ? `<div>Ref Pembayaran: <span class="text-purple-700 font-mono font-bold">${item.link_bukti_lunas}</span></div>` : ''}
               </div>
-              ${nomorSJSaved ? `
-              <div class="mt-3 pt-3 border-t border-slate-100 grid grid-cols-1 md:grid-cols-2 gap-2 text-[11px] font-semibold text-slate-600">
-                <div>📄 <b>No. Surat Jalan:</b> <span class="text-purple-700 font-mono">${nomorSJSaved}</span></div>
-                <div>💳 <b>No. Invoice Resmi:</b> <span class="text-emerald-700 font-mono">${nomorInvSaved}</span></div>
-              </div>` : ''}
             </div>
             <div class="flex items-center gap-2 justify-end">${tombolKontrol}</div>
           </div>`;
       });
     }
 
-    function prosesPengirimanForm(id, namaBarang, hargaKunci, vendorKunci) {
+    function prosesPengirimanForm(id, hargaKunci) {
       const box = document.getElementById('formKirimEksternal');
       box.classList.remove('hidden');
       document.getElementById('kontenFormEksternal').innerHTML = `
-        <div class="grid grid-cols-1 md:grid-cols-3 gap-4 items-end">
-          <div class="flex flex-col gap-1.5">
-            <label class="text-[11px] font-bold text-slate-500 uppercase tracking-wider">Input Nomor Surat Jalan (SJ)</label>
-            <input type="text" id="sj_no_input" placeholder="Contoh: SJ/DENSO/VI/0029" class="h-11 px-4 border rounded-xl text-xs font-semibold outline-none focus:border-purple-600 w-full bg-white shadow-inner">
-          </div>
-          <div class="flex flex-col gap-1.5">
-            <label class="text-[11px] font-bold text-slate-500 uppercase tracking-wider">Input Nomor Invoice Penagihan</label>
-            <input type="text" id="inv_no_input" placeholder="Contoh: INV/DENSO-ITK/9982" class="h-11 px-4 border rounded-xl text-xs font-semibold outline-none focus:border-purple-600 w-full bg-white shadow-inner">
-          </div>
-          <div class="flex flex-col gap-1.5">
-            <label class="text-[11px] font-bold text-slate-400 uppercase tracking-wider">Nilai Tagihan Pajak Kontrak (Deal Awal)</label>
-            <div class="h-11 px-4 border border-purple-200 rounded-xl text-xs font-black bg-purple-50/50 flex items-center text-purple-900">
-              Rp ${hargaKunci.toLocaleString('id-ID')}
-            </div>
-          </div>
-          <div class="flex gap-2 md:col-span-3 justify-end mt-2">
+        <div class="grid grid-cols-1 md:grid-cols-2 gap-4 items-end">
+          <input type="text" id="sj_no_input" placeholder="No. Surat Jalan" class="h-11 px-4 border rounded-xl text-xs font-semibold bg-white shadow-inner">
+          <input type="text" id="inv_no_input" placeholder="No. Invoice Penagihan" class="h-11 px-4 border rounded-xl text-xs font-semibold bg-white shadow-inner">
+          <div class="flex gap-2 justify-end md:col-span-2">
             <button onclick="document.getElementById('formKirimEksternal').classList.add('hidden')" class="bg-slate-100 text-slate-600 text-xs font-bold h-11 px-5 rounded-xl">Batal</button>
-            <button onclick="simpanDokumenVendorKeSistem('${id}', ${hargaKunci}, '${vendorKunci}')" class="bg-purple-700 text-white text-xs font-bold h-11 px-6 rounded-xl shadow-md">✓ Submit SJ &amp; Tagih Invoice</button>
+            <button onclick="simpanDokumenVendorKeSistem('${id}')" class="bg-purple-700 text-white text-xs font-bold h-11 px-6 rounded-xl shadow-md">✓ Submit</button>
           </div>
         </div>`;
     }
 
-    async function simpanDokumenVendorKeSistem(id, hargaKunci, vendorKunci) {
+    async function simpanDokumenVendorKeSistem(id) {
       const sjInput = document.getElementById('sj_no_input').value.trim();
       const invInput = document.getElementById('inv_no_input').value.trim();
-      
-      if(!sjInput || !invInput) { 
-        alert("Nomor Surat Jalan (SJ) dan Nomor Invoice Penagihan wajib diisi!"); 
-        return; 
-      }
+      if(!sjInput || !invInput) return alert("Wajib diisi!");
 
       try {
-        // AMAN TOTAL KARENA RLS PERMIT SUDAH DIBUKA OLEH SQL EDITOR KITA DI ATAS
-        const { data, error } = await sb
-          .from('purchase_request')
-          .update({
-            status: 'dikirim', 
-            catatan_penerimaan: `[VENDOR] SJ: ${sjInput} | INV: ${invInput}`,
-            harga_vendor: hargaKunci,
-            supplier_terpilih: vendorKunci
-          })
-          .eq('id', id);
+        const { error } = await sb.from('purchase_request').update({
+          status: 'dikirim', 
+          catatan_penerimaan: `[VENDOR] SJ: ${sjInput} | INV: ${invInput}`
+        }).eq('id', id);
 
         if (error) throw error;
-
         document.getElementById('formKirimEksternal').classList.add('hidden');
         setTabSupplier('kontrak_aktif');
-        alert("Sukses 100%! Surat Jalan & Invoice masuk database. Silakan cek menu 5 Audit SJ Staf Pengadaan.");
-      } catch(e) { 
-        console.error("Gagal update data: ", e);
-        alert("Gagal mengirim dokumen: " + e.message);
-      }
+        alert("Sukses mengirim dokumen!");
+      } catch(e) { alert(e.message); }
+    }
+
+    function UnduhBuktiLunasSupplier(barang, vendor, inv, total, refBank) {
+      const printWindow = window.open('', '_blank');
+      printWindow.document.write(`
+        <html>
+        <head><title>Bukti Pembayaran Dana ITK</title><script src="https://cdn.tailwindcss.com"><\/script></head>
+        <body class="p-10 text-slate-800">
+          <div class="border-4 border-double border-emerald-500 p-8 rounded-xl">
+            <div class="text-center border-b border-slate-200 pb-4 mb-4">
+              <h1 class="text-2xl font-black text-emerald-700">📌 BUKTI TRANSFER BENDAHARA ITK</h1>
+              <p class="text-xs text-slate-400">Pemberitahuan Resmi Dana Pembayaran Sukses Ditransfer</p>
+            </div>
+            <div class="space-y-3 text-xs">
+              <div><strong>Nomor Referensi Transaksi:</strong> <span class="font-mono text-emerald-700 font-bold">${refBank}</span></div>
+              <div><strong>Penerima Dana:</strong> ${vendor}</div>
+              <div><strong>Alokasi Pembayaran:</strong> Dokumen Penagihan (${inv}) — ${barang}</div>
+              <div class="bg-emerald-50 p-4 rounded-lg border border-emerald-200 text-center">
+                <p class="text-2xl font-black text-emerald-600">Rp ${total.toLocaleString('id-ID')}</p>
+                <p class="text-emerald-700 text-[10px] uppercase font-bold tracking-wider mt-1">✓ STATUS: TRANSFER BERHASIL (PAID)</p>
+              </div>
+            </div>
+          </div>
+          <script>window.onload = function() { window.print(); }<\/script>
+        </body>
+        </html>
+      `);
+      printWindow.document.close();
     }
 
     window.onload = () => setTabSupplier('kontrak_aktif');
