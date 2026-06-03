@@ -4,187 +4,233 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Sistem Procurement ITK — Staf Pengadaan</title>
+  <script src="https://cdn.tailwindcss.com"></script>
   <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700&display=swap" rel="stylesheet">
   <style>
-    * { box-sizing: border-box; margin: 0; padding: 0; font-family: 'Plus Jakarta Sans', sans-serif; }
-    body { background: #f8fafc; color: #0f172a; padding-bottom: 50px; }
-    
-    header { background: #0f2847; color: white; padding: 0 2rem; height: 70px; display: flex; align-items: center; justify-content: space-between; box-shadow: 0 4px 12px rgba(15, 40, 71, 0.1); }
-    .logo-area { display: flex; align-items: center; gap: 10px; }
-    .logo-badge { background: #2563eb; padding: 6px 12px; border-radius: 6px; font-weight: 700; font-size: 12px; letter-spacing: 1px; }
-    .logo-text { font-size: 18px; font-weight: 700; }
-    .btn-logout { background: rgba(255,255,255,0.1); color: #fff; border: 1px solid rgba(255,255,255,0.2); padding: 8px 20px; border-radius: 8px; cursor: pointer; font-weight: 600; font-size: 13px; }
-
-    .container { max-width: 1280px; margin: 30px auto; padding: 0 20px; }
-    .panel { background: white; border-radius: 12px; padding: 24px; margin-bottom: 30px; border: 1px solid #e2e8f0; box-shadow: 0 1px 3px rgba(0,0,0,0.05); }
-    .panel-title { font-size: 16px; font-weight: 700; color: #0f2847; margin-bottom: 20px; display: flex; align-items: center; gap: 8px; }
-    .panel-title::before { content: ''; display: inline-block; width: 4px; height: 16px; background: #2563eb; border-radius: 2px; }
-    
-    .form-row { display: grid; grid-template-columns: 2fr 1fr 1.5fr auto; gap: 16px; align-items: flex-end; }
-    .form-group { display: flex; flex-direction: column; gap: 6px; }
-    .form-group label { font-size: 13px; font-weight: 600; color: #475569; }
-    input { height: 44px; padding: 0 14px; border: 1px solid #cbd5e1; border-radius: 8px; font-size: 14px; color: #334155; outline: none; }
-    
-    .btn-primary { background: #0f2847; color: white; border: none; height: 44px; padding: 0 24px; border-radius: 8px; font-size: 14px; font-weight: 700; cursor: pointer; }
-
-    .table-wrapper { width: 100%; overflow-x: auto; }
-    table { width: 100%; border-collapse: collapse; text-align: left; }
-    th { background: #f8fafc; padding: 14px 16px; font-size: 11px; font-weight: 700; color: #64748b; text-transform: uppercase; border-bottom: 2px solid #e2e8f0; }
-    td { padding: 16px; border-bottom: 1px solid #e2e8f0; font-size: 14px; color: #334155; }
-
-    .badge { font-size: 11px; padding: 6px 12px; border-radius: 6px; font-weight: 700; text-transform: uppercase; display: inline-block; }
-    .status-pending { background: #fef3c7; color: #d97706; }
-    .status-quotation { background: #e0f2fe; color: #0369a1; }
-    .status-evaluasi { background: #f3e8ff; color: #6b21a8; }
-    .status-vendor { background: #e2e8f0; color: #334155; }
-    .status-manajer { background: #dcfce7; color: #15803d; }
-
-    .btn-action { background: #2563eb; color: white; border: none; padding: 8px 14px; border-radius: 6px; font-size: 12px; font-weight: 700; cursor: pointer; }
-    .text-success { color: #10b981; font-weight: 700; font-size: 13px; }
+    body { font-family: 'Plus Jakarta Sans', sans-serif; background-color: #f8fafc; }
   </style>
 </head>
-<body>
+<body class="text-slate-800 pb-12">
 
-<header>
-  <div class="logo-area">
-    <span class="logo-badge">PRO</span>
-    <span class="logo-text">Sistem Procurement ITK</span>
-  </div>
-  <button class="btn-logout" onclick="window.location.href='index.html'">Keluar</button>
-</header>
-
-<div class="container">
-  <div class="panel">
-    <div class="panel-title">Buat Permintaan Barang Baru (PR)</div>
-    <div class="form-row">
-      <div class="form-group">
-        <label>Nama Komponen / Item Barang</label>
-        <input type="text" id="nama_barang" placeholder="Contoh: Modul Sensor Ultrasonik">
-      </div>
-      <div class="form-group">
-        <label>Kuantitas (Qty)</label>
-        <input type="number" id="jumlah" value="1" min="1">
-      </div>
-      <div class="form-group">
-        <label>Estimasi Harga Satuan</label>
-        <input type="number" id="harga" placeholder="Rp 0">
-      </div>
-      <button class="btn-primary" onclick="tambahPR()">+ Ajukan Kebutuhan</button>
+  <header class="bg-[#0f2847] text-white px-8 h-[70px] flex items-center justify-between shadow-lg">
+    <div class="flex items-center gap-3">
+      <span class="bg-blue-600 px-3 py-1 rounded-md font-bold text-xs tracking-wider">PRO</span>
+      <span class="text-lg font-bold">Sistem Procurement ITK</span>
     </div>
-  </div>
-
-  <div class="panel">
-    <div class="panel-title">Daftar Log & Workflow Staf Pengadaan</div>
-    <div class="table-wrapper">
-      <table>
-        <thead>
-          <tr>
-            <th>ID Sistem</th>
-            <th>Deskripsi Barang</th>
-            <th>Kuantitas</th>
-            <th>Harga Satuan</th>
-            <th>Total Anggaran</th>
-            <th>Status Alur</th>
-            <th>Aksi Penanganan Prosedur</th>
-          </tr>
-        </thead>
-        <tbody id="tabelPR">
-          <tr><td colspan="7" style="text-align:center; color:#64748b; padding:30px;">Sinkronisasi data sistem...</td></tr>
-        </tbody>
-      </table>
+    <div class="flex items-center gap-4">
+      <span class="text-sm text-slate-300 font-medium">Aktor: Staf Pengadaan</span>
+      <button onclick="location.href='index.html'" class="bg-white/10 hover:bg-white/20 border border-white/20 px-4 py-2 rounded-lg text-xs font-semibold transition">Keluar</button>
     </div>
+  </header>
+
+  <div class="max-w-7xl mx-auto px-6 mt-8">
+    
+    <div class="bg-white rounded-xl p-6 mb-8 border border-slate-200 shadow-sm">
+      <div class="text-base font-bold text-[#0f2847] mb-4 flex items-center gap-2">
+        <span class="w-1 h-4 bg-blue-600 rounded-full"></span>
+        Buat Permintaan Barang Baru (PR Input)
+      </div>
+      <div class="grid grid-cols-1 md:grid-template md:grid-cols-4 gap-4 items-end">
+        <div class="flex flex-col gap-1.5">
+          <label class="text-xs font-semibold text-slate-600">Nama Komponen / Item Barang</label>
+          <input type="text" id="nama_barang" placeholder="Contoh: Cisco Switch Catalyst 2960" class="h-11 px-4 border border-slate-300 rounded-lg text-sm outline-none focus:border-blue-500 bg-white">
+        </div>
+        <div class="flex flex-col gap-1.5">
+          <label class="text-xs font-semibold text-slate-600">Kuantitas (Qty)</label>
+          <input type="number" id="jumlah" value="1" min="1" class="h-11 px-4 border border-slate-300 rounded-lg text-sm outline-none focus:border-blue-500 bg-white">
+        </div>
+        <div class="flex flex-col gap-1.5">
+          <label class="text-xs font-semibold text-slate-600">Estimasi Anggaran Kampus (Satuan)</label>
+          <input type="number" id="harga" placeholder="Rp 0" class="h-11 px-4 border border-slate-300 rounded-lg text-sm outline-none focus:border-blue-500 bg-white">
+        </div>
+        <button onclick="tambahPR()" class="bg-[#0f2847] hover:bg-[#1e3d64] text-white h-11 px-6 rounded-lg text-sm font-bold transition shadow-sm">+ Ajukan PR</button>
+      </div>
+    </div>
+
+    <div id="dynamicActionPanel" class="bg-white rounded-xl p-6 mb-8 border border-amber-200 shadow-md bg-amber-50/30" style="display: none;">
+      <div class="text-base font-bold text-[#0f2847] mb-4 flex items-center gap-2" id="actionPanelTitle">
+        Form Penanganan Alur Pengadaan
+      </div>
+      <div id="actionFormContent"></div>
+    </div>
+
+    <div class="bg-white rounded-xl p-6 border border-slate-200 shadow-sm">
+      <div class="text-base font-bold text-[#0f2847] mb-4 flex items-center gap-2">
+        <span class="w-1 h-4 bg-blue-600 rounded-full"></span>
+        Alur Berkas Berjenjang (Single Source Price System)
+      </div>
+      <div class="overflow-x-auto">
+        <table class="w-full text-left border-collapse">
+          <thead>
+            <tr class="bg-slate-50 border-b-2 border-slate-200">
+              <th class="p-4 text-xs font-bold text-slate-500 uppercase">ID PR</th>
+              <th class="p-4 text-xs font-bold text-slate-500 uppercase">Item Barang</th>
+              <th class="p-4 text-xs font-bold text-slate-500 uppercase">Qty</th>
+              <th class="p-4 text-xs font-bold text-slate-500 uppercase">Anggaran Awal</th>
+              <th class="p-4 text-xs font-bold text-slate-500 uppercase">Supplier Terpilih</th>
+              <th class="p-4 text-xs font-bold text-slate-500 uppercase">Harga Real Supplier</th>
+              <th class="p-4 text-xs font-bold text-slate-500 uppercase">Status Alur</th>
+              <th class="p-4 text-xs font-bold text-slate-500 uppercase">Aksi Penanganan</th>
+            </tr>
+          </thead>
+          <tbody id="tabelPR">
+            <tr>
+              <td colspan="8" class="text-center text-slate-400 p-8 text-sm">Sinkronisasi data sistem procurement...</td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+
   </div>
-</div>
 
-<script>
-  // Menggunakan REST API murni, dijamin anti crash di GitHub maupun Vercel
-  const URL_API = "https://bgtgeltkbanlnvymalum.supabase.co/rest/v1/purchase_request";
-  const KEY_TOKEN = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImJndGdlbHRrYmFubG52eW1hbHVtIiwicm9sZSI6ImFub24iLCJpYXQiOjE3Nzk1MTAwNDksImV4cCI6MjA5NTA4NjA0OX0.-JlapeQpug44SjkEKgb1wyoX2_ftdGGcAnTHJhdzvwE";
-  const HEADERS_APP = { "apikey": KEY_TOKEN, "Authorization": `Bearer ${KEY_TOKEN}`, "Content-Type": "application/json" };
+  <script>
+    const URL_API = "https://bgtgeltkbanlnvymalum.supabase.co/rest/v1/purchase_request";
+    const KEY_TOKEN = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImJndGdlbHRrYmFubG52eW1hbHVtIiwicm9sZSI6ImFub24iLCJpYXQiOjE3Nzk1MTAwNDksImV4cCI6MjA5NTA4NjA0OX0.-JlapeQpug44SjkEKgb1wyoX2_ftdGGcAnTHJhdzvwE";
+    const HEADERS_APP = { "apikey": KEY_TOKEN, "Authorization": `Bearer ${KEY_TOKEN}`, "Content-Type": "application/json" };
 
-  async function dapatkanDataPR() {
-    try {
-      const res = await fetch(`${URL_API}?order=created_at.desc`, { method: "GET", headers: HEADERS_APP });
-      const data = await res.json();
-      const tbody = document.getElementById('tabelPR');
-      tbody.innerHTML = "";
+    async function dapatkanDataPR() {
+      try {
+        const res = await fetch(`${URL_API}?order=created_at.desc`, { method: "GET", headers: HEADERS_APP });
+        const data = await res.json();
+        const tbody = document.getElementById('tabelPR');
+        tbody.innerHTML = "";
 
-      if(!data || data.length === 0) {
-        tbody.innerHTML = `<tr><td colspan="7" style="text-align:center; padding:30px; color:#64748b;">Belum ada antrean pengadaan saat ini.</td></tr>`;
-        return;
-      }
-
-      data.forEach(item => {
-        const qty = Number(item.jumlah) || 0;
-        const harga = Number(item.harga_estimasi) || 0;
-        const total = qty * harga;
-        const status = item.status || 'pending';
-
-        let badgeClass = "badge";
-        if(status === 'pending') badgeClass += " status-pending";
-        if(status === 'buat_quotation') badgeClass += " status-quotation";
-        if(status === 'evaluasi_pemilihan') badgeClass += " status-evaluasi";
-        if(status === 'vendor_baru') badgeClass += " status-vendor";
-        if(status === 'dikirim_ke_manajer') badgeClass += " status-manajer";
-
-        let aksiBtn = "";
-        if (status === 'pending') {
-          aksiBtn = `<button class="btn-action" onclick="prosesAlur('${item.id}', 'buat_quotation')">🔍 Cek PR</button>`;
-        } else if (status === 'buat_quotation') {
-          aksiBtn = `<button class="btn-action" onclick="prosesAlur('${item.id}', 'evaluasi_pemilihan')">📄 Buat Quotation</button>`;
-        } else if (status === 'evaluasi_pemilihan') {
-          aksiBtn = `<button class="btn-action" onclick="prosesAlur('${item.id}', 'vendor_baru')">📊 Evaluasi</button>`;
-        } else if (status === 'vendor_baru') {
-          aksiBtn = `<button class="btn-action" onclick="prosesAlur('${item.id}', 'dikirim_ke_manajer')">🤝 Pilih Vendor Baru</button>`;
-        } else {
-          aksiBtn = `<span class="text-success">🚀 Terkirim ke Manajer</span>`;
+        if(!data || data.length === 0) {
+          tbody.innerHTML = `<tr><td colspan="8" class="text-center p-8 text-slate-400 text-sm">Belum ada antrean pengadaan saat ini.</td></tr>`;
+          return;
         }
 
-        tbody.innerHTML += `
-          <tr>
-            <td style="font-family:monospace; color:#64748b; font-size:12px;">#${item.id.substring(0,5)}</td>
-            <td><strong>${item.nama_barang || '—'}</strong></td>
-            <td>${qty} Unit</td>
-            <td>Rp ${harga.toLocaleString('id-ID')}</td>
-            <td><strong>Rp ${total.toLocaleString('id-ID')}</strong></td>
-            <td><span class="${badgeClass}">${status.replace(/_/g, ' ')}</span></td>
-            <td>${aksiBtn}</td>
-          </tr>
-        `;
-      });
-    } catch (e) {
-      console.error(e);
-      document.getElementById('tabelPR').innerHTML = `<tr><td colspan="7" style="text-align:center; color:red; padding:30px;">Koneksi Database Putus.</td></tr>`;
+        data.forEach(item => {
+          const qty = Number(item.jumlah) || 0;
+          const hargaEst = Number(item.harga_estimasi) || 0;
+          const hargaFix = Number(item.harga_vendor) || 0;
+          const status = item.status || 'pending';
+          const vendor = item.supplier_terpilih || '—';
+
+          let badgeClass = "text-xs font-bold uppercase px-2.5 py-1 rounded-md inline-block";
+          let statusLabel = "";
+
+          if(status === 'pending') { badgeClass += " bg-red-100 text-red-700"; statusLabel = "1. Verifikasi PR"; }
+          else if(status === 'pr_terverifikasi') { badgeClass += " bg-amber-100 text-amber-700"; statusLabel = "2. Pilih Supplier"; }
+          else if(status === 'input_quotation') { badgeClass += " bg-sky-100 text-sky-700"; statusLabel = "3. Review Pengadaan"; }
+          else if(status === 'dikirim_ke_manajer') { badgeClass += " bg-purple-100 text-purple-700"; statusLabel = "4. Menunggu Approval"; }
+          else if(status === 'po_terbit') { badgeClass += " bg-green-100 text-green-700"; statusLabel = "5. PO & Invoice Valid"; }
+
+          let aksiBtn = "";
+          if (status === 'pending') {
+            aksiBtn = `<button class="bg-blue-600 hover:bg-blue-700 text-white text-xs font-bold px-3 py-1.5 rounded transition shadow-sm" onclick="ubahKeStatus('${item.id}', 'pr_terverifikasi')">✓ Verifikasi PR</button>`;
+          } else if (status === 'pr_terverifikasi') {
+            aksiBtn = `<button class="bg-amber-600 hover:bg-amber-700 text-white text-xs font-bold px-3 py-1.5 rounded transition shadow-sm" onclick="bukaFormQuotation('${item.id}', '${item.nama_barang}')">📄 Input Penawaran</button>`;
+          } else if (status === 'input_quotation') {
+            aksiBtn = `<button class="bg-purple-600 hover:bg-purple-700 text-white text-xs font-bold px-3 py-1.5 rounded transition shadow-sm" onclick="bukaFormEvaluasi('${item.id}', '${item.nama_barang}', '${vendor}', ${hargaFix})">📊 Kirim ke Manajer</button>`;
+          } else {
+            aksiBtn = `<span class="text-emerald-600 font-bold text-xs flex items-center gap-1">🔒 Harga Terkunci</span>`;
+          }
+
+          tbody.innerHTML += `
+            <tr class="border-b border-slate-200 hover:bg-slate-50/50 transition">
+              <td class="p-4 font-monospace text-xs text-slate-400">#PR-${item.id.substring(0,5)}</td>
+              <td class="p-4 font-semibold text-slate-700">${item.nama_barang || '—'}</td>
+              <td class="p-4 text-sm text-slate-600">${qty} Unit</td>
+              <td class="p-4 text-sm text-slate-600">Rp ${hargaEst.toLocaleString('id-ID')}</td>
+              <td class="p-4 text-sm text-blue-600 font-semibold">${vendor}</td>
+              <td class="p-4 text-sm font-bold text-slate-900">${hargaFix > 0 ? 'Rp ' + hargaFix.toLocaleString('id-ID') : '—'}</td>
+              <td class="p-4"><span class="${badgeClass}">${statusLabel}</span></td>
+              <td class="p-4">${aksiBtn}</td>
+            </tr>
+          `;
+        });
+      } catch (e) {
+        console.error(e);
+      }
     }
-  }
 
-  async function prosesAlur(id, status_baru) {
-    try {
-      await fetch(`${URL_API}?id=eq.${id}`, { method: "PATCH", headers: HEADERS_APP, body: JSON.stringify({ status: status_baru }) });
-      dapatkanDataPR();
-    } catch (e) { alert("Gagal memperbarui status."); }
-  }
+    function bukaFormQuotation(id, namaBarang) {
+      const panel = document.getElementById('dynamicActionPanel');
+      const title = document.getElementById('actionPanelTitle');
+      const content = document.getElementById('actionFormContent');
+      
+      panel.style.display = 'block';
+      title.innerText = `Langkah 3: Input Negosiasi Harga Masuk - ${namaBarang}`;
+      content.innerHTML = `
+        <div class="grid grid-cols-1 md:grid-cols-3 gap-4 items-end">
+          <div class="flex flex-col gap-1.5">
+            <label class="text-xs font-semibold text-slate-600">Nama Supplier / Vendor Terpilih</label>
+            <input type="text" id="input_vendor" placeholder="Contoh: PT. Borneo Tekno Utama" class="h-11 px-4 border border-slate-300 rounded-lg text-sm outline-none bg-white">
+          </div>
+          <div class="flex flex-col gap-1.5">
+            <label class="text-xs font-semibold text-slate-600">Harga Real Deal Hasil Negosiasi (Satuan)</label>
+            <input type="number" id="input_harga_vendor" placeholder="Rp 0" class="h-11 px-4 border border-slate-300 rounded-lg text-sm outline-none bg-white">
+          </div>
+          <button class="bg-amber-600 hover:bg-amber-700 text-white h-11 px-6 rounded-lg text-sm font-bold transition shadow-sm" onclick="simpanQuotation('${id}')">Simpan Ke Database</button>
+        </div>
+      `;
+    }
 
-  async function tambahPR() {
-    const nama = document.getElementById('nama_barang').value.trim();
-    const qty = parseInt(document.getElementById('jumlah').value) || 1;
-    const harga = parseFloat(document.getElementById('harga').value) || 0;
+    async function simpanQuotation(id) {
+      const vendor = document.getElementById('input_vendor').value.trim();
+      const harga = parseFloat(document.getElementById('input_harga_vendor').value) || 0;
 
-    if(!nama || harga <= 0) { alert("Isi nama barang dan harga estimasi!"); return; }
+      if(!vendor || harga <= 0) { alert("Isi nama vendor dan nominal harga deal!"); return; }
 
-    try {
-      await fetch(URL_API, {
-        method: "POST",
-        headers: HEADERS_APP,
-        body: JSON.stringify({ nama_barang: nama, jumlah: qty, harga_estimasi: harga, status: 'pending' })
-      });
-      document.getElementById('nama_barang').value = "";
-      document.getElementById('harga').value = "";
-      dapatkanDataPR();
-    } catch(e) { console.error(e); }
-  }
+      try {
+        await fetch(`${URL_API}?id=eq.${id}`, { 
+          method: "PATCH", 
+          headers: HEADERS_APP, 
+          body: JSON.stringify({ supplier_terpilih: vendor, harga_vendor: harga, status: 'input_quotation' }) 
+        });
+        document.getElementById('dynamicActionPanel').style.display = 'none';
+        dapatkanDataPR();
+      } catch(e) { console.error(e); }
+    }
 
-  window.onload = dapatkanDataPR;
-</script>
+    function bukaFormEvaluasi(id, namaBarang, vendor, hargaFix) {
+      const panel = document.getElementById('dynamicActionPanel');
+      const title = document.getElementById('actionPanelTitle');
+      const content = document.getElementById('actionFormContent');
+      
+      panel.style.display = 'block';
+      title.innerText = `Langkah 4: Validasi & Teruskan Dokumen ke Manajer`;
+      content.innerHTML = `
+        <div class="bg-emerald-50 border border-emerald-200 rounded-lg p-4 text-emerald-800 text-sm font-medium mb-4">
+          ℹ️ <strong>Sistem Validasi Harga Terkunci:</strong> Item <strong>${namaBarang}</strong> menggunakan penawaran harga resmi dari <strong>${vendor}</strong> senilai <strong>Rp ${hargaFix.toLocaleString('id-ID')} / unit</strong>. Nominal ini dikirim utuh ke Manajer & Keuangan.
+        </div>
+        <div class="flex justify-end gap-3">
+          <button class="bg-slate-200 hover:bg-slate-300 text-slate-700 px-4 py-2 rounded-lg text-sm font-semibold transition" onclick="document.getElementById('dynamicActionPanel').style.display='none'">Batal</button>
+          <button class="bg-purple-600 hover:bg-purple-700 text-white px-5 py-2 rounded-lg text-sm font-bold transition shadow-sm" onclick="ubahKeStatus('${id}', 'dikirim_ke_manajer')">🚀 Teruskan ke Manajer (Kunci Nilai)</button>
+        </div>
+      `;
+    }
+
+    async function ubahKeStatus(id, status_baru) {
+      try {
+        await fetch(`${URL_API}?id=eq.${id}`, { method: "PATCH", headers: HEADERS_APP, body: JSON.stringify({ status: status_baru }) });
+        document.getElementById('dynamicActionPanel').style.display = 'none';
+        dapatkanDataPR();
+      } catch (e) { alert("Koneksi Supabase error."); }
+    }
+
+    async function tambahPR() {
+      const nama = document.getElementById('nama_barang').value.trim();
+      const qty = parseInt(document.getElementById('jumlah').value) || 1;
+      const harga = parseFloat(document.getElementById('harga').value) || 0;
+
+      if(!nama || harga <= 0) { alert("Isi nama komponen dan harga estimasi!"); return; }
+
+      try {
+        await fetch(URL_API, {
+          method: "POST",
+          headers: HEADERS_APP,
+          body: JSON.stringify({ nama_barang: nama, jumlah: qty, harga_estimasi: harga, status: 'pending', supplier_terpilih: '—', harga_vendor: 0 })
+        });
+        document.getElementById('nama_barang').value = "";
+        document.getElementById('harga').value = "";
+        dapatkanDataPR();
+      } catch(e) { console.error(e); }
+    }
+
+    window.onload = dapatkanDataPR;
+  </script>
 </body>
 </html>
