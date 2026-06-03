@@ -88,8 +88,8 @@
         const itemFix = item.nama_barang || 'Material Logistik';
         const vendorFix = item.supplier_terpilih || item.supplier || "PT. Mitra Rekanan ITK";
         
-        // AMBIL NILAI HARGA DARI PENGADAAN (TIDAK MERUBAH DATABASE)
-        const hargaFix = Number(item.harga) || Number(item.harga_supplier) || 0;
+        // AMBIL NILAI HARGA DARI PENGADAAN SECARA REAL-TIME MULTI-FIELD SUPAYA PASTI ADA ANGKA NYA
+        const hargaFix = Number(item.harga_supplier) || Number(item.harga) || Number(item.total_harga) || 0;
         const shortId = item.id ? String(item.id).substring(0,6) : '0000';
 
         let nomorSJ = "SJ-REF";
@@ -103,7 +103,7 @@
         let aksiTombol = "";
         if (currentTabKeuangan === 'perlu_dibayar') {
           aksiTombol = `
-            <button onclick="GenerateInvoice3WayPDF('${itemFix}', '${vendorFix}', '${nomorInv}', '${nomorSJ}', ${hargaFix}, ${item.jumlah || 1}, '${shortId}', 'UNPAID')" class="bg-purple-700 hover:bg-purple-800 text-white text-xs font-bold px-4 py-2.5 rounded-xl transition shadow-sm">
+            <button onclick="GenerateInvoice3WayPDF('${itemFix.replace(/'/g, "\\'")}', '${vendorFix.replace(/'/g, "\\'")}', '${nomorInv}', '${nomorSJ}', ${hargaFix}, ${item.jumlah || 1}, '${shortId}', 'UNPAID')" class="bg-purple-700 hover:bg-purple-800 text-white text-xs font-bold px-4 py-2.5 rounded-xl transition shadow-sm">
               📄 Lihat PDF Invoice (3-Way Audit)
             </button>
             <button onclick="ProsesBayarLunas('${item.id}')" class="bg-emerald-600 hover:bg-emerald-700 text-white text-xs font-bold px-4 py-2.5 rounded-xl transition shadow-sm">
@@ -111,7 +111,7 @@
             </button>`;
         } else {
           aksiTombol = `
-            <button onclick="GenerateInvoice3WayPDF('${itemFix}', '${vendorFix}', '${nomorInv}', '${nomorSJ}', ${hargaFix}, ${item.jumlah || 1}, '${shortId}', 'PAID', '${item.link_bukti_lunas || 'TRF-BANK/ITK'}')" class="bg-emerald-600 hover:bg-emerald-700 text-white text-xs font-bold px-4 py-2.5 rounded-xl transition shadow-sm">
+            <button onclick="GenerateInvoice3WayPDF('${itemFix.replace(/'/g, "\\'")}', '${vendorFix.replace(/'/g, "\\'")}', '${nomorInv}', '${nomorSJ}', ${hargaFix}, ${item.jumlah || 1}, '${shortId}', 'PAID', '${item.link_bukti_lunas || 'TRF-BANK/ITK'}')" class="bg-emerald-600 hover:bg-emerald-700 text-white text-xs font-bold px-4 py-2.5 rounded-xl transition shadow-sm">
               🖨️ Cetak PDF Invoice (PAID)
             </button>`;
         }
@@ -166,8 +166,8 @@
               <div class="text-[10px] font-bold uppercase tracking-wider text-slate-400 mb-2">📋 Hasil Validasi Komparasi (3-Way Matching Audit)</div>
               <div class="grid grid-cols-3 gap-4 text-xs font-bold text-slate-700">
                 <div class="bg-white p-2 rounded border border-slate-200">1. Ref PO: <span class="text-blue-600 font-mono">#ITK-PO-\${poId}</span> <span class="text-emerald-600">✓</span></div>
-                <div class="bg-white p-2 rounded border border-slate-200">2. No. Surat Jalan: <span class="text-purple-600 font-mono">\${sj}</span> <span class="text-emerald-600">✓</span></div>
-                <div class="bg-white p-2 rounded border border-slate-200">3. No. Invoice: <span class="text-amber-600 font-mono">\${inv}</span> <span class="text-emerald-600">✓</span></div>
+                <div class="bg-white p-2 rounded border border-slate-200">2. No. Surat Jalan: <span class="text-purple-600 font-mono">\text{sj}}</span> <span class="text-emerald-600">✓</span></div>
+                <div class="bg-white p-2 rounded border border-slate-200">3. No. Invoice: <span class="text-amber-600 font-mono">\text{inv}}</span> <span class="text-emerald-600">✓</span></div>
               </div>
             </div>
 
@@ -181,8 +181,8 @@
               </thead>
               <tbody>
                 <tr class="font-semibold text-slate-700">
-                  <td class="p-3 border border-slate-300 capitalize font-bold text-slate-900">\${barang}</td>
-                  <td class="p-3 border border-slate-300 text-center">\${qty} Unit/Pcs</td>
+                  <td class="p-3 border border-slate-300 capitalize font-bold text-slate-900">\text{barang}}</td>
+                  <td class="p-3 border border-slate-300 text-center">\text{qty}} Unit/Pcs</td>
                   <td class="p-3 border border-slate-300 text-right text-emerald-600 font-black text-sm">Rp \${total.toLocaleString('id-ID')}</td>
                 </tr>
               </tbody>
@@ -191,7 +191,7 @@
             \${statusBayar === 'PAID' ? \`
             <div class="mt-6 p-4 bg-emerald-50 border border-emerald-300 rounded-xl text-center text-xs font-bold text-emerald-800">
               💰 DANA TELAH DICAIRKAN / TRANSFER BERHASIL <br>
-              <span class="font-mono text-xs text-slate-600">No. Referensi Bank Keuangan ITK: \threfBank}</span>
+              <span class="font-mono text-xs text-slate-600">No. Referensi Bank Keuangan ITK: \${refBank}</span>
             </div>\` : ''}
 
           </div>
