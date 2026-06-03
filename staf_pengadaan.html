@@ -73,7 +73,7 @@
       </div>
     </div>
 
-    <div class="flex flex-col lg:flex-row lg:items-center justify-between gap-4 bg-white/80 backdrop-blur-md p-3 rounded-2xl border border-slate-200/60 shadow-sm mb-8">
+    <div class="bg-white/80 backdrop-blur-md p-3 rounded-2xl border border-slate-200/60 shadow-sm mb-8">
       <div class="flex flex-wrap gap-1.5">
         <button onclick="setFilter('menunggu')" id="tab-menunggu" class="px-4 py-2.5 rounded-xl text-xs font-bold transition-all duration-200 flex items-center gap-2">
           📁 1. Cek PR
@@ -97,11 +97,9 @@
         </button>
         <button onclick="setFilter('selesai')" id="tab-selesai" class="px-4 py-2.5 rounded-xl text-xs font-bold transition-all duration-200 flex items-center gap-2">
           ✅ 6. History Selesai
+          <span class="bg-slate-200 text-slate-700 px-2 py-0.5 rounded-md text-[10px] font-extrabold" id="badge-selesai">0</span>
         </button>
       </div>
-      <button onclick="bersihkanSemuaHistory()" class="bg-red-50 hover:bg-red-100 text-red-600 border border-red-200/60 text-xs font-bold px-4 py-2.5 rounded-xl transition-all duration-200">
-        🗑️ Kosongkan Riwayat
-      </button>
     </div>
 
     <div id="panelFormSakti" class="bg-white border border-amber-200 p-6 rounded-2xl mb-8 shadow-md hidden bg-gradient-to-r from-amber-50/50 to-transparent">
@@ -155,6 +153,7 @@
         document.getElementById('badge-diproses').innerText = data.filter(i => i.status === 'diproses').length;
         document.getElementById('badge-disetujui').innerText = data.filter(i => i.status === 'disetujui').length;
         document.getElementById('badge-diterima').innerText = data.filter(i => i.status === 'diterima').length;
+        document.getElementById('badge-selesai').innerText = data.filter(i => i.status === 'selesai').length;
 
         renderCards(data);
       } catch (e) { console.error(e); }
@@ -162,6 +161,8 @@
 
     function setFilter(statusFilter) {
       currentFilter = statusFilter;
+      
+      // MEMPERBAIKI ID TAB SELESAI AGAR BISA DIKLIK DAN BERFUNGSI NORMAL
       ['tab-menunggu', 'tab-diverifikasi', 'tab-diproses', 'tab-disetujui', 'tab-diterima', 'tab-selesai'].forEach(id => {
         document.getElementById(id).className = "px-4 py-2.5 rounded-xl text-xs font-bold transition-all duration-200 flex items-center gap-2 text-slate-500 hover:bg-slate-100 hover:text-slate-800";
       });
@@ -210,18 +211,16 @@
         } else if(item.status === 'diproses') {
           aksiTombol = `<span class="text-indigo-700 font-bold text-xs bg-indigo-50 border border-indigo-200 px-4 py-2 rounded-xl flex items-center gap-1.5">⏳ Menunggu Meja Manajer</span>`;
         } else if(item.status === 'disetujui') {
-          // TOMBOL INTERAKTIF SERAHKAN KE SUPPLIER
           aksiTombol = `<button onclick="prosesStatus('${item.id}', 'dikirim')" class="bg-purple-600 hover:bg-purple-700 text-white text-xs font-bold px-5 py-2.5 rounded-xl transition shadow-sm">🚀 Serahkan ke Supplier (Kirim Barang)</button>`;
         } else if(item.status === 'diterima') {
-          // TOMBOL INTERAKTIF AUDIT SURAT JALAN
           aksiTombol = `<button onclick="prosesStatus('${item.id}', 'selesai')" class="bg-pink-600 hover:bg-pink-700 text-white text-xs font-bold px-5 py-2.5 rounded-xl transition shadow-sm">🔍 Lolos Audit SJ & Selesai</button>`;
         } else {
           aksiTombol = `<span class="text-emerald-700 font-bold text-xs bg-emerald-50 border border-emerald-200 px-4 py-2 rounded-xl flex items-center gap-1.5">🔒 Arsip History Aman</span>`;
         }
 
-        // Tampilkan catatan penyerahan dari user jika ada
         const catatanUser = item.catatan_penerimaan ? `<div class="mt-2 text-[11px] bg-slate-50 border p-2 rounded-lg text-slate-600">📝 <b>Catatan Penerimaan User:</b> ${item.catatan_penerimaan}</div>` : '';
 
+        // SEKARANG HAPUS DATA BERSIFAT PILIHAN INDIVIDUAL (TERSEDIA DI SETIAP BARIS BARANG)
         container.innerHTML += `
           <div class="bg-white border border-slate-200 rounded-2xl custom-shadow flex flex-col md:flex-row md:items-center justify-between gap-6 card-glow transition-all duration-300 relative overflow-hidden p-6 pl-8">
             <div class="absolute top-0 left-0 w-2 h-full ${warnaSamping}"></div>
@@ -306,14 +305,6 @@
       if(!confirm("Apakah Anda yakin ingin menghapus bersih data ini?")) return;
       try {
         const res = await fetch(`${URL_API}?id=eq.${id}`, { method: "DELETE", headers: HEADERS_APP });
-        if(res.ok) loadDataSistem();
-      } catch(e) { console.error(e); }
-    }
-
-    async function bersihkanSemuaHistory() {
-      if(!confirm("Wipe-out seluruh data riwayat uji coba?")) return;
-      try {
-        const res = await fetch(`${URL_API}?id=neq.00000000-0000-0000-0000-000000000000`, { method: "DELETE", headers: HEADERS_APP });
         if(res.ok) loadDataSistem();
       } catch(e) { console.error(e); }
     }
