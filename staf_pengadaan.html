@@ -27,7 +27,7 @@
       <div class="bg-amber-500 w-10 h-10 rounded-xl flex items-center justify-center text-xl shadow-md font-bold">⚙️</div>
       <div>
         <h1 class="text-lg font-extrabold tracking-tight block leading-tight">Sistem Procurement ITK</h1>
-        <p class="text-[11px] text-slate-400 font-medium tracking-wide">Direktorat Logistik & Pengelolaan Vendor Rekanan</p>
+        <p class="text-[11px] text-slate-400 font-medium tracking-wide">Direktorat Logistik & Alur Pengadaan Sinkron</p>
       </div>
     </div>
     <div class="flex items-center gap-6">
@@ -40,58 +40,67 @@
 
   <main class="max-w-7xl mx-auto px-8 mt-10">
     
-    <div class="grid grid-cols-2 md:grid-cols-5 gap-5 mb-10">
-      <div class="bg-white p-6 rounded-2xl border border-slate-200/80 custom-shadow text-center relative overflow-hidden">
+    <div class="grid grid-cols-2 md:grid-cols-6 gap-4 mb-10">
+      <div class="bg-white p-5 rounded-2xl border border-slate-200/80 custom-shadow text-center relative overflow-hidden">
         <div class="absolute top-0 left-0 w-full h-1 bg-amber-500"></div>
-        <div class="text-3xl font-black text-amber-600 mb-1 tracking-tight" id="stat-1">0</div>
-        <div class="text-[11px] font-bold text-slate-400 uppercase tracking-wider">1. Perlu Dicek</div>
+        <div class="text-2xl font-black text-amber-600 mb-1 tracking-tight" id="stat-1">0</div>
+        <div class="text-[10px] font-bold text-slate-400 uppercase tracking-wider">1. Cek PR</div>
       </div>
-      <div class="bg-white p-6 rounded-2xl border border-slate-200/80 custom-shadow text-center relative overflow-hidden">
+      <div class="bg-white p-5 rounded-2xl border border-slate-200/80 custom-shadow text-center relative overflow-hidden">
         <div class="absolute top-0 left-0 w-full h-1 bg-cyan-500"></div>
-        <div class="text-3xl font-black text-cyan-600 mb-1 tracking-tight" id="stat-2">0</div>
-        <div class="text-[11px] font-bold text-slate-400 uppercase tracking-wider">2. Cari Vendor</div>
+        <div class="text-2xl font-black text-cyan-600 mb-1 tracking-tight" id="stat-2">0</div>
+        <div class="text-[10px] font-bold text-slate-400 uppercase tracking-wider">2. Cari Vendor</div>
       </div>
-      <div class="bg-white p-6 rounded-2xl border border-slate-200/80 custom-shadow text-center relative overflow-hidden">
+      <div class="bg-white p-5 rounded-2xl border border-slate-200/80 custom-shadow text-center relative overflow-hidden">
         <div class="absolute top-0 left-0 w-full h-1 bg-indigo-500"></div>
-        <div class="text-3xl font-black text-indigo-600 mb-1 tracking-tight" id="stat-3">0</div>
-        <div class="text-[11px] font-bold text-slate-400 uppercase tracking-wider">3. Evaluasi Harga</div>
+        <div class="text-2xl font-black text-indigo-600 mb-1 tracking-tight" id="stat-3">0</div>
+        <div class="text-[10px] font-bold text-slate-400 uppercase tracking-wider">3. Tunggu Approve</div>
       </div>
-      <div class="bg-white p-6 rounded-2xl border border-slate-200/80 custom-shadow text-center relative overflow-hidden">
+      <div class="bg-white p-5 rounded-2xl border border-slate-200/80 custom-shadow text-center relative overflow-hidden">
         <div class="absolute top-0 left-0 w-full h-1 bg-purple-500"></div>
-        <div class="text-3xl font-black text-purple-600 mb-1 tracking-tight" id="stat-4">0</div>
-        <div class="text-[11px] font-bold text-slate-400 uppercase tracking-wider">4. Audit SJ</div>
+        <div class="text-2xl font-black text-purple-600 mb-1 tracking-tight" id="stat-4">0</div>
+        <div class="text-[10px] font-bold text-slate-400 uppercase tracking-wider">4. Serah Supplier</div>
       </div>
-      <div class="bg-white p-6 rounded-2xl border border-slate-200/80 custom-shadow text-center relative overflow-hidden">
+      <div class="bg-white p-5 rounded-2xl border border-slate-200/80 custom-shadow text-center relative overflow-hidden">
+        <div class="absolute top-0 left-0 w-full h-1 bg-pink-500"></div>
+        <div class="text-2xl font-black text-pink-600 mb-1 tracking-tight" id="stat-5">0</div>
+        <div class="text-[10px] font-bold text-slate-400 uppercase tracking-wider">5. Audit SJ</div>
+      </div>
+      <div class="bg-white p-5 rounded-2xl border border-slate-200/80 custom-shadow text-center relative overflow-hidden">
         <div class="absolute top-0 left-0 w-full h-1 bg-emerald-500"></div>
-        <div class="text-3xl font-black text-emerald-600 mb-1 tracking-tight" id="stat-5">0</div>
-        <div class="text-[11px] font-bold text-slate-400 uppercase tracking-wider">5. Selesai Lunas</div>
+        <div class="text-2xl font-black text-emerald-600 mb-1 tracking-tight" id="stat-6">0</div>
+        <div class="text-[10px] font-bold text-slate-400 uppercase tracking-wider">6. Selesai Lunas</div>
       </div>
     </div>
 
     <div class="flex flex-col lg:flex-row lg:items-center justify-between gap-4 bg-white/80 backdrop-blur-md p-3 rounded-2xl border border-slate-200/60 shadow-sm mb-8">
       <div class="flex flex-wrap gap-1.5">
-        <button onclick="setFilter('pending')" id="tab-pending" class="px-5 py-2.5 rounded-xl text-xs font-bold transition-all duration-200 flex items-center gap-2">
-          📁 1. Cek Berkas PR
-          <span class="bg-slate-200 text-slate-700 px-2 py-0.5 rounded-md text-[10px] font-extrabold" id="badge-pending">0</span>
+        <button onclick="setFilter('menunggu')" id="tab-menunggu" class="px-4 py-2.5 rounded-xl text-xs font-bold transition-all duration-200 flex items-center gap-2">
+          📁 1. Cek PR
+          <span class="bg-slate-200 text-slate-700 px-2 py-0.5 rounded-md text-[10px] font-extrabold" id="badge-menunggu">0</span>
         </button>
-        <button onclick="setFilter('pr_terverifikasi')" id="tab-verif" class="px-5 py-2.5 rounded-xl text-xs font-bold transition-all duration-200 flex items-center gap-2">
+        <button onclick="setFilter('diverifikasi')" id="tab-diverifikasi" class="px-4 py-2.5 rounded-xl text-xs font-bold transition-all duration-200 flex items-center gap-2">
           🤝 2. Cari Vendor
-          <span class="bg-slate-200 text-slate-700 px-2 py-0.5 rounded-md text-[10px] font-extrabold" id="badge-verif">0</span>
+          <span class="bg-slate-200 text-slate-700 px-2 py-0.5 rounded-md text-[10px] font-extrabold" id="badge-diverifikasi">0</span>
         </button>
-        <button onclick="setFilter('input_quotation')" id="tab-eval" class="px-5 py-2.5 rounded-xl text-xs font-bold transition-all duration-200 flex items-center gap-2">
-          ⚖️ 3. Evaluasi & Kirim
-          <span class="bg-slate-200 text-slate-700 px-2 py-0.5 rounded-md text-[10px] font-extrabold" id="badge-eval">0</span>
+        <button onclick="setFilter('diproses')" id="tab-diproses" class="px-4 py-2.5 rounded-xl text-xs font-bold transition-all duration-200 flex items-center gap-2">
+          ⏳ 3. Tunggu Approve
+          <span class="bg-slate-200 text-slate-700 px-2 py-0.5 rounded-md text-[10px] font-extrabold" id="badge-diproses">0</span>
         </button>
-        <button onclick="setFilter('audit_sj')" id="tab-audit" class="px-5 py-2.5 rounded-xl text-xs font-bold transition-all duration-200 flex items-center gap-2">
-          🔍 4. Audit Surat Jalan
-          <span class="bg-slate-200 text-slate-700 px-2 py-0.5 rounded-md text-[10px] font-extrabold" id="badge-audit">0</span>
+        <button onclick="setFilter('disetujui')" id="tab-disetujui" class="px-4 py-2.5 rounded-xl text-xs font-bold transition-all duration-200 flex items-center gap-2">
+          🚀 4. Serah Supplier
+          <span class="bg-slate-200 text-slate-700 px-2 py-0.5 rounded-md text-[10px] font-extrabold" id="badge-disetujui">0</span>
         </button>
-        <button onclick="setFilter('dikirim_ke_manajer')" id="tab-wait" class="px-5 py-2.5 rounded-xl text-xs font-bold transition-all duration-200 flex items-center gap-2">
-          ⏳ Menunggu Approval
+        <button onclick="setFilter('diterima')" id="tab-diterima" class="px-4 py-2.5 rounded-xl text-xs font-bold transition-all duration-200 flex items-center gap-2">
+          🔍 5. Audit SJ
+          <span class="bg-slate-200 text-slate-700 px-2 py-0.5 rounded-md text-[10px] font-extrabold" id="badge-diterima">0</span>
+        </button>
+        <button onclick="setFilter('selesai')" id="tab-selesai" class="px-4 py-2.5 rounded-xl text-xs font-bold transition-all duration-200 flex items-center gap-2">
+          ✅ 6. History Selesai
         </button>
       </div>
-      <button onclick="bersihkanSemuaHistory()" class="bg-red-50 hover:bg-red-100 text-red-600 border border-red-200/60 text-xs font-bold px-5 py-2.5 rounded-xl transition-all duration-200">
-        🗑️ Kosongkan Seluruh Riwayat Uji Coba
+      <button onclick="bersihkanSemuaHistory()" class="bg-red-50 hover:bg-red-100 text-red-600 border border-red-200/60 text-xs font-bold px-4 py-2.5 rounded-xl transition-all duration-200">
+        🗑️ Kosongkan Riwayat
       </button>
     </div>
 
@@ -112,7 +121,6 @@
           <span class="w-2 h-2 rounded-full bg-blue-600"></span>
           Log Alur Berkas Pengadaan Aktif
         </h3>
-        <span class="text-[11px] text-slate-400 font-medium">Gunakan tombol 'Hapus' di kanan kartu untuk membuang data demo sampah</span>
       </div>
       
       <div class="flex flex-col gap-4" id="kontenCardsPR">
@@ -126,25 +134,27 @@
     const KEY_TOKEN = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImJndGdlbHRrYmFubG52eW1hbHVtIiwicm9sZSI6ImFub24iLCJpYXQiOjE3Nzk1MTAwNDksImV4cCI6MjA5NTA4NjA0OX0.-JlapeQpug44SjkEKgb1wyoX2_ftdGGcAnTHJhdzvwE";
     const HEADERS_APP = { "apikey": KEY_TOKEN, "Authorization": `Bearer ${KEY_TOKEN}`, "Content-Type": "application/json" };
 
-    let currentFilter = 'pending';
+    let currentFilter = 'menunggu';
 
     async function loadDataSistem() {
       try {
         const res = await fetch(`${URL_API}?order=created_at.desc`, { method: "GET", headers: HEADERS_APP });
         const data = await res.json();
         
-        // Counter data realtime di atas
-        document.getElementById('stat-1').innerText = data.filter(i => i.status === 'pending' || !i.status).length;
-        document.getElementById('stat-2').innerText = data.filter(i => i.status === 'pr_terverifikasi').length;
-        document.getElementById('stat-3').innerText = data.filter(i => i.status === 'input_quotation').length;
-        document.getElementById('stat-4').innerText = data.filter(i => i.status === 'audit_sj').length;
-        document.getElementById('stat-5').innerText = data.filter(i => i.status === 'po_terbit' || i.status === 'selesai' || i.status === 'selesai_lunas').length;
+        // Sinkronisasi Counter Atas dengan Status User
+        document.getElementById('stat-1').innerText = data.filter(i => i.status === 'menunggu' || !i.status).length;
+        document.getElementById('stat-2').innerText = data.filter(i => i.status === 'diverifikasi').length;
+        document.getElementById('stat-3').innerText = data.filter(i => i.status === 'diproses').length;
+        document.getElementById('stat-4').innerText = data.filter(i => i.status === 'disetujui').length;
+        document.getElementById('stat-5').innerText = data.filter(i => i.status === 'diterima' || i.status === 'dikirim').length;
+        document.getElementById('stat-6').innerText = data.filter(i => i.status === 'selesai').length;
 
         // Badge menu tab
-        document.getElementById('badge-pending').innerText = data.filter(i => i.status === 'pending' || !i.status).length;
-        document.getElementById('badge-verif').innerText = data.filter(i => i.status === 'pr_terverifikasi').length;
-        document.getElementById('badge-eval').innerText = data.filter(i => i.status === 'input_quotation').length;
-        document.getElementById('badge-audit').innerText = data.filter(i => i.status === 'audit_sj').length;
+        document.getElementById('badge-menunggu').innerText = data.filter(i => i.status === 'menunggu' || !i.status).length;
+        document.getElementById('badge-diverifikasi').innerText = data.filter(i => i.status === 'diverifikasi').length;
+        document.getElementById('badge-diproses').innerText = data.filter(i => i.status === 'diproses').length;
+        document.getElementById('badge-disetujui').innerText = data.filter(i => i.status === 'disetujui').length;
+        document.getElementById('badge-diterima').innerText = data.filter(i => i.status === 'diterima').length;
 
         renderCards(data);
       } catch (e) { console.error(e); }
@@ -152,15 +162,11 @@
 
     function setFilter(statusFilter) {
       currentFilter = statusFilter;
-      ['tab-pending', 'tab-verif', 'tab-eval', 'tab-audit', 'tab-wait'].forEach(id => {
-        document.getElementById(id).className = "px-5 py-2.5 rounded-xl text-xs font-bold transition-all duration-200 flex items-center gap-2 text-slate-500 hover:bg-slate-100 hover:text-slate-800";
+      ['tab-menunggu', 'tab-diverifikasi', 'tab-diproses', 'tab-disetujui', 'tab-diterima', 'tab-selesai'].forEach(id => {
+        document.getElementById(id).className = "px-4 py-2.5 rounded-xl text-xs font-bold transition-all duration-200 flex items-center gap-2 text-slate-500 hover:bg-slate-100 hover:text-slate-800";
       });
       
-      if(statusFilter === 'pending') document.getElementById('tab-pending').className = "px-5 py-2.5 rounded-xl text-xs font-bold transition-all duration-200 flex items-center gap-2 bg-[#0f2847] text-white shadow-sm";
-      if(statusFilter === 'pr_terverifikasi') document.getElementById('tab-verif').className = "px-5 py-2.5 rounded-xl text-xs font-bold transition-all duration-200 flex items-center gap-2 bg-[#0f2847] text-white shadow-sm";
-      if(statusFilter === 'input_quotation') document.getElementById('tab-eval').className = "px-5 py-2.5 rounded-xl text-xs font-bold transition-all duration-200 flex items-center gap-2 bg-[#0f2847] text-white shadow-sm";
-      if(statusFilter === 'audit_sj') document.getElementById('tab-audit').className = "px-5 py-2.5 rounded-xl text-xs font-bold transition-all duration-200 flex items-center gap-2 bg-[#0f2847] text-white shadow-sm";
-      if(statusFilter === 'dikirim_ke_manajer') document.getElementById('tab-wait').className = "px-5 py-2.5 rounded-xl text-xs font-bold transition-all duration-200 flex items-center gap-2 bg-[#0f2847] text-white shadow-sm";
+      document.getElementById(`tab-${statusFilter}`).className = "px-4 py-2.5 rounded-xl text-xs font-bold transition-all duration-200 flex items-center gap-2 bg-[#0f2847] text-white shadow-sm";
 
       loadDataSistem();
     }
@@ -170,14 +176,14 @@
       container.innerHTML = "";
 
       const filtered = allData.filter(item => {
-        if (!item.status && currentFilter === 'pending') return true;
+        if (!item.status && currentFilter === 'menunggu') return true;
         return item.status === currentFilter;
       });
 
       if(filtered.length === 0) {
         container.innerHTML = `
           <div class="bg-white rounded-2xl border border-slate-200/80 p-12 text-center text-slate-400 text-xs custom-shadow">
-             ✨ Tidak ada antrean dokumen pengadaan pada kategori tab ini.
+             ✨ Tidak ada antrean berkas pengadaan pada kategori tab ini.
           </div>`;
         return;
       }
@@ -190,27 +196,31 @@
         let labelStatus = "Perlu Dicek Staf";
         let badgeWarna = "bg-amber-50 text-amber-700 border-amber-200";
         
-        if(item.status === 'pr_terverifikasi') { warnaSamping = "bg-cyan-500"; labelStatus = "Pencarian Vendor"; badgeWarna = "bg-cyan-50 text-cyan-700 border-cyan-200"; }
-        if(item.status === 'input_quotation') { warnaSamping = "bg-indigo-500"; labelStatus = "Evaluasi Komparasi"; badgeWarna = "bg-indigo-50 text-indigo-700 border-indigo-200"; }
-        if(item.status === 'audit_sj') { warnaSamping = "bg-purple-500"; labelStatus = "Pengecekan Logistik/SJ"; badgeWarna = "bg-purple-50 text-purple-700 border-purple-200"; }
-        if(item.status === 'dikirim_ke_manajer') { warnaSamping = "bg-slate-400"; labelStatus = "Review Manajer"; badgeWarna = "bg-slate-100 text-slate-700 border-slate-300"; }
-        if(item.status === 'po_terbit' || item.status === 'selesai' || item.status === 'selesai_lunas') { warnaSamping = "bg-emerald-500"; labelStatus = "Lunas / Selesai"; badgeWarna = "bg-emerald-50 text-emerald-700 border-emerald-200"; }
+        if(item.status === 'diverifikasi') { warnaSamping = "bg-cyan-500"; labelStatus = "Pencarian Vendor"; badgeWarna = "bg-cyan-50 text-cyan-700 border-cyan-200"; }
+        if(item.status === 'diproses') { warnaSamping = "bg-indigo-500"; labelStatus = "Menunggu Approval Manajer"; badgeWarna = "bg-indigo-50 text-indigo-700 border-indigo-200"; }
+        if(item.status === 'disetujui') { warnaSamping = "bg-purple-500"; labelStatus = "Disetujui! Siap Kirim Supplier"; badgeWarna = "bg-purple-50 text-purple-700 border-purple-200"; }
+        if(item.status === 'diterima') { warnaSamping = "bg-pink-500"; labelStatus = "Barang Sampai (Perlu Audit SJ)"; badgeWarna = "bg-pink-50 text-pink-700 border-pink-200"; }
+        if(item.status === 'selesai') { warnaSamping = "bg-emerald-500"; labelStatus = "Lunas & Selesai"; badgeWarna = "bg-emerald-50 text-emerald-700 border-emerald-200"; }
 
         let aksiTombol = "";
-        if(!item.status || item.status === 'pending') {
-          aksiTombol = `<button onclick="prosesStatus('${item.id}', 'pr_terverifikasi')" class="bg-blue-600 hover:bg-blue-700 text-white text-xs font-bold px-5 py-2.5 rounded-xl transition shadow-sm">✓ Verifikasi PR</button>`;
-        } else if(item.status === 'pr_terverifikasi') {
+        if(!item.status || item.status === 'menunggu') {
+          aksiTombol = `<button onclick="prosesStatus('${item.id}', 'diverifikasi')" class="bg-blue-600 hover:bg-blue-700 text-white text-xs font-bold px-5 py-2.5 rounded-xl transition shadow-sm">✓ Verifikasi PR</button>`;
+        } else if(item.status === 'diverifikasi') {
           aksiTombol = `<button onclick="bukaFormKunci('${item.id}', '${item.nama_barang}')" class="bg-cyan-600 hover:bg-cyan-700 text-white text-xs font-bold px-5 py-2.5 rounded-xl transition shadow-sm">📄 Hubungkan Vendor & Harga</button>`;
-        } else if(item.status === 'input_quotation') {
-          aksiTombol = `<button onclick="bukaFormKirimManajer('${item.id}', '${item.nama_barang}', '${vendor}', ${hargaReal})" class="bg-indigo-600 hover:bg-indigo-700 text-white text-xs font-bold px-5 py-2.5 rounded-xl transition shadow-sm">🚀 Kirim ke Manajer (Kunci)</button>`;
-        } else if(item.status === 'audit_sj') {
-          // TOMBOL INTERAKTIF AUDIT SURAT JALAN MENUJU KEUANGAN (SIAP BAYAR)
-          aksiTombol = `<button onclick="prosesStatus('${item.id}', 'po_terbit')" class="bg-purple-600 hover:bg-purple-700 text-white text-xs font-bold px-5 py-2.5 rounded-xl transition shadow-sm">🔍 Lolos Audit SJ (Kirim ke Keuangan)</button>`;
-        } else if(item.status === 'dikirim_ke_manajer') {
-          aksiTombol = `<span class="text-slate-500 font-bold text-xs bg-slate-50 border border-slate-200 px-4 py-2 rounded-xl flex items-center gap-1.5">⏳ Menunggu Meja Manajer</span>`;
+        } else if(item.status === 'diproses') {
+          aksiTombol = `<span class="text-indigo-700 font-bold text-xs bg-indigo-50 border border-indigo-200 px-4 py-2 rounded-xl flex items-center gap-1.5">⏳ Menunggu Meja Manajer</span>`;
+        } else if(item.status === 'disetujui') {
+          // TOMBOL INTERAKTIF SERAHKAN KE SUPPLIER
+          aksiTombol = `<button onclick="prosesStatus('${item.id}', 'dikirim')" class="bg-purple-600 hover:bg-purple-700 text-white text-xs font-bold px-5 py-2.5 rounded-xl transition shadow-sm">🚀 Serahkan ke Supplier (Kirim Barang)</button>`;
+        } else if(item.status === 'diterima') {
+          // TOMBOL INTERAKTIF AUDIT SURAT JALAN
+          aksiTombol = `<button onclick="prosesStatus('${item.id}', 'selesai')" class="bg-pink-600 hover:bg-pink-700 text-white text-xs font-bold px-5 py-2.5 rounded-xl transition shadow-sm">🔍 Lolos Audit SJ & Selesai</button>`;
         } else {
-          aksiTombol = `<span class="text-emerald-700 font-bold text-xs bg-emerald-50 border border-emerald-200 px-4 py-2 rounded-xl flex items-center gap-1.5">🔒 Lunas & Selesai</span>`;
+          aksiTombol = `<span class="text-emerald-700 font-bold text-xs bg-emerald-50 border border-emerald-200 px-4 py-2 rounded-xl flex items-center gap-1.5">🔒 Arsip History Aman</span>`;
         }
+
+        // Tampilkan catatan penyerahan dari user jika ada
+        const catatanUser = item.catatan_penerimaan ? `<div class="mt-2 text-[11px] bg-slate-50 border p-2 rounded-lg text-slate-600">📝 <b>Catatan Penerimaan User:</b> ${item.catatan_penerimaan}</div>` : '';
 
         container.innerHTML += `
           <div class="bg-white border border-slate-200 rounded-2xl custom-shadow flex flex-col md:flex-row md:items-center justify-between gap-6 card-glow transition-all duration-300 relative overflow-hidden p-6 pl-8">
@@ -224,9 +234,10 @@
               <div class="grid grid-cols-2 md:grid-cols-4 gap-y-2 gap-x-4 text-xs font-medium text-slate-500">
                 <div>Kuantitas: <span class="text-slate-800 font-bold">${item.jumlah || 1} Unit</span></div>
                 <div>Vendor: <span class="text-blue-600 font-bold">${vendor}</span></div>
-                <div>Harga Real Deal: <span class="text-slate-900 font-extrabold">${hargaReal > 0 ? 'Rp ' + hargaReal.toLocaleString('id-ID') : '—'}</span></div>
+                <div>Harga Deal: <span class="text-slate-900 font-extrabold">${hargaReal > 0 ? 'Rp ' + hargaReal.toLocaleString('id-ID') : '—'}</span></div>
                 <div class="text-[10px] font-mono text-slate-400">ID: #PR-${item.id.substring(0,6)}</div>
               </div>
+              ${catatanUser}
             </div>
             
             <div class="flex items-center gap-2 self-end md:self-auto border-t md:border-t-0 pt-3 md:pt-0 w-full md:w-auto justify-end">
@@ -253,7 +264,7 @@
             <input type="number" id="v_harga" placeholder="Rp 0" class="h-11 px-4 border border-slate-200 rounded-xl text-xs font-semibold outline-none focus:border-blue-500 bg-white shadow-inner">
           </div>
           <div class="flex gap-2">
-            <button onclick="simpanKunciHarga('${id}')" class="bg-cyan-600 hover:bg-cyan-700 text-white text-xs font-bold h-11 px-4 rounded-xl flex-1 shadow-sm transition">Kunci & Tulis ke Database</button>
+            <button onclick="simpanKunciHarga('${id}')" class="bg-cyan-600 hover:bg-cyan-700 text-white text-xs font-bold h-11 px-4 rounded-xl flex-1 shadow-sm transition">Kunci & Ajukan ke Manajer</button>
             <button onclick="document.getElementById('panelFormSakti').classList.add('hidden')" class="bg-slate-100 hover:bg-slate-200 text-slate-600 text-xs font-bold h-11 px-4 rounded-xl transition">Batal</button>
           </div>
         </div>
@@ -269,28 +280,13 @@
         const res = await fetch(`${URL_API}?id=eq.${id}`, {
           method: "PATCH",
           headers: HEADERS_APP,
-          body: JSON.stringify({ supplier_terpilih: vendor, harga_vendor: harga, status: 'input_quotation' })
+          body: JSON.stringify({ supplier_terpilih: vendor, harga_vendor: harga, status: 'diproses' })
         });
         if(res.ok) {
           document.getElementById('panelFormSakti').classList.add('hidden');
-          setFilter('input_quotation');
+          setFilter('diproses');
         }
       } catch(e) { console.error(e); }
-    }
-
-    function bukaFormKirimManajer(id, namaBarang, vendor, harga) {
-      const pnl = document.getElementById('panelFormSakti');
-      pnl.classList.remove('hidden');
-      document.getElementById('judulPanelSakti').innerText = `Langkah 3: Konformitas Penguncian & Pengiriman Berkas`;
-      document.getElementById('kontenPanelSakti').innerHTML = `
-        <div class="bg-indigo-50/50 border border-indigo-100 rounded-xl p-4 text-xs text-indigo-900 font-medium mb-4 leading-relaxed">
-          ⚠️ <strong>Arsitektur Keamanan Data:</strong> Nominal senilai <strong>Rp ${harga.toLocaleString('id-ID')}</strong> yang diajukan oleh <strong>${vendor}</strong> untuk pengadaan <strong>${namaBarang}</strong> akan dikunci permanen. Angka ini yang dikirim mutlak ke dashboard Manajer & Staf Keuangan untuk mencegah fraud.
-        </div>
-        <div class="flex gap-2 justify-end">
-          <button onclick="document.getElementById('panelFormSakti').classList.add('hidden')" class="bg-slate-100 text-slate-600 text-xs font-bold px-4 py-2.5 rounded-xl">Batal Periksa</button>
-          <button onclick="prosesStatus('${id}', 'dikirim_ke_manajer')" class="bg-indigo-600 hover:bg-indigo-700 text-white text-xs font-bold px-5 py-2.5 rounded-xl shadow-sm transition">🚀 Kirim Berkas Berwenang</button>
-        </div>
-      `;
     }
 
     async function prosesStatus(id, statusBaru) {
@@ -301,41 +297,28 @@
           body: JSON.stringify({ status: statusBaru })
         });
         if(res.ok) {
-          document.getElementById('panelFormSakti').classList.add('hidden');
           setFilter(statusBaru);
         }
       } catch(e) { console.error(e); }
     }
 
-    // FITUR UTAMA HAPUS PER BARIS BARANG DATA SAMPAH
     async function hapusBaris(id) {
-      if(!confirm("Apakah Anda yakin ingin menghapus bersih baris data pengadaan ini dari server database?")) return;
+      if(!confirm("Apakah Anda yakin ingin menghapus bersih data ini?")) return;
       try {
-        const res = await fetch(`${URL_API}?id=eq.${id}`, { 
-          method: "DELETE", 
-          headers: HEADERS_APP 
-        });
-        if(res.ok) {
-          loadDataSistem();
-        }
+        const res = await fetch(`${URL_API}?id=eq.${id}`, { method: "DELETE", headers: HEADERS_APP });
+        if(res.ok) loadDataSistem();
       } catch(e) { console.error(e); }
     }
 
-    // FITUR UTAMA KOSONGKAN SELURUH ISI TABEL SUPABASE
     async function bersihkanSemuaHistory() {
-      if(!confirm("PERINGATAN! Seluruh data riwayat procurement di tabel Supabase Anda akan dihapus total secara permanen. Tetap jalankan?")) return;
+      if(!confirm("Wipe-out seluruh data riwayat uji coba?")) return;
       try {
-        const res = await fetch(`${URL_API}?id=neq.00000000-0000-0000-0000-000000000000`, { 
-          method: "DELETE", 
-          headers: HEADERS_APP 
-        });
-        if(res.ok) {
-          loadDataSistem();
-        }
+        const res = await fetch(`${URL_API}?id=neq.00000000-0000-0000-0000-000000000000`, { method: "DELETE", headers: HEADERS_APP });
+        if(res.ok) loadDataSistem();
       } catch(e) { console.error(e); }
     }
 
-    window.onload = () => setFilter('pending');
+    window.onload = () => setFilter('menunggu');
   </script>
 </body>
 </html>
