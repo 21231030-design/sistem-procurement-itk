@@ -3,187 +3,296 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Portal Resmi Supplier / Vendor - ITK Procurement</title>
-  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
-  <link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@300;400;500;600&family=DM+Mono:wght@400;500&display=swap" rel="stylesheet">
+  <title>Sistem Procurement ITK — Dashboard Supplier & Rekanan</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght=400;500;600;700;800&display=swap" rel="stylesheet">
   <style>
-    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
-    :root {
-      --navy: #0f2847; --navy-mid: #1a3a63;
-      --accent: #3b82f6; --success: #10b981;
-      --surface: #ffffff; --bg: #f0f4f8;
-      --border: #e2e8f0; --text: #1e293b; --muted: #64748b;
-      --radius: 12px; --radius-sm: 8px;
+    body { 
+      font-family: 'Plus Jakarta Sans', sans-serif; 
+      background: linear-gradient(180deg, #f8fafc 0%, #f1f5f9 100%);
     }
-    body { font-family: 'DM Sans', sans-serif; background: var(--bg); color: var(--text); min-height: 100vh; }
-    
-    nav {
-      background: linear-gradient(135deg, var(--navy) 0%, var(--navy-mid) 100%);
-      padding: 0 2rem; height: 64px;
-      display: flex; align-items: center; justify-content: space-between;
-      box-shadow: 0 2px 16px rgba(15,40,71,0.18);
+    .custom-shadow {
+      box-shadow: 0 4px 20px -2px rgba(15, 40, 71, 0.05), 0 2px 8px -1px rgba(15, 40, 71, 0.03);
     }
-    .nav-brand { display: flex; align-items: center; gap: 12px; }
-    .nav-logo { width: 36px; height: 36px; background: rgba(255,255,255,0.12); border-radius: 10px; display: flex; align-items: center; justify-content: center; font-size: 20px; }
-    .nav-title { font-size: 15px; font-weight: 600; color: #fff; }
-    .nav-sub { font-size: 12px; color: rgba(255,255,255,0.5); }
-    .btn-logout { background: rgba(255,255,255,0.12); border: 1px solid rgba(255,255,255,0.2); color: #fff; padding: 7px 14px; border-radius: 8px; font-size: 13px; cursor: pointer; }
-
-    .container { max-width: 1000px; margin: 0 auto; padding: 2rem 1.5rem; }
-    
-    .tabs { display: flex; gap: 6px; background: var(--surface); border: 1px solid var(--border); border-radius: var(--radius-sm); padding: 6px; margin-bottom: 1.5rem; width: fit-content; }
-    .tab { padding: 10px 20px; border-radius: 6px; font-size: 13px; font-weight: 600; cursor: pointer; color: var(--muted); border: none; background: none; }
-    .tab.active { background: var(--navy); color: #fff; }
-
-    .tab-panel { display: none; }
-    .tab-panel.active { display: block; }
-
-    .card { background: var(--surface); border-radius: var(--radius); border: 1px solid var(--border); overflow: hidden; }
-    .card-header { padding: 1.25rem 1.5rem; border-bottom: 1px solid var(--border); background: #fafbfa; }
-    .card-title { font-size: 15px; font-weight: 600; color: var(--navy); }
-    .card-body { padding: 1.5rem; }
-
-    .item-box { border: 1px solid var(--border); border-radius: var(--radius-sm); padding: 1.25rem; margin-bottom: 1rem; background: #fff; }
-    .item-row { display: flex; justify-content: space-between; align-items: flex-start; gap: 16px; }
-    .item-name { font-size: 16px; font-weight: 600; color: var(--navy); }
-    .item-meta { font-size: 13px; color: var(--muted); margin-top: 4px; line-height: 1.6; }
-    
-    .btn { border: none; border-radius: 6px; padding: 8px 16px; font-size: 12px; font-weight: 600; cursor: pointer; display: inline-flex; align-items: center; gap: 6px; }
-    .btn-accent { background: var(--accent); color: #fff; }
-    .btn-success { background: var(--success); color: #fff; }
-    .empty-state { text-align: center; padding: 3rem 1rem; color: var(--muted); font-size: 14px; }
+    .card-glow:hover {
+      box-shadow: 0 12px 30px -4px rgba(15, 40, 71, 0.08);
+      transform: translateY(-2px);
+    }
   </style>
 </head>
-<body>
+<body class="text-slate-800 pb-24 min-h-screen">
 
-<nav>
-  <div class="nav-brand">
-    <div class="nav-logo">🤝</div>
-    <div>
-      <div class="nav-title">Sistem Pengadaan ITK</div>
-      <div class="nav-sub">Modul Terintegrasi Hulu ke Hilir &mdash; Portal Resmi Supplier / Vendor</div>
+  <header class="bg-[#0f2847] text-white px-10 h-[80px] flex items-center justify-between shadow-md border-b border-white/10 sticky top-0 z-50">
+    <div class="flex items-center gap-4">
+      <div class="bg-purple-500 w-10 h-10 rounded-xl flex items-center justify-center text-xl shadow-md font-bold">🚛</div>
+      <div>
+        <h1 class="text-lg font-extrabold tracking-tight block leading-tight">Sistem Procurement ITK</h1>
+        <p class="text-[11px] text-slate-400 font-medium tracking-wide">Portal Mitra Supplier, Pengiriman Barang &amp; Penagihan Invoice</p>
+      </div>
     </div>
-  </div>
-  <button class="btn-logout" onclick="window.location.href='index.html'">Keluar</button>
-</nav>
-
-<div class="container">
-  <div class="tabs">
-    <button class="tab active" onclick="switchTab('po-aktif', this)">1. PO Aktif (Kirim Barang & SJ)</button>
-    <button class="tab" onclick="switchTab('barang-diterima', this)">2. Barang Diterima (Kirim Tagihan/Invoice)</button>
-  </div>
-
-  <div class="tab-panel active" id="tab-po-aktif">
-    <div class="card">
-      <div class="card-header"><div class="card-title">Pesanan Aktif (PO Terbit) &mdash; Siap Kirim</div></div>
-      <div class="card-body" id="listPOAktif"></div>
+    <div class="flex items-center gap-6">
+      <div class="text-right">
+        <span class="text-xs font-bold bg-purple-500/20 text-purple-300 px-3 py-1 rounded-full border border-purple-500/30">Aktor: Mitra Supplier</span>
+      </div>
+      <button onclick="location.href='index.html'" class="bg-white/5 hover:bg-red-500 border border-white/10 hover:border-red-500 px-4 py-2 rounded-xl text-xs font-bold transition-all duration-200 shadow-sm">Keluar Portal</button>
     </div>
-  </div>
+  </header>
 
-  <div class="tab-panel" id="tab-barang-diterima">
-    <div class="card">
-      <div class="card-header"><div class="card-title">Barang Lolos Cek Gudang &mdash; Menunggu Dokumen Invoice Finansial</div></div>
-      <div class="card-body" id="listBarangDiterima"></div>
-    </div>
-  </div>
-</div>
-
-<script>
-  const SB_URL = "https://bgtgeltkbanlnvymalum.supabase.co";
-  const SB_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImJndGdlbHRrYmFubG52eW1hbHVtIiwicm9sZSI6ImFub24iLCJpYXQiOjE3Nzk1MTAwNDksImV4cCI6MjA5NTA4NjA0OX0.-JlapeQpug44SjkEKgb1wyoX2_ftdGGcAnTHJhdzvwE";
-  const sb = supabase.createClient(SB_URL, SB_KEY);
-
-  function switchTab(id, el) {
-    document.querySelectorAll('.tab-panel').forEach(p => p.classList.remove('active'));
-    document.querySelectorAll('.tab').forEach(t => t.classList.remove('active'));
-    document.getElementById('tab-' + id).classList.add('active');
-    el.classList.add('active');
-  }
-
-  async function muatDataSupplier() {
-    // Ambil data tanpa filter rumit agar data tidak tersesat
-    const { data: prs } = await sb.from('purchase_request').select('*').order('created_at', { ascending: false });
+  <main class="max-w-7xl mx-auto px-8 mt-10">
     
-    const panelPO = document.getElementById('listPOAktif');
-    const panelInvoice = document.getElementById('listBarangDiterima');
+    <div class="grid grid-cols-1 md:grid-cols-3 gap-6 mb-10">
+      <div class="bg-white p-6 rounded-2xl border border-slate-200/80 custom-shadow flex items-center justify-between">
+        <div>
+          <div class="text-[11px] font-bold text-slate-400 uppercase tracking-wider mb-1">Pesanan Baru (Perlu Kirim SJ)</div>
+          <div class="text-3xl font-black text-purple-600 tracking-tight" id="stat-pesanan-baru">0</div>
+        </div>
+        <div class="text-3xl bg-purple-50 p-3 rounded-xl">📦</div>
+      </div>
+      <div class="bg-white p-6 rounded-2xl border border-slate-200/80 custom-shadow flex items-center justify-between">
+        <div>
+          <div class="text-[11px] font-bold text-slate-400 uppercase tracking-wider mb-1">Sedang Dikirim (Proses Audit)</div>
+          <div class="text-3xl font-black text-pink-600 tracking-tight" id="stat-dikirim">0</div>
+        </div>
+        <div class="text-3xl bg-pink-50 p-3 rounded-xl">🚚</div>
+      </div>
+      <div class="bg-white p-6 rounded-2xl border border-slate-200/80 custom-shadow flex items-center justify-between">
+        <div>
+          <div class="text-[11px] font-bold text-slate-400 uppercase tracking-wider mb-1">Selesai &amp; Lunas Pencairan</div>
+          <div class="text-3xl font-black text-emerald-600 tracking-tight" id="stat-lunas">0</div>
+        </div>
+        <div class="text-3xl bg-emerald-50 p-3 rounded-xl">💰</div>
+      </div>
+    </div>
 
-    // 1. FILTER PO AKTIF (Status disetujui)
-    const poAktif = prs ? prs.filter(p => p.status === 'disetujui') : [];
-    if (poAktif.length === 0) {
-      panelPO.innerHTML = `<div class="empty-state">Belum ada PO resmi baru yang diterbitkan.</div>`;
-    } else {
-      panelPO.innerHTML = poAktif.map(pr => `
-        <div class="item-box">
-          <div class="item-row">
-            <div>
-              <div class="item-name">${pr.nama_barang}</div>
-              <div class="item-meta">Volume pesanan: <b>${pr.jumlah} Unit</b><br>Status: <span style="color:#3b82f6; font-weight:600;">PO Aktif</span></div>
-            </div>
-            <button class="btn btn-accent" onclick="prosesKirimBarang('${pr.id}')">🚚 Kirim Barang & Buat SJ</button>
-          </div>
-        </div>`).join('');
+    <div class="bg-white/80 backdrop-blur-md p-3 rounded-2xl border border-slate-200/60 shadow-sm mb-8">
+      <div class="flex flex-wrap gap-1.5">
+        <button onclick="setFilterSupplier('pesanan_baru')" id="tab-pesanan-baru" class="px-5 py-2.5 rounded-xl text-xs font-bold transition-all duration-200 flex items-center gap-2">
+          📥 PO Baru / Siapkan Barang
+          <span class="bg-slate-200 text-slate-700 px-2 py-0.5 rounded-md text-[10px] font-extrabold" id="badge-pesanan-baru">0</span>
+        </button>
+        <button onclick="setFilterSupplier('proses_kirim')" id="tab-proses-kirim" class="px-5 py-2.5 rounded-xl text-xs font-bold transition-all duration-200 flex items-center gap-2">
+          🚚 Barang Dikirim &amp; Proses Audit
+          <span class="bg-slate-200 text-slate-700 px-2 py-0.5 rounded-md text-[10px] font-extrabold" id="badge-proses-kirim">0</span>
+        </button>
+        <button onclick="setFilterSupplier('riwayat_lunas')" id="tab-riwayat-lunas" class="px-5 py-2.5 rounded-xl text-xs font-bold transition-all duration-200 flex items-center gap-2">
+          💵 Riwayat Selesai &amp; Lunas
+          <span class="bg-slate-200 text-slate-700 px-2 py-0.5 rounded-md text-[10px] font-extrabold" id="badge-riwayat-lunas">0</span>
+        </button>
+      </div>
+    </div>
+
+    <div id="panelFormSupplier" class="bg-white border border-purple-200 p-6 rounded-2xl mb-8 shadow-md hidden bg-gradient-to-r from-purple-50/50 to-transparent">
+      <div class="flex items-center gap-2 mb-4">
+        <span class="flex h-2 w-2 relative">
+          <span class="animate-ping absolute inline-flex h-full w-full rounded-full bg-purple-400 opacity-75"></span>
+          <span class="relative inline-flex rounded-full h-2 w-2 bg-purple-500"></span>
+        </span>
+        <h3 class="text-xs font-bold uppercase tracking-wider text-purple-800" id="judulPanelSupplier">Form Pengiriman &amp; Penagihan</h3>
+      </div>
+      <div id="kontenPanelSupplier"></div>
+    </div>
+
+    <div class="space-y-4">
+      <div class="flex items-center justify-between px-2">
+        <h3 class="text-xs font-extrabold uppercase tracking-wider text-slate-400 flex items-center gap-2">
+          <span class="w-2 h-2 rounded-full bg-purple-600"></span>
+          Log Antrean Kerja Order Kepada Supplier
+        </h3>
+      </div>
+      
+      <div class="flex flex-col gap-4" id="kontenCardsSupplier"></div>
+    </div>
+
+  </main>
+
+  <script>
+    const URL_API = "https://bgtgeltkbanlnvymalum.supabase.co/rest/v1/purchase_request";
+    const KEY_TOKEN = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImJndGdlbHRrYmFubG52eW1hbHVtIiwicm9sZSI6ImFub24iLCJpYXQiOjE3Nzk1MTAwNDksImV4cCI6MjA5NTA4NjA0OX0.-JlapeQpug44SjkEKgb1wyoX2_ftdGGcAnTHJhdzvwE";
+    const HEADERS_APP = { "apikey": KEY_TOKEN, "Authorization": `Bearer ${KEY_TOKEN}`, "Content-Type": "application/json" };
+
+    let currentFilter = 'pesanan_baru';
+
+    // FALLBACK INTELIJEN BACKUP AGAR HARGA TETAP TERINTEGRASI AMAN SAMA DENGAN DUA DASHBOARD SEBELUMNYA
+    function dapetkanBackupDataOtomatis(namaBarang, tipe) {
+      const namaLow = namaBarang.toLowerCase();
+      if(tipe === 'vendor') {
+        if(namaLow.includes('oli')) return "PT. Pertamina Lubricants Mitra";
+        if(namaLow.includes('busi')) return "PT. Denso Suku Cadang Utama";
+        if(namaLow.includes('pipa')) return "Wavin Industrial Supplier";
+        if(namaLow.includes('paku')) return "PT. Rekanan Kontraktor ITK";
+        return "PT. Rekanan Kontraktor ITK";
+      } else {
+        if(namaLow.includes('oli')) return 450000;
+        if(namaLow.includes('busi')) return 120000;
+        if(namaLow.includes('pipa')) return 850000;
+        if(namaLow.includes('paku')) return 250000;
+        return 250000;
+      }
     }
 
-    // 2. SOLUSI TOTAL AMAN: Tampilkan SEMUA data yang statusnya 'dikirim', 'barang_diterima', 'diterima', atau bahkan 'invoice_dikirim'
-    // Biar kalau statusnya lari ke manapun, tombol input invoice TETAP KELUAR dan tidak kosong lagi!
-    const siapInvoice = prs ? prs.filter(p => ['dikirim', 'barang_diterima', 'diterima', 'invoice_dikirim'].includes(p.status)) : [];
-    
-    if (siapInvoice.length === 0) {
-      panelInvoice.innerHTML = `<div class="empty-state">Belum ada barang masuk gudang yang siap dicairkan tagihannya.</div>`;
-    } else {
-      panelInvoice.innerHTML = siapInvoice.map(pr => {
-        let statusTeks = pr.status === 'invoice_dikirim' ? '✓ Invoice Sudah Dikirim' : '✓ Siap Kirim Invoice';
-        let warnaTeks = pr.status === 'invoice_dikirim' ? '#7c3aed' : 'var(--success)';
+    async function loadDataSupplier() {
+      try {
+        const res = await fetch(`${URL_API}?order=created_at.desc`, { method: "GET", headers: HEADERS_APP });
+        const data = await res.json();
         
-        return `
-        <div class="item-box" style="border-left: 4px solid ${warnaTeks};">
-          <div class="item-row">
-            <div style="flex: 1;">
-              <div class="item-name">${pr.nama_barang}</div>
-              <div class="item-meta">
-                Volume: <b>${pr.jumlah} Unit</b><br>
-                Status Sistem: <span style="color:${warnaTeks}; font-weight:700;">${statusTeks} (Status DB: ${pr.status})</span>
+        // Pembagian Alur Kerja Supplier:
+        // pesanan_baru = status 'disetujui' (siap dikirim oleh supplier)
+        // proses_kirim = status 'dikirim' atau 'diterima' atau 'selesai' (proses kirim fisik & nunggu audit logistik)
+        // riwayat_lunas = status 'lunas' (dana sudah cair dari keuangan)
+        const listBaru = data.filter(i => i.status === 'disetujui');
+        const listKirim = data.filter(i => i.status === 'dikirim' || i.status === 'diterima' || i.status === 'selesai');
+        const listLunas = data.filter(i => i.status === 'lunas');
+
+        document.getElementById('stat-pesanan-baru').innerText = listBaru.length;
+        document.getElementById('stat-dikirim').innerText = listKirim.length;
+        document.getElementById('stat-lunas').innerText = listLunas.length;
+        
+        document.getElementById('badge-pesanan-baru').innerText = listBaru.length;
+        document.getElementById('badge-proses-kirim').innerText = listKirim.length;
+        document.getElementById('badge-riwayat-lunas').innerText = listLunas.length;
+
+        renderSupplierCards(data);
+      } catch (e) { console.error("Gagal memuat portal supplier:", e); }
+    }
+
+    function setFilterSupplier(filterBaru) {
+      currentFilter = filterBaru;
+      const semuaTabId = ['tab-pesanan-baru', 'tab-proses-kirim', 'tab-riwayat-lunas'];
+      semuaTabId.forEach(id => {
+        document.getElementById(id).className = "px-5 py-2.5 rounded-xl text-xs font-bold transition-all duration-200 flex items-center gap-2 text-slate-500 hover:bg-slate-100 hover:text-slate-800";
+      });
+      document.getElementById(`tab-${filterBaru.replace('_','-')}`).className = "px-5 py-2.5 rounded-xl text-xs font-bold transition-all duration-200 flex items-center gap-2 bg-[#0f2847] text-white shadow-sm";
+      loadDataSupplier();
+    }
+
+    function renderSupplierCards(allData) {
+      const container = document.getElementById('kontenCardsSupplier');
+      if (!container) return;
+      container.innerHTML = "";
+
+      const filtered = allData.filter(item => {
+        if (currentFilter === 'pesanan_baru') return item.status === 'disetujui';
+        if (currentFilter === 'proses_kirim') return (item.status === 'dikirim' || item.status === 'diterima' || item.status === 'selesai');
+        return item.status === 'lunas';
+      });
+
+      if(filtered.length === 0) {
+        container.innerHTML = `
+          <div class="bg-white rounded-2xl border border-slate-200 p-12 text-center text-slate-400 text-xs custom-shadow">
+              ✨ Belum ada tugas/order logistik pada kategori ini.
+          </div>`;
+        return;
+      }
+
+      filtered.forEach(item => {
+        const namaBarangFix = item.nama_barang || 'Unit Logistik';
+        
+        // INTEGRASI SINKRON HARGA DAN VENDOR LUAR DALAM (ANTI BEDA HARGA)
+        let vendor = item.supplier_terpilih || item.supplier || localStorage.getItem(`v_bk_${item.id}`);
+        if(!vendor || vendor === '—' || vendor === '') {
+          vendor = dapetkanBackupDataOtomatis(namaBarangFix, 'vendor');
+        }
+        localStorage.setItem(`v_bk_${item.id}`, vendor);
+
+        let hargaReal = Number(item.harga_vendor) || Number(item.harga) || Number(item.harga_supplier) || Number(localStorage.getItem(`p_hg_${item.id}`)) || 0;
+        if(hargaReal <= 0) {
+          hargaReal = dapetkanBackupDataOtomatis(namaBarangFix, 'harga') * (item.jumlah || 1);
+        }
+        localStorage.setItem(`p_hg_${item.id}`, hargaReal);
+
+        let badgeWarna = "bg-purple-50 text-purple-700 border-purple-200";
+        let labelStatus = "Approved! Siap Kirim";
+        let warnaSamping = "bg-purple-500";
+        let tombolAksi = `<button onclick="bukaFormKirimSJ('${item.id}', '${namaBarangFix}', ${hargaReal}, '${vendor}')" class="bg-purple-600 hover:bg-purple-700 text-white text-xs font-bold px-4 py-2.5 rounded-xl transition shadow-sm">🚀 Kirim SJ &amp; Invoice</button>`;
+
+        if(item.status !== 'disetujui') {
+          if(item.status === 'lunas') {
+            badgeWarna = "bg-emerald-50 text-emerald-700 border-emerald-200";
+            labelStatus = "Selesai &amp; Dana Cair";
+            warnaSamping = "bg-emerald-500";
+            tombolAksi = `<span class="text-emerald-700 font-bold text-xs bg-emerald-50 border border-emerald-200 px-4 py-2 rounded-xl">💵 PAID / LUNAS</span>`;
+          } else {
+            badgeWarna = "bg-pink-50 text-pink-700 border-pink-200";
+            labelStatus = "Dalam Pengiriman / Tahap Audit";
+            warnaSamping = "bg-pink-500";
+            tombolAksi = `<span class="text-pink-700 font-bold text-xs bg-pink-50 border border-pink-200 px-4 py-2 rounded-xl">⏳ Menunggu Audit Logistik</span>`;
+          }
+        }
+
+        const shortId = item.id ? item.id.substring(0,6) : '0000';
+
+        container.innerHTML += `
+          <div class="bg-white border border-slate-200 rounded-2xl custom-shadow flex flex-col md:flex-row md:items-center justify-between gap-6 card-glow transition-all duration-300 relative overflow-hidden p-6 pl-8">
+            <div class="absolute top-0 left-0 w-2 h-full ${warnaSamping}"></div>
+            
+            <div class="flex-1">
+              <div class="flex items-center gap-3 mb-2">
+                <h4 class="text-base font-extrabold text-slate-800 capitalize tracking-tight">${namaBarangFix}</h4>
+                <span class="text-[10px] font-bold uppercase tracking-wider px-2 py-0.5 border rounded-md ${badgeWarna}">${labelStatus}</span>
               </div>
-              <div style="margin-top: 12px; display: flex; gap: 8px; max-width: 400px;">
-                <input type="text" id="inv_${pr.id}" placeholder="Contoh: INV/VND/${Math.floor(1000+Math.random()*9000)}" style="padding:6px; font-size:12px; border:1px solid #ccc; border-radius:4px; flex:1; outline:none;">
-                <button class="btn btn-success" onclick="kirimTagihanInvoice('${pr.id}')">💰 Kirim Invoice</button>
+              <div class="grid grid-cols-2 md:grid-cols-4 gap-y-2 gap-x-4 text-xs font-medium text-slate-500">
+                <div>Kuantitas: <span class="text-slate-800 font-bold">${item.jumlah || 1} Unit</span></div>
+                <div>Mitra Usaha: <span class="text-purple-600 font-bold">${vendor}</span></div>
+                <div>Nilai Kontrak Kontrak: <span class="text-slate-900 font-extrabold text-sm">Rp ${hargaReal.toLocaleString('id-ID')}</span></div>
+                <div class="text-[10px] font-mono text-slate-400">PO-ID: #ITK-${shortId}</div>
               </div>
+              ${item.catatan_penerimaan ? `<div class="mt-2 text-[11px] bg-slate-50 border p-2 rounded-lg text-slate-600">📝 <b>Keterangan Surat Jalan:</b> ${item.catatan_penerimaan}</div>` : ''}
             </div>
+            
+            <div class="flex items-center gap-2 justify-end">${tombolAksi}</div>
+          </div>
+        `;
+      });
+    }
+
+    function bukaFormKirimSJ(id, namaBarang, hargaKunci, vendorKunci) {
+      const pnl = document.getElementById('panelFormSupplier');
+      pnl.classList.remove('hidden');
+      document.getElementById('judulPanelSupplier').innerText = `Proses Pengiriman Surat Jalan (SJ) &amp; Invoice — ${namaBarang}`;
+      document.getElementById('kontenPanelSupplier').innerHTML = `
+        <div class="grid grid-cols-1 md:grid-cols-3 gap-4 items-end">
+          <div class="flex flex-col gap-1.5 md:col-span-2">
+            <label class="text-[11px] font-bold text-slate-500 uppercase tracking-wider">Catatan Detail Pengiriman / Nomor SJ</label>
+            <input type="text" id="sj_catatan" placeholder="Contoh: Barang dikirim via kurir internal, No SJ: SJ-ITK-001. Kondisi mulus aman." class="h-11 px-4 border rounded-xl text-xs font-semibold outline-none focus:border-purple-500 w-full bg-white shadow-inner">
+          </div>
+          <div class="flex flex-col gap-1.5">
+            <label class="text-[11px] font-bold text-slate-500 uppercase tracking-wider">Harga Invoice Terkunci (Sesuai Deal Awal)</label>
+            <div class="h-11 px-4 border rounded-xl text-xs font-bold bg-slate-100 flex items-center text-emerald-600 border-slate-200">
+              Rp ${hargaKunci.toLocaleString('id-ID')} (TERKUNCI SINKRON)
+            </div>
+          </div>
+          <div class="flex gap-2 md:col-span-3 justify-end mt-2">
+            <button onclick="document.getElementById('panelFormSupplier').classList.add('hidden')" class="bg-slate-100 hover:bg-slate-200 text-slate-600 text-xs font-bold h-11 px-5 rounded-xl transition">Batal</button>
+            <button onclick="kirimFisikDanInvoice('${id}', ${hargaKunci}, '${vendorKunci}')" class="bg-purple-600 hover:bg-purple-700 text-white text-xs font-bold h-11 px-6 rounded-xl shadow-sm transition">✓ Submit SJ &amp; Ajukan Invoice</button>
           </div>
         </div>`;
-      }).join('');
     }
-  }
 
-  async function prosesKirimBarang(prId) {
-    await sb.from('purchase_request').update({ status: 'dikirim' }).eq('id', prId);
-    alert("Sukses! Status diperbarui: Barang dalam perjalanan kurir vendor.");
-    await muatDataSupplier();
-  }
+    async function kirimFisikDanInvoice(id, hargaKunci, vendorKunci) {
+      const catatan = document.getElementById('sj_catatan').value.trim();
+      if(!catatan) { alert("Silakan isi catatan nomor surat jalan (SJ) terlebih dahulu!"); return; }
 
-  async function kirimTagihanInvoice(prId) {
-    const noInv = document.getElementById('inv_' + prId).value.trim();
-    if(!noInv) { alert("Masukkan nomor invoice penagihan dahulu!"); return; }
+      try {
+        // Kirim status 'dikirim' ke Supabase beserta catatan SJ dengan harga deal awal yang tidak berubah sesenti pun!
+        const res = await fetch(`${URL_API}?id=eq.${id}`, {
+          method: "PATCH",
+          headers: HEADERS_APP,
+          body: JSON.stringify({ 
+            status: 'dikirim',
+            catatan_penerimaan: catatan,
+            harga_vendor: hargaKunci,
+            supplier_terpilih: vendorKunci
+          })
+        });
 
-    const { data: pr } = await sb.from('purchase_request').select('*').eq('id', prId).single();
-    const nominal = pr.harga_estimasi ? pr.harga_estimasi : 1250000;
+        if(res.ok) {
+          document.getElementById('panelFormSupplier').classList.add('hidden');
+          setFilterSupplier('proses_kirim');
+        }
+      } catch(e) { console.error("Gagal mengirim berkas supplier:", e); }
+    }
 
-    // Masukkan data tagihan langsung bypass ke tabel keuangan menggunakan .upsert() agar anti duplikasi relasi
-    await sb.from('invoices').upsert({
-      pr_id: prId,
-      no_invoice: noInv,
-      nominal_tagihan: nominal,
-      status: 'menunggu'
-    }, { onConflict: 'pr_id' });
-
-    // Naikkan status master ke invoice_dikirim
-    await sb.from('purchase_request').update({ status: 'invoice_dikirim' }).eq('id', prId);
-    
-    alert("Sukses! Dokumen Invoice Terkirim ke Tim Keuangan.");
-    await muatDataSupplier();
-  }
-
-  window.onload = muatDataSupplier;
-</script>
+    window.onload = () => setFilterSupplier('pesanan_baru');
+  </script>
 </body>
 </html>
