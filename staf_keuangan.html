@@ -36,6 +36,7 @@
 
   <script>
     const { createClient } = supabase;
+    // Menggunakan kredensial database Supabase asli milik Anda
     const sb = createClient(
       'https://bgtgeltkbanlnvymalum.supabase.co',
       'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImJndGdlbHRrYmFubG52eW1hbHVtIiwicm9sZSI6ImFub24iLCJpYXQiOjE3Nzk1MTAwNDksImV4cCI6MjA5NTA4NjA0OX0.-JlapeQpug44SjkEKgb1wyoX2_ftdGGcAnTHJhdzvwE'
@@ -48,14 +49,15 @@
         const { data, error } = await sb.from('purchase_request').select('*').order('created_at', { ascending: false });
         if (error) throw error;
 
-        const perluBayar = data.filter(i => (i.status === 'dikirim' || i.status === 'diterima' || i.status === 'selesai') && i.status !== 'lunas').length;
+        // PERBAIKAN LOGIKA FILTER: Yang belum lunas masuk ke tab 'perlu_dibayar' tanpa memandang status teksnya apa
+        const perluBayar = data.filter(i => i.status !== 'lunas').length;
         const telahLunas = data.filter(i => i.status === 'lunas').length;
 
         document.getElementById('f-badge-perlu').innerText = perluBayar;
         document.getElementById('f-badge-lunas').innerText = telahLunas;
 
         TampilkanDaftarKeuangan(data);
-      } catch (e) { console.error(e); }
+      } catch (e) { console.error("Gagal mengambil data database:", e); }
     }
 
     function setTabKeuangan(tabBaru) {
@@ -75,12 +77,13 @@
       const container = document.getElementById('containerKeuangan');
       container.innerHTML = "";
 
+      // Memisahkan data berdasarkan tab aktif
       const filtered = allData.filter(item => {
-        return currentTabKeuangan === 'perlu_dibayar' ? ((item.status === 'dikirim' || item.status === 'diterima' || item.status === 'selesai') && item.status !== 'lunas') : item.status === 'lunas';
+        return currentTabKeuangan === 'perlu_dibayar' ? item.status !== 'lunas' : item.status === 'lunas';
       });
 
       if(filtered.length === 0) {
-        container.innerHTML = `<div class="bg-white rounded-2xl p-12 text-center text-slate-400 text-xs">✨ Belum ada data manifest penagihan.</div>`;
+        container.innerHTML = `<div class="bg-white rounded-2xl p-12 text-center text-slate-400 text-xs shadow-sm">✨ Belum ada data manifest penagihan pada kategori ini.</div>`;
         return;
       }
 
@@ -88,12 +91,13 @@
         const itemFix = item.nama_barang || 'Material Logistik';
         const vendorFix = item.supplier_terpilih || item.supplier || "PT. Mitra Rekanan ITK";
         
-        // MENGAMBIL HARGA ASLI SECARA REAL-TIME DARI DATA PENGADAAN (TANPA DIUBAH/MERUSAK DATA)
+        // MENGAMBIL HARGA ASLI SECARA REAL-TIME DARI DATA PENGADAAN (TANPA MERUSAK STRUKTUR)
         const hargaFix = Number(item.harga) || Number(item.harga_supplier) || 0;
         const shortId = item.id ? String(item.id).substring(0,6) : '0000';
 
-        let nomorSJ = "SJ-REF";
-        let nomorInv = "INV-REF";
+        // Parsing No Surat Jalan dan No Invoice yang diinput supplier
+        let nomorSJ = "Menunggu Input Supplier...";
+        let nomorInv = "Menunggu Input Supplier...";
         if (item.catatan_penerimaan && item.catatan_penerimaan.includes("SJ:")) {
           const part = item.catatan_penerimaan.split(" | ");
           nomorSJ = part[0].replace("[VENDOR] SJ: ", "");
@@ -188,11 +192,11 @@
               </tbody>
             </table>
 
-            ${statusBayar === 'PAID' ? `
+            \${statusBayar === 'PAID' ? \`
             <div class="mt-6 p-4 bg-emerald-50 border border-emerald-300 rounded-xl text-center text-xs font-bold text-emerald-800">
               💰 DANA TELAH DICAIRKAN / TRANSFER BERHASIL <br>
-              <span class="font-mono text-xs text-slate-600">No. Referensi Bank Keuangan ITK: ${refBank}</span>
-            </div>` : ''}
+              <span class="font-mono text-xs text-slate-600">No. Referensi Bank Keuangan ITK: \${refBank}</span>
+            </div>\` : ''}
 
           </div>
           <script>window.onload = function() { window.print(); }<\/script>
