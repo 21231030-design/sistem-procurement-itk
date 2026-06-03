@@ -43,7 +43,6 @@
 
     let currentTabKeuangan = 'perlu_dibayar';
 
-    // Intelijen Backup Data yang sama persis dengan yang ada di kodingan Pengadaan lu bang!
     function dapetkanBackupDataOtomatis(namaBarang, tipe) {
       const namaLow = namaBarang.toLowerCase();
       if(tipe === 'vendor') {
@@ -64,7 +63,6 @@
         const { data, error } = await sb.from('purchase_request').select('*').order('created_at', { ascending: false });
         if (error) throw error;
 
-        // Filtering status disamakan persis dengan range manifest dashboard pengadaan Anda
         const perluBayar = data.filter(i => (i.status === 'dikirim' || i.status === 'diterima' || i.status === 'selesai' || i.status === 'diproses' || i.status === 'disetujui') && i.status !== 'lunas').length;
         const telahLunas = data.filter(i => i.status === 'lunas').length;
 
@@ -105,13 +103,11 @@
       filtered.forEach(item => {
         const namaBarangFix = item.nama_barang || 'Unit Logistik';
         
-        // 1. SINKRONISASI TOTAL VENDOR (Membaca DB -> Membaca LocalStorage Pengadaan -> Menggunakan Fallback Intelijen)
         let vendorFix = item.supplier_terpilih || item.supplier || localStorage.getItem(`v_bk_${item.id}`);
         if(!vendorFix || vendorFix === '—' || vendorFix === '') {
           vendorFix = dapetkanBackupDataOtomatis(namaBarangFix, 'vendor');
         }
 
-        // 2. SINKRONISASI TOTAL HARGA (Membaca kolom 'harga_vendor' pengadaan -> kolom harga lain -> LocalStorage -> Fallback)
         let hargaFix = Number(item.harga_vendor) || Number(item.harga) || Number(item.harga_supplier) || Number(localStorage.getItem(`p_hg_${item.id}`)) || 0;
         if(hargaFix <= 0) {
           hargaFix = dapetkanBackupDataOtomatis(namaBarangFix, 'harga') * (item.jumlah || 1);
@@ -163,8 +159,6 @@
       });
     }
 
-    // Perbaikan total template string agar variabel "total" dan "refBank" lolos render cetak PDF
-     LahirInvoice = function(barang, vendor, inv, sj, total, qty, poId, statusBayar, refBank) { return ""; };
     function GenerateInvoice3WayPDF(barang, vendor, inv, sj, total, qty, poId, statusBayar, refBank = "") {
       const printWindow = window.open('', '_blank');
       printWindow.document.write(`
@@ -172,8 +166,23 @@
         <head>
           <title>ITK Official Invoice — 3-Way Matching Document</title>
           <script src="https://cdn.tailwindcss.com"><\/script>
+          <style>
+            @media print {
+              .no-print { display: none !important; }
+            }
+          </style>
         </head>
         <body class="p-12 text-slate-800 bg-white">
+          <div class="no-print mb-6 flex gap-2 bg-slate-100 p-4 rounded-xl border border-slate-200">
+            <button onclick="window.print()" class="bg-blue-600 hover:bg-blue-700 text-white text-xs font-bold px-4 py-2 rounded-lg transition shadow-sm">
+              🖨️ Cetak Dokumen / Simpan PDF
+            </button>
+            <button onclick="window.close()" class="bg-slate-500 hover:bg-slate-600 text-white text-xs font-bold px-4 py-2 rounded-lg transition shadow-sm">
+              ❌ Tutup Halaman
+            </button>
+            <p class="text-slate-400 text-[11px] self-center ml-2 font-medium">💡 Pilih opsi <b>"Save as PDF"</b> di kolom tujuan printer untuk mengunduh berkas.</p>
+          </div>
+
           <div class="border-2 border-slate-800 p-8 rounded-xl relative">
             
             <div class="absolute top-6 right-6 border-4 ${statusBayar === 'PAID' ? 'border-emerald-600 text-emerald-600' : 'border-amber-500 text-amber-500'} px-6 py-2 rounded-lg font-black text-xl tracking-widest uppercase rotate-12">
@@ -224,7 +233,6 @@
             </div>` : ''}
 
           </div>
-          <script>window.onload = function() { window.print(); }<\/script>
         </body>
         </html>
       `);
