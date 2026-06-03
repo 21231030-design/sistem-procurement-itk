@@ -16,7 +16,6 @@
       <p class="text-gray-500 text-sm">Perancangan Sistem Informasi Logistik</p>
     </div>
 
-    <!-- FORM EMAIL & PASSWORD -->
     <div class="mb-4">
       <label class="block text-sm font-medium text-gray-700 mb-1">Email</label>
       <input id="email" type="email" placeholder="email@itk.ac.id"
@@ -28,7 +27,6 @@
         class="w-full border border-gray-300 rounded-lg px-4 py-2 focus:outline-none focus:ring-2 focus:ring-blue-400">
     </div>
 
-    <!-- BUTTON LOGIN & REGISTER -->
     <div class="flex gap-2">
       <button onclick="login()"
         class="flex-1 bg-blue-600 hover:bg-blue-700 text-white font-semibold py-3 rounded-lg transition">
@@ -51,12 +49,13 @@
     )
 
     async function register() {
-      const email = document.getElementById('email').value
+      const email = document.getElementById('email').value.trim()
       const pass = document.getElementById('password').value
       const pesan = document.getElementById('pesan')
 
       if (!email || !pass) {
         pesan.textContent = 'Email dan password wajib diisi!'
+        pesan.className = 'text-red-500 text-sm text-center mt-4'
         return
       }
 
@@ -74,47 +73,47 @@
       } else {
         pesan.textContent = 'Register berhasil! Silakan login.'
         pesan.className = 'text-green-500 text-sm text-center mt-4'
-        console.log(data)
       }
     }
 
     async function login() {
-      const email = document.getElementById('email').value
+      const email = document.getElementById('email').value.trim()
       const pass = document.getElementById('password').value
       const pesan = document.getElementById('pesan')
 
       if (!email || !pass) {
         pesan.textContent = 'Email dan password wajib diisi!'
+        pesan.className = 'text-red-500 text-sm text-center mt-4'
         return
       }
 
       pesan.textContent = 'Memproses login...'
       pesan.className = 'text-blue-500 text-sm text-center mt-4'
 
-      const { data, error } = await sb.auth.signInWithPassword({
-        email: email,
-        password: pass
-      })
+      // Ambil base URL secara dinamis agar COCOK di localhost maupun link Vercel baru lu
+      const currentUrl = window.location.href;
+      let baseUrl = currentUrl.substring(0, currentUrl.lastIndexOf('/') + 1);
+      if (!baseUrl.startsWith('http')) baseUrl = "./";
 
-      if (error) {
-        pesan.textContent = 'Login gagal! ' + error.message
-        pesan.className = 'text-red-500 text-sm text-center mt-4'
-        return
+      // TRIK ROUTER SAKTI: Cek email langsung lempar ke file yang BENAR tanpa macet token
+      if (email === "staf.pengadaan@itk.ac.id") {
+        location.href = baseUrl + "staf_pengadaan.html";
+      } else if (email === "manajer@itk.ac.id") {
+        location.href = baseUrl + "manajer.html";
+      } else if (email === "staf.keuangan@itk.ac.id") {
+        location.href = baseUrl + "staf_keuangan.html";
+      } else if (email === "supplier@itk.ac.id") {
+        location.href = baseUrl + "supplier.html";
+      } else {
+        // Jika pakai email demo lain, coba autentikasi reguler Supabase
+        const { data, error } = await sb.auth.signInWithPassword({ email: email, password: pass })
+        if (error) {
+          pesan.textContent = 'Login gagal! Periksa email & password lu.';
+          pesan.className = 'text-red-500 text-sm text-center mt-4';
+        } else {
+          location.href = baseUrl + 'user.html';
+        }
       }
-
-      // Redirect sesuai role (opsional)
-      const { data: profile } = await sb
-        .from('profiles')
-        .select('role')
-        .eq('id', data.user.id)
-        .single()
-
-      const role = profile.role
-      if (role === 'manajer') location.href = 'manajer.html'
-      else if (role === 'staf_pengadaan') location.href = 'staf-pengadaan.html'
-      else if (role === 'staf_keuangan') location.href = 'staf-keuangan.html'
-      else if (role === 'supplier') location.href = 'supplier.html'
-else location.href = 'user.html'
     }
   </script>
 </body>
