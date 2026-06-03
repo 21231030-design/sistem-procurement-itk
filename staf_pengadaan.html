@@ -1,133 +1,4 @@
-<!DOCTYPE html>
-<html lang="id">
-<head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Sistem Procurement ITK — Dashboard Staf Pengadaan</title>
-  <script src="https://cdn.tailwindcss.com"></script>
-  <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet">
-  <style>
-    body { 
-      font-family: 'Plus Jakarta Sans', sans-serif; 
-      background: linear-gradient(180deg, #f8fafc 0%, #f1f5f9 100%);
-    }
-    .custom-shadow {
-      box-shadow: 0 4px 20px -2px rgba(15, 40, 71, 0.05), 0 2px 8px -1px rgba(15, 40, 71, 0.03);
-    }
-    .card-glow:hover {
-      box-shadow: 0 12px 30px -4px rgba(15, 40, 71, 0.08);
-      transform: translateY(-2px);
-    }
-  </style>
-</head>
-<body class="text-slate-800 pb-24 min-h-screen">
-
-  <header class="bg-[#0f2847] text-white px-10 h-[80px] flex items-center justify-between shadow-md border-b border-white/10 sticky top-0 z-50">
-    <div class="flex items-center gap-4">
-      <div class="bg-amber-500 w-10 h-10 rounded-xl flex items-center justify-center text-xl shadow-md font-bold">⚙️</div>
-      <div>
-        <h1 class="text-lg font-extrabold tracking-tight block leading-tight">Sistem Procurement ITK</h1>
-        <p class="text-[11px] text-slate-400 font-medium tracking-wide">Direktorat Logistik & Alur Pengadaan Sinkron</p>
-      </div>
-    </div>
-    <div class="flex items-center gap-6">
-      <div class="text-right">
-        <span class="text-xs font-bold bg-blue-500/20 text-blue-300 px-3 py-1 rounded-full border border-blue-500/30">Aktor: Staf Pengadaan</span>
-      </div>
-      <button onclick="location.href='index.html'" class="bg-white/5 hover:bg-red-500 border border-white/10 hover:border-red-500 px-4 py-2 rounded-xl text-xs font-bold transition-all duration-200 shadow-sm">Keluar Portal</button>
-    </div>
-  </header>
-
-  <main class="max-w-7xl mx-auto px-8 mt-10">
-    
-    <div class="grid grid-cols-2 md:grid-cols-6 gap-4 mb-10">
-      <div class="bg-white p-5 rounded-2xl border border-slate-200/80 custom-shadow text-center relative overflow-hidden">
-        <div class="absolute top-0 left-0 w-full h-1 bg-amber-500"></div>
-        <div class="text-2xl font-black text-amber-600 mb-1 tracking-tight" id="stat-1">0</div>
-        <div class="text-[10px] font-bold text-slate-400 uppercase tracking-wider">1. Cek PR</div>
-      </div>
-      <div class="bg-white p-5 rounded-2xl border border-slate-200/80 custom-shadow text-center relative overflow-hidden">
-        <div class="absolute top-0 left-0 w-full h-1 bg-cyan-500"></div>
-        <div class="text-2xl font-black text-cyan-600 mb-1 tracking-tight" id="stat-2">0</div>
-        <div class="text-[10px] font-bold text-slate-400 uppercase tracking-wider">2. Cari Vendor</div>
-      </div>
-      <div class="bg-white p-5 rounded-2xl border border-slate-200/80 custom-shadow text-center relative overflow-hidden">
-        <div class="absolute top-0 left-0 w-full h-1 bg-indigo-500"></div>
-        <div class="text-2xl font-black text-indigo-600 mb-1 tracking-tight" id="stat-3">0</div>
-        <div class="text-[10px] font-bold text-slate-400 uppercase tracking-wider">3. Tunggu Approve</div>
-      </div>
-      <div class="bg-white p-5 rounded-2xl border border-slate-200/80 custom-shadow text-center relative overflow-hidden">
-        <div class="absolute top-0 left-0 w-full h-1 bg-purple-500"></div>
-        <div class="text-2xl font-black text-purple-600 mb-1 tracking-tight" id="stat-4">0</div>
-        <div class="text-[10px] font-bold text-slate-400 uppercase tracking-wider">4. Serah Supplier</div>
-      </div>
-      <div class="bg-white p-5 rounded-2xl border border-slate-200/80 custom-shadow text-center relative overflow-hidden">
-        <div class="absolute top-0 left-0 w-full h-1 bg-pink-500"></div>
-        <div class="text-2xl font-black text-pink-600 mb-1 tracking-tight" id="stat-5">0</div>
-        <div class="text-[10px] font-bold text-slate-400 uppercase tracking-wider">5. Audit SJ</div>
-      </div>
-      <div class="bg-white p-5 rounded-2xl border border-slate-200/80 custom-shadow text-center relative overflow-hidden">
-        <div class="absolute top-0 left-0 w-full h-1 bg-emerald-500"></div>
-        <div class="text-2xl font-black text-emerald-600 mb-1 tracking-tight" id="stat-6">0</div>
-        <div class="text-[10px] font-bold text-slate-400 uppercase tracking-wider">6. Selesai Lunas</div>
-      </div>
-    </div>
-
-    <div class="bg-white/80 backdrop-blur-md p-3 rounded-2xl border border-slate-200/60 shadow-sm mb-8">
-      <div class="flex flex-wrap gap-1.5">
-        <button onclick="setFilter('menunggu')" id="tab-menunggu" class="px-4 py-2.5 rounded-xl text-xs font-bold transition-all duration-200 flex items-center gap-2">
-          📁 1. Cek PR
-          <span class="bg-slate-200 text-slate-700 px-2 py-0.5 rounded-md text-[10px] font-extrabold" id="badge-menunggu">0</span>
-        </button>
-        <button onclick="setFilter('diverifikasi')" id="tab-diverifikasi" class="px-4 py-2.5 rounded-xl text-xs font-bold transition-all duration-200 flex items-center gap-2">
-          🤝 2. Cari Vendor
-          <span class="bg-slate-200 text-slate-700 px-2 py-0.5 rounded-md text-[10px] font-extrabold" id="badge-diverifikasi">0</span>
-        </button>
-        <button onclick="setFilter('diproses')" id="tab-diproses" class="px-4 py-2.5 rounded-xl text-xs font-bold transition-all duration-200 flex items-center gap-2">
-          ⏳ 3. Tunggu Approve
-          <span class="bg-slate-200 text-slate-700 px-2 py-0.5 rounded-md text-[10px] font-extrabold" id="badge-diproses">0</span>
-        </button>
-        <button onclick="setFilter('disetujui')" id="tab-disetujui" class="px-4 py-2.5 rounded-xl text-xs font-bold transition-all duration-200 flex items-center gap-2">
-          🚀 4. Serah Supplier
-          <span class="bg-slate-200 text-slate-700 px-2 py-0.5 rounded-md text-[10px] font-extrabold" id="badge-disetujui">0</span>
-        </button>
-        <button onclick="setFilter('diterima')" id="tab-diterima" class="px-4 py-2.5 rounded-xl text-xs font-bold transition-all duration-200 flex items-center gap-2">
-          🔍 5. Audit SJ
-          <span class="bg-slate-200 text-slate-700 px-2 py-0.5 rounded-md text-[10px] font-extrabold" id="badge-diterima">0</span>
-        </button>
-        <button onclick="setFilter('selesai')" id="tab-selesai" class="px-4 py-2.5 rounded-xl text-xs font-bold transition-all duration-200 flex items-center gap-2">
-          ✅ 6. History Selesai
-          <span class="bg-slate-200 text-slate-700 px-2 py-0.5 rounded-md text-[10px] font-extrabold" id="badge-selesai">0</span>
-        </button>
-      </div>
-    </div>
-
-    <div id="panelFormSakti" class="bg-white border border-amber-200 p-6 rounded-2xl mb-8 shadow-md hidden bg-gradient-to-r from-amber-50/50 to-transparent">
-      <div class="flex items-center gap-2 mb-4">
-        <span class="flex h-2 w-2 relative">
-          <span class="animate-ping absolute inline-flex h-full w-full rounded-full bg-amber-400 opacity-75"></span>
-          <span class="relative inline-flex rounded-full h-2 w-2 bg-amber-500"></span>
-        </span>
-        <h3 class="text-xs font-bold uppercase tracking-wider text-amber-800" id="judulPanelSakti">Form Interaksi</h3>
-      </div>
-      <div id="kontenPanelSakti"></div>
-    </div>
-
-    <div class="space-y-4">
-      <div class="flex items-center justify-between px-2">
-        <h3 class="text-xs font-extrabold uppercase tracking-wider text-slate-400 flex items-center gap-2">
-          <span class="w-2 h-2 rounded-full bg-blue-600"></span>
-          Log Alur Berkas Pengadaan Aktif
-        </h3>
-      </div>
-      
-      <div class="flex flex-col gap-4" id="kontenCardsPR">
-        </div>
-    </div>
-
-  </main>
-
-  <script>
+<script>
     const URL_API = "https://bgtgeltkbanlnvymalum.supabase.co/rest/v1/purchase_request";
     const KEY_TOKEN = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImJndGdlbHRrYmFubG52eW1hbHVtIiwicm9sZSI6ImFub24iLCJpYXQiOjE3Nzk1MTAwNDksImV4cCI6MjA5NTA4NjA0OX0.-JlapeQpug44SjkEKgb1wyoX2_ftdGGcAnTHJhdzvwE";
     const HEADERS_APP = { "apikey": KEY_TOKEN, "Authorization": `Bearer ${KEY_TOKEN}`, "Content-Type": "application/json" };
@@ -145,7 +16,8 @@
         document.getElementById('stat-3').innerText = data.filter(i => i.status === 'diproses').length;
         document.getElementById('stat-4').innerText = data.filter(i => i.status === 'disetujui').length;
         document.getElementById('stat-5').innerText = data.filter(i => i.status === 'diterima' || i.status === 'dikirim').length;
-        document.getElementById('stat-6').innerText = data.filter(i => i.status === 'selesai').length;
+        // Konter atas digabung agar mendeteksi semua yang sudah selesai/diterima
+        document.getElementById('stat-6').innerText = data.filter(i => i.status === 'selesai' || i.status === 'diterima').length;
 
         // Badge menu tab
         document.getElementById('badge-menunggu').innerText = data.filter(i => i.status === 'menunggu' || !i.status).length;
@@ -153,7 +25,7 @@
         document.getElementById('badge-diproses').innerText = data.filter(i => i.status === 'diproses').length;
         document.getElementById('badge-disetujui').innerText = data.filter(i => i.status === 'disetujui').length;
         document.getElementById('badge-diterima').innerText = data.filter(i => i.status === 'diterima').length;
-        document.getElementById('badge-selesai').innerText = data.filter(i => i.status === 'selesai').length;
+        document.getElementById('badge-selesai').innerText = data.filter(i => i.status === 'selesai' || i.status === 'diterima').length;
 
         renderCards(data);
       } catch (e) { console.error(e); }
@@ -162,7 +34,6 @@
     function setFilter(statusFilter) {
       currentFilter = statusFilter;
       
-      // MEMPERBAIKI ID TAB SELESAI AGAR BISA DIKLIK DAN BERFUNGSI NORMAL
       ['tab-menunggu', 'tab-diverifikasi', 'tab-diproses', 'tab-disetujui', 'tab-diterima', 'tab-selesai'].forEach(id => {
         document.getElementById(id).className = "px-4 py-2.5 rounded-xl text-xs font-bold transition-all duration-200 flex items-center gap-2 text-slate-500 hover:bg-slate-100 hover:text-slate-800";
       });
@@ -178,6 +49,8 @@
 
       const filtered = allData.filter(item => {
         if (!item.status && currentFilter === 'menunggu') return true;
+        // JIKA MEMBUKA TAB SELESAI, TAMPILKAN DATA YANG BERSTATUS 'selesai' ATAU 'diterima'
+        if (currentFilter === 'selesai') return item.status === 'selesai' || item.status === 'diterima';
         return item.status === currentFilter;
       });
 
@@ -220,7 +93,6 @@
 
         const catatanUser = item.catatan_penerimaan ? `<div class="mt-2 text-[11px] bg-slate-50 border p-2 rounded-lg text-slate-600">📝 <b>Catatan Penerimaan User:</b> ${item.catatan_penerimaan}</div>` : '';
 
-        // SEKARANG HAPUS DATA BERSIFAT PILIHAN INDIVIDUAL (TERSEDIA DI SETIAP BARIS BARANG)
         container.innerHTML += `
           <div class="bg-white border border-slate-200 rounded-2xl custom-shadow flex flex-col md:flex-row md:items-center justify-between gap-6 card-glow transition-all duration-300 relative overflow-hidden p-6 pl-8">
             <div class="absolute top-0 left-0 w-2 h-full ${warnaSamping}"></div>
@@ -311,5 +183,3 @@
 
     window.onload = () => setFilter('menunggu');
   </script>
-</body>
-</html>
