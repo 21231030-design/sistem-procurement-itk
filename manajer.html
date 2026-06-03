@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Portal Supplier Partner — Logistik ITK</title>
+  <title>Portal Persetujuan Manajer — Pengadaan ITK</title>
   <script src="https://cdn.tailwindcss.com"></script>
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
   <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght=400;500;600;700;800&display=swap" rel="stylesheet">
@@ -11,12 +11,12 @@
 </head>
 <body class="text-slate-800 pb-24">
 
-  <header class="bg-[#022c22] text-white px-10 h-[80px] flex items-center justify-between shadow-md">
+  <header class="bg-[#1e1b4b] text-white px-10 h-[80px] flex items-center justify-between shadow-md">
     <div class="flex items-center gap-4">
-      <div class="bg-emerald-500 w-10 h-10 rounded-xl flex items-center justify-center text-xl font-bold">📦</div>
+      <div class="bg-indigo-500 w-10 h-10 rounded-xl flex items-center justify-center text-xl font-bold">👑</div>
       <div>
-        <h1 class="text-lg font-extrabold block leading-tight">ITK Supplier Hub</h1>
-        <p class="text-[11px] text-emerald-400 font-medium">Sistem Pengiriman &amp; Penerbitan Invoice Rekanan Terintegrasi</p>
+        <h1 class="text-lg font-extrabold block leading-tight">ITK Executive Approval Suite</h1>
+        <p class="text-[11px] text-indigo-300 font-medium">Otorisasi Anggaran &amp; Kendali Validasi Pengadaan Kampus</p>
       </div>
     </div>
     <button onclick="location.href='index.html'" class="bg-white/5 hover:bg-red-500 px-4 py-2 rounded-xl text-xs font-bold transition">Keluar Portal</button>
@@ -24,13 +24,13 @@
 
   <main class="max-w-7xl mx-auto px-8 mt-10">
     <div class="bg-white p-3 rounded-2xl border border-slate-200 shadow-sm mb-8 flex gap-2">
-      <button onclick="setTabSupplier('perlu_dikirim')" id="s-tab-kirim" class="px-5 py-2.5 rounded-xl text-xs font-bold transition flex items-center gap-2">⏳ Pesanan Masuk / Siap Kirim <span class="bg-amber-100 text-amber-700 px-2 py-0.5 rounded-md text-[10px]" id="s-badge-kirim">0</span></button>
-      <button onclick="setTabSupplier('riwayat_kirim')" id="s-tab-riwayat" class="px-5 py-2.5 rounded-xl text-xs font-bold transition flex items-center gap-2">✅ Log Pengiriman Selesai <span class="bg-emerald-100 text-emerald-700 px-2 py-0.5 rounded-md text-[10px]" id="s-badge-riwayat">0</span></button>
+      <button onclick="setTabManajer('butuh_approval')" id="m-tab-butuh" class="px-5 py-2.5 rounded-xl text-xs font-bold transition flex items-center gap-2">⏳ Menunggu Persetujuan <span class="bg-amber-100 text-amber-700 px-2 py-0.5 rounded-md text-[10px]" id="m-badge-butuh">0</span></button>
+      <button onclick="setTabManajer('riwayat_approval')" id="m-tab-riwayat" class="px-5 py-2.5 rounded-xl text-xs font-bold transition flex items-center gap-2">✅ Riwayat Keputusan <span class="bg-indigo-100 text-indigo-700 px-2 py-0.5 rounded-md text-[10px]" id="m-badge-riwayat">0</span></button>
     </div>
 
     <div class="space-y-4">
-      <h3 class="text-xs font-extrabold uppercase tracking-wider text-slate-400 px-2">Manifest Logistik Mitra Penyedia</h3>
-      <div class="flex flex-col gap-4" id="containerSupplier"></div>
+      <h3 class="text-xs font-extrabold uppercase tracking-wider text-slate-400 px-2">Daftar Dokumen Masuk Meja Manajer</h3>
+      <div class="flex flex-col gap-4" id="containerManajer"></div>
     </div>
   </main>
 
@@ -41,9 +41,9 @@
       'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImJndGdlbHRrYmFubG52eW1hbHVtIiwicm9sZSI6ImFub24iLCJpYXQiOjE3Nzk1MTAwNDksImV4cCI6MjA5NTA4NjA0OX0.-JlapeQpug44SjkEKgb1wyoX2_ftdGGcAnTHJhdzvwE'
     );
 
-    let currentTabSupplier = 'perlu_dikirim';
+    let currentTabManajer = 'butuh_approval';
 
-    // RUMUS INTELIJEN BACKUP - 100% SAMA DENGAN PENGADAAN LU BIAR TIDAK JADI 0 ATAU ACAK-ACAKAN
+    // SINKRONISASI LOGIKA FALLBACK AI (100% COPY PASTE DARI KODE PENGADAAN LU BANG)
     function dapetkanBackupDataOtomatis(namaBarang, tipe) {
       const namaLow = namaBarang.toLowerCase();
       if(tipe === 'vendor') {
@@ -59,62 +59,62 @@
       }
     }
 
-    async function AmbilDataSupplier() {
+    async function AmbilDataManajer() {
       try {
         const { data, error } = await sb.from('purchase_request').select('*').order('created_at', { ascending: false });
         if (error) throw error;
 
-        // Menyaring data berdasarkan alur status procurement lu bang
-        const perluKirim = data.filter(i => (i.status === 'disetujui' || i.status === 'diproses') && i.status !== 'selesai' && i.status !== 'lunas').length;
-        const riwayat = data.filter(i => i.status === 'dikirim' || i.status === 'diterima' || i.status === 'selesai' || i.status === 'lunas').length;
+        // Menyaring status antrean sesuai dengan alur 'diproses' (Menunggu Approve di pengadaan)
+        const butuhApproval = data.filter(i => i.status === 'diproses').length;
+        const riwayatApproval = data.filter(i => i.status === 'disetujui' || i.status === 'ditolak' || i.status === 'dikirim' || i.status === 'diterima' || i.status === 'selesai' || i.status === 'lunas').length;
 
-        document.getElementById('s-badge-kirim').innerText = perluKirim;
-        document.getElementById('s-badge-riwayat').innerText = riwayat;
+        document.getElementById('m-badge-butuh').innerText = butuhApproval;
+        document.getElementById('m-badge-riwayat').innerText = riwayatApproval;
 
-        TampilkanDaftarSupplier(data);
+        TampilkanDaftarManajer(data);
       } catch (e) { console.error(e); }
     }
 
-    function setTabSupplier(tabBaru) {
-      currentTabSupplier = tabBaru;
-      document.getElementById('s-tab-kirim').className = "px-5 py-2.5 rounded-xl text-xs font-bold text-slate-500 hover:bg-slate-100";
-      document.getElementById('s-tab-riwayat').className = "px-5 py-2.5 rounded-xl text-xs font-bold text-slate-500 hover:bg-slate-100";
+    function setTabManajer(tabBaru) {
+      currentTabManajer = tabBaru;
+      document.getElementById('m-tab-butuh').className = "px-5 py-2.5 rounded-xl text-xs font-bold text-slate-500 hover:bg-slate-100";
+      document.getElementById('m-tab-riwayat').className = "px-5 py-2.5 rounded-xl text-xs font-bold text-slate-500 hover:bg-slate-100";
       
-      if(currentTabSupplier === 'perlu_dikirim') {
-        document.getElementById('s-tab-kirim').className = "px-5 py-2.5 rounded-xl text-xs font-bold bg-amber-600 text-white shadow-sm";
+      if(currentTabManajer === 'butuh_approval') {
+        document.getElementById('m-tab-butuh').className = "px-5 py-2.5 rounded-xl text-xs font-bold bg-amber-500 text-white shadow-sm";
       } else {
-        document.getElementById('s-tab-riwayat').className = "px-5 py-2.5 rounded-xl text-xs font-bold bg-emerald-600 text-white shadow-sm";
+        document.getElementById('m-tab-riwayat').className = "px-5 py-2.5 rounded-xl text-xs font-bold bg-indigo-600 text-white shadow-sm";
       }
-      AmbilDataSupplier();
+      AmbilDataManajer();
     }
 
-    function TampilkanDaftarSupplier(allData) {
-      const container = document.getElementById('containerSupplier');
+    function TampilkanDaftarManajer(allData) {
+      const container = document.getElementById('containerManajer');
       container.innerHTML = "";
 
       const filtered = allData.filter(item => {
-        if(currentTabSupplier === 'perlu_dikirim') {
-          return (item.status === 'disetujui' || item.status === 'diproses') && item.status !== 'selesai' && item.status !== 'lunas';
+        if(currentTabManajer === 'butuh_approval') {
+          return item.status === 'diproses';
         } else {
-          return (item.status === 'dikirim' || item.status === 'diterima' || item.status === 'selesai' || item.status === 'lunas');
+          return item.status === 'disetujui' || item.status === 'ditolak' || item.status === 'dikirim' || item.status === 'diterima' || item.status === 'selesai' || item.status === 'lunas';
         }
       });
 
       if(filtered.length === 0) {
-        container.innerHTML = `<div class="bg-white rounded-2xl p-12 text-center text-slate-400 text-xs">✨ Belum ada order logistik masuk.</div>`;
+        container.innerHTML = `<div class="bg-white rounded-2xl p-12 text-center text-slate-400 text-xs">✨ Tidak ada berkas yang memerlukan tindakan di halaman ini.</div>`;
         return;
       }
 
       filtered.forEach(item => {
-        const namaBarangFix = item.nama_barang || 'Unit Logistik';
+        const namaBarangFix = item.nama_barang || 'Unit Logistik Kampus';
         
-        // SINKRONISASI NAMA VENDOR DENGAN PENGADAAN
+        // 1. KUNCI REAL-TIME VENDOR DARI PILIHAN STAF PENGADAAN
         let vendorFix = item.supplier_terpilih || item.supplier || localStorage.getItem(`v_bk_${item.id}`);
         if(!vendorFix || vendorFix === '—' || vendorFix === '') {
           vendorFix = dapetkanBackupDataOtomatis(namaBarangFix, 'vendor');
         }
 
-        // SINKRONISASI UTAMA HARGA DENGAN PENGADAAN (MEMPRIORITASKAN 'harga_vendor')
+        // 2. KUNCI REAL-TIME NOMINAL HARGA DARI INPUT STAF PENGADAAN (ANTI ANGKA 0)
         let hargaFix = Number(item.harga_vendor) || Number(item.harga) || Number(item.harga_supplier) || Number(localStorage.getItem(`p_hg_${item.id}`)) || 0;
         if(hargaFix <= 0) {
           hargaFix = dapetkanBackupDataOtomatis(namaBarangFix, 'harga') * (item.jumlah || 1);
@@ -123,38 +123,32 @@
         const shortId = item.id ? String(item.id).substring(0,6) : '0000';
 
         let aksiTombol = "";
-        if (currentTabSupplier === 'perlu_dikirim') {
+        if (currentTabManajer === 'butuh_approval') {
           aksiTombol = `
-            <button onclick="ProsesKirimBarang('${item.id}', '${vendorFix.replace(/'/g, "\\'")}', ${hargaFix})" class="bg-[#022c22] hover:bg-emerald-900 text-white text-xs font-bold px-5 py-2.5 rounded-xl transition shadow-sm">
-              🚚 Kirim Barang &amp; Terbitkan Surat Penagihan
+            <button onclick="EksekusiKeputusan('${item.id}', 'ditolak', '${vendorFix.replace(/'/g, "\\'")}', ${hargaFix})" class="bg-red-100 hover:bg-red-200 text-red-700 text-xs font-bold px-4 py-2.5 rounded-xl transition">
+              ❌ Tolak Anggaran
+            </button>
+            <button onclick="EksekusiKeputusan('${item.id}', 'disetujui', '${vendorFix.replace(/'/g, "\\'")}', ${hargaFix})" class="bg-indigo-600 hover:bg-indigo-700 text-white text-xs font-bold px-5 py-2.5 rounded-xl transition shadow-md">
+              👑 Berikan Otorisasi (Setuju)
             </button>`;
         } else {
-          let nomorSJ = "SJ-REF";
-          let nomorInv = "INV-REF";
-          if (item.catatan_penerimaan && item.catatan_penerimaan.includes("SJ:")) {
-            const part = item.catatan_penerimaan.split(" | ");
-            nomorSJ = part[0].replace("[VENDOR] SJ: ", "");
-            if(part[1]) nomorInv = part[1].replace("INV: ", "");
-          }
-          aksiTombol = `
-            <div class="text-right flex flex-col gap-1">
-              <span class="text-emerald-700 font-bold text-xs bg-emerald-50 border border-emerald-200 px-3 py-1 rounded-lg">Status: ${String(item.status).toUpperCase()}</span>
-              <span class="text-[10px] font-mono text-slate-400">SJ: ${nomorSJ} | Inv: ${nomorInv}</span>
-            </div>`;
+          let badgeStatus = item.status === 'ditolak' ? 'border-red-200 bg-red-50 text-red-700' : 'border-emerald-200 bg-emerald-50 text-emerald-700';
+          let labelStatus = item.status === 'ditolak' ? 'REJECTED' : 'APPROVED & RUNNING';
+          aksiTombol = `<span class="border px-4 py-2 rounded-xl text-xs font-extrabold tracking-wider ${badgeStatus}">${labelStatus}</span>`;
         }
 
         container.innerHTML += `
-          <div class="bg-white border border-slate-200 rounded-2xl p-6 shadow-sm border-l-4 ${currentTabSupplier === 'perlu_dikirim' ? 'border-l-amber-500':'border-l-emerald-500'}">
+          <div class="bg-white border border-slate-200 rounded-2xl p-6 shadow-sm border-l-4 ${currentTabManajer === 'butuh_approval' ? 'border-l-amber-500':'border-l-indigo-600'}">
             <div class="flex flex-col md:flex-row md:items-center justify-between gap-6">
               <div class="flex-1">
                 <div class="bg-slate-50 p-2 rounded-lg text-[10px] font-mono text-slate-400 mb-2 uppercase font-bold tracking-wider">
-                  🎫 ID ORDER PURCHASING: #PR-${shortId}
+                  📂 NOTA AJUAN PENGADAAN: #PR-${shortId}
                 </div>
                 <h4 class="text-base font-extrabold text-slate-800 capitalize mb-1">${namaBarangFix}</h4>
                 <div class="grid grid-cols-1 md:grid-cols-3 gap-2 text-xs font-semibold text-slate-500">
-                  <div>Mitra Logistik: <span class="text-emerald-700 font-bold">${vendorFix}</span></div>
-                  <div>Nilai Kontrak Pengadaan: <span class="text-slate-800 font-black">Rp ${hargaFix.toLocaleString('id-ID')}</span></div>
-                  <div>Kuantitas Kebutuhan: <span class="text-purple-700">${item.jumlah || 1} Unit</span></div>
+                  <div>Vendor Diajukan: <span class="text-indigo-900 font-bold">${vendorFix}</span></div>
+                  <div>Nilai Ajuan Dana: <span class="text-emerald-600 font-black">Rp ${hargaFix.toLocaleString('id-ID')}</span></div>
+                  <div>Jumlah: <span class="text-slate-700">${item.jumlah || 1} Pcs</span></div>
                 </div>
               </div>
               <div class="flex items-center gap-2 justify-end">${aksiTombol}</div>
@@ -163,28 +157,25 @@
       });
     }
 
-    async function ProsesKirimBarang(id, vendor, harga) {
-      const sjHore = "SJ/ITK/" + Math.floor(100000 + Math.random() * 900000);
-      const invHore = "INV/MITRA/" + Math.floor(100000 + Math.random() * 900000);
-      
-      const formatCatatan = `[VENDOR] SJ: ${sjHore} | INV: ${invHore}`;
+    async function EksekusiKeputusan(id, statusKeputusan, vendor, harga) {
+      const pesanKonfirmasi = statusKeputusan === 'disetujui' ? 'Setujui ajuan pengadaan ini?' : 'Tolak ajuan pengadaan ini?';
+      if(!confirm(pesanKonfirmasi)) return;
 
       try {
-        // Update status menjadi dikirim, dan pastikan harga_vendor & supplier_terpilih ikut terkunci erat di DB!
+        // Update status sekalian mengunci harga_vendor & supplier_terpilih agar alurnya tidak pecah di DB
         const { error } = await sb.from('purchase_request').update({
-          status: 'dikirim', 
-          catatan_penerimaan: formatCatatan,
+          status: statusKeputusan,
           supplier_terpilih: vendor,
           harga_vendor: harga
         }).eq('id', id);
 
         if (error) throw error;
-        alert(`Sukses Mengirim Barang!\nSurat Jalan: ${sjHore}\nNo. Invoice: ${invHore}\n\nBerkas otomatis diteruskan ke tim Audit Keuangan ITK.`);
-        setTabSupplier('riwayat_kirim');
-      } catch (e) { alert("Gagal memproses pengiriman: " + e.message); }
+        alert(`Sukses! Berkas berhasil statusnya diubah menjadi [${statusKeputusan.toUpperCase()}].`);
+        setTabManajer('butuh_approval');
+      } catch (e) { alert("Gagal memproses keputusan: " + e.message); }
     }
 
-    window.onload = () => setTabSupplier('perlu_dikirim');
+    window.onload = () => setTabManajer('butuh_approval');
   </script>
 </body>
 </html>
