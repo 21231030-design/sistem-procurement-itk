@@ -3,227 +3,278 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Portal Keuangan & Audit Lintas Sektoral - ITK Procurement</title>
-  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
-  <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+  <title>Sistem Procurement ITK — Keuangan & Pembayaran Supplier</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght=400;500;600;700;800&display=swap" rel="stylesheet">
   
-  <link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@300;400;500;600;700&display=swap" rel="stylesheet">
-  <style>
-    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
-    body { font-family: 'DM Sans', sans-serif; background: #f4f6f9; color: #1e293b; padding: 0; margin: 0; }
-    
-    nav {
-      background: #0f2847;
-      padding: 0 2rem; height: 70px; display: flex; align-items: center; justify-content: space-between;
-      box-shadow: 0 2px 10px rgba(0,0,0,0.05);
-    }
-    .nav-title { font-size: 16px; font-weight: 700; color: #fff; }
-    .nav-sub { font-size: 12px; color: rgba(255,255,255,0.6); margin-top: 2px; }
-    
-    .container { max-width: 1200px; margin: 0 auto; padding: 2rem 1.5rem; }
-    
-    .tab-container { display: flex; gap: 10px; margin-bottom: 1.5rem; }
-    .tab-btn { padding: 12px 24px; border-radius: 8px; font-weight: 600; font-size: 14px; border: 1px solid #e2e8f0; cursor: pointer; transition: all 0.2s; background: #fff; color: #475569; }
-    .tab-btn.active { background: #0f2847; color: #fff; border-color: #0f2847; }
-    
-    .card { background: #fff; border-radius: 12px; border: 1px solid #e2e8f0; overflow: hidden; box-shadow: 0 4px 6px rgba(0,0,0,0.02); }
-    .card-header { padding: 1.5rem; border-bottom: 1px solid #e2e8f0; background: #fff; font-weight: 700; color: #0f2847; font-size: 16px; }
-    .card-body { padding: 1.5rem; }
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.10.1/html2pdf.bundle.min.js"></script>
 
-    .audit-box { border: 1px solid #e2e8f0; border-radius: 8px; padding: 1.5rem; background: #fff; margin-bottom: 2rem; }
-    .audit-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 5px; }
-    .item-title { font-size: 20px; font-weight: 700; color: #0f2847; text-transform: capitalize; }
-    .vendor-sub { font-size: 14px; color: #64748b; margin-bottom: 1.5rem; }
-    .badge-status { font-size: 11px; padding: 6px 14px; border-radius: 20px; background: #f3e8ff; color: #7c3aed; font-weight: 700; letter-spacing: 0.5px; }
-    
-    table { width: 100%; border-collapse: collapse; margin-bottom: 1.5rem; }
-    th { text-align: left; font-size: 12px; font-weight: 600; color: #64748b; text-transform: uppercase; padding: 12px; background: #f8fafc; border-bottom: 1px solid #e2e8f0; letter-spacing: 0.5px; }
-    td { padding: 14px 12px; font-size: 14px; border-bottom: 1px solid #e2e8f0; color: #334155; }
-    
-    .badge-match { background: #d1fae5; color: #065f46; padding: 6px 10px; border-radius: 6px; font-weight: 600; font-size: 13px; display: inline-flex; align-items: center; gap: 4px; }
-    
-    .btn-actions { display: flex; gap: 12px; margin-top: 1rem; }
-    .btn { border: none; border-radius: 6px; padding: 12px 20px; font-size: 14px; font-weight: 600; cursor: pointer; display: inline-flex; align-items: center; gap: 8px; transition: opacity 0.2s; }
-    .btn:hover { opacity: 0.9; }
-    .btn-success { background: #10b981; color: #fff; }
-    .btn-download { background: #34495e; color: #fff; }
+  <style>
+    body { 
+      font-family: 'Plus Jakarta Sans', sans-serif; 
+      background: linear-gradient(180deg, #f8fafc 0%, #f1f5f9 100%);
+    }
+    .custom-shadow {
+      box-shadow: 0 4px 20px -2px rgba(15, 40, 71, 0.05), 0 2px 8px -1px rgba(15, 40, 71, 0.03);
+    }
+    .card-glow:hover {
+      box-shadow: 0 12px 30px -4px rgba(15, 40, 71, 0.08);
+      transform: translateY(-2px);
+    }
   </style>
 </head>
-<body>
+<body class="text-slate-800 pb-24 min-h-screen">
 
-<nav>
-  <div>
-    <div class="nav-title">Sistem Pengadaan ITK</div>
-    <div class="nav-sub">Modul Terintegrasi Hulu ke Hilir — Staf Keuangan & Audit</div>
+  <header class="bg-[#0f2847] text-white px-10 h-[80px] flex items-center justify-between shadow-md border-b border-white/10 sticky top-0 z-50">
+    <div class="flex items-center gap-4">
+      <div class="bg-emerald-600 w-10 h-10 rounded-xl flex items-center justify-center text-xl shadow-md font-bold">💳</div>
+      <div>
+        <h1 class="text-lg font-extrabold tracking-tight block leading-tight">Sistem Procurement ITK</h1>
+        <p class="text-[11px] text-slate-400 font-medium tracking-wide">Direktorat Keuangan — Panel Pelunasan & Pembayaran Supplier</p>
+      </div>
+    </div>
+    <div class="flex items-center gap-6">
+      <div class="text-right">
+        <span class="text-xs font-bold bg-emerald-500/20 text-emerald-300 px-3 py-1 rounded-full border border-emerald-500/30">Aktor: Staf Keuangan</span>
+      </div>
+      <button onclick="location.href='index.html'" class="bg-white/5 hover:bg-red-500 border border-white/10 hover:border-red-500 px-4 py-2 rounded-xl text-xs font-bold transition-all duration-200 shadow-sm">Keluar Portal</button>
+    </div>
+  </header>
+
+  <main class="max-w-6xl mx-auto px-6 mt-10">
+    
+    <div class="flex flex-col md:flex-row md:items-center justify-between gap-4 mb-8">
+      <div>
+        <h2 class="text-xl font-extrabold tracking-tight text-slate-900">Verifikasi & Pembayaran Invoice</h2>
+        <p class="text-xs text-slate-500 font-medium">Lakukan audit 3-Way Matching, unduh bukti PDF, lalu cairkan pembayaran langsung ke supplier rekanan.</p>
+      </div>
+      <div class="flex gap-2">
+        <button onclick="gantiKategori('audit')" id="btn-tab-audit" class="px-4 py-2 rounded-xl text-xs font-bold transition-all duration-200 bg-[#0f2847] text-white shadow">
+          🔍 Belum Dibayar (<span id="count-audit">0</span>)
+        </button>
+        <button onclick="gantiKategori('lunas')" id="btn-tab-lunas" class="px-4 py-2 rounded-xl text-xs font-bold transition-all duration-200 text-slate-500 hover:bg-slate-100">
+          ✅ Riwayat Lunas/Paid (<span id="count-lunas">0</span>)
+        </button>
+      </div>
+    </div>
+
+    <div class="space-y-4" id="kontenKeuangan">
+      </div>
+
+  </main>
+
+  <div id="elemenTemplatePDF" class="hidden bg-white p-12 text-slate-800" style="width: 750px; font-family: sans-serif;">
+    <div style="border-b-2 border-slate-900 pb-4 mb-6 flex justify-between items-center">
+      <div>
+        <h1 style="font-size: 22px; font-weight: 800; color: #0f2847; margin: 0;">SISTEM PROCUREMENT ITK</h1>
+        <p style="font-size: 11px; color: #64748b; margin: 2px 0 0 0;">Direktorat Keuangan & Logistik Alur Pengadaan Sinkron</p>
+      </div>
+      <div style="background: #e2e8f0; padding: 6px 14px; border-radius: 8px; font-size: 12px; font-weight: bold; color: #0f2847;">
+        BUKTI INVOICE RESMI
+      </div>
+    </div>
+    
+    <p style="font-size: 12px; margin-bottom: 20px;">Dokumen ini menyatakan bahwa pencocokan data anggaran (3-Way Matching) dinyatakan <b>VALID</b> dengan rincian kewajiban bayar sebagai berikut:</p>
+    
+    <table style="width: 100%; border-collapse: collapse; font-size: 12px; margin-bottom: 30px;">
+      <tr style="background: #f1f5f9;">
+        <th style="border: 1px solid #cbd5e1; padding: 10px; text-align: left;">Atribut Pengadaan</th>
+        <th style="border: 1px solid #cbd5e1; padding: 10px; text-align: left;">Data Sinkronisasi Sistem</th>
+      </tr>
+      <tr>
+        <td style="border: 1px solid #cbd5e1; padding: 10px; font-weight: bold;">ID Registrasi Berkas</td>
+        <td style="border: 1px solid #cbd5e1; padding: 10px; font-family: monospace;" id="pdf-id"></td>
+      </tr>
+      <tr>
+        <td style="border: 1px solid #cbd5e1; padding: 10px; font-weight: bold;">Komoditas Unit / Barang</td>
+        <td style="border: 1px solid #cbd5e1; padding: 10px;" id="pdf-barang"></td>
+      </tr>
+      <tr>
+        <td style="border: 1px solid #cbd5e1; padding: 10px; font-weight: bold;">Perusahaan Supplier / Vendor</td>
+        <td style="border: 1px solid #cbd5e1; padding: 10px; color: #2563eb; font-weight: bold;" id="pdf-vendor"></td>
+      </tr>
+      <tr>
+        <td style="border: 1px solid #cbd5e1; padding: 10px; font-weight: bold;">Keterangan / Catatan User</td>
+        <td style="border: 1px solid #cbd5e1; padding: 10px; font-style: italic;" id="pdf-catatan"></td>
+      </tr>
+      <tr style="background: #f8fafc;">
+        <td style="border: 1px solid #cbd5e1; padding: 10px; font-weight: 800; font-size: 13px;">TOTAL NOMINAL PELUNASAN</td>
+        <td style="border: 1px solid #cbd5e1; padding: 10px; color: #16a34a; font-weight: 900; font-size: 15px;" id="pdf-harga"></td>
+      </tr>
+    </table>
+
+    <div style="display: flex; justify-content: space-between; items-center; margin-top: 50px;">
+      <div style="font-size: 11px; color: #94a3b8;">
+        *Dicetak otomatis oleh Sistem Finansial Elektronik ITK<br>
+        Status Pembayaran: <b style="color: #16a34a;">PAID / LUNAS AMAN</b>
+      </div>
+      <div style="text-align: center; width: 200px; font-size: 12px;">
+        <p style="margin-0 0 50px 0;">Direktur Bendahara Keuangan,</p>
+        <b style="text-decoration: underline;">ITK Procurement Team</b>
+        <p style="font-size: 10px; color: #64748b; margin: 2px 0 0 0;">Tanda Tangan Digital Sah</p>
+      </div>
+    </div>
   </div>
-  <button style="background: rgba(255,255,255,0.15); color: #fff; border: 1px solid rgba(255,255,255,0.2); padding: 8px 16px; border-radius: 6px; cursor: pointer; font-weight: 500;" onclick="window.location.href='index.html'">Keluar</button>
-</nav>
 
-<div class="container">
-  <div class="tab-container">
-    <button class="tab-btn active">1. Verifikasi & 3-Way Matching</button>
-    <button class="tab-btn" onclick="alert('Arsip berkas lunas dapat dipantau langsung via log database.')">2. Arsip Berkas Lunas</button>
-  </div>
+  <script>
+    const URL_API = "https://bgtgeltkbanlnvymalum.supabase.co/rest/v1/purchase_request";
+    const KEY_TOKEN = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImJndGdlbHRrYmFubG52eW1hbHVtIiwicm9sZSI6ImFub24iLCJpYXQiOjE3Nzk1MTAwNDksImV4cCI6MjA5NTA4NjA0OX0.-JlapeQpug44SjkEKgb1wyoX2_ftdGGcAnTHJhdzvwE";
+    const HEADERS_APP = { "apikey": KEY_TOKEN, "Authorization": `Bearer ${KEY_TOKEN}`, "Content-Type": "application/json" };
 
-  <div class="card">
-    <div class="card-header">Pencocokan Dokumen Lintas Sektoral (PR vs PO vs Invoice)</div>
-    <div class="card-body" id="containerAudit"></div>
-  </div>
-</div>
+    let kategoriAktif = 'audit';
 
-<script>
-  const SB_URL = "https://bgtgeltkbanlnvymalum.supabase.co";
-  const SB_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImJndGdlbHRrYmFubG52eW1hbHVtIiwicm9sZSI6ImFub24iLCJpYXQiOjE3Nzk1MTAwNDksImV4cCI6MjA5NTA4NjA0OX0.-JlapeQpug44SjkEKgb1wyoX2_ftdGGcAnTHJhdzvwE";
-  const sb = supabase.createClient(SB_URL, SB_KEY);
+    async function loadDataKeuangan() {
+      const container = document.getElementById('kontenKeuangan');
+      if(!container) return;
 
-  async function muatEvaluasiKeuangan() {
-    const { data: prs } = await sb.from('purchase_request').select('*').order('created_at', { ascending: false });
-    const container = document.getElementById('containerAudit');
+      try {
+        const res = await fetch(`${URL_API}?order=created_at.desc`, { method: "GET", headers: HEADERS_APP });
+        const data = await res.json();
 
-    const dataKeuangan = prs ? prs.filter(p => ['invoice_dikirim', 'barang_diterima', 'dikirim', 'disetujui'].includes(p.status)) : [];
+        // Menyaring data pengadaan yang sudah dikirim atau diterima lapangan untuk diaudit keuangan
+        const daftarAudit = data.filter(i => i.status === 'dikirim' || i.status === 'diterima');
+        const daftarLunas = data.filter(i => i.status === 'selesai' || i.status === 'lunas');
 
-    if (dataKeuangan.length === 0) {
-      container.innerHTML = `<div style="text-align:center; padding:4rem; color:#64748b; font-size:15px;">👋 Belum ada berkas penagihan baru yang perlu di-audit saat ini.</div>`;
-      return;
+        document.getElementById('count-audit').innerText = daftarAudit.length;
+        document.getElementById('count-lunas').innerText = daftarLunas.length;
+
+        container.innerHTML = "";
+        const dataTampil = kategoriAktif === 'audit' ? daftarAudit : daftarLunas;
+
+        if(dataTampil.length === 0) {
+          container.innerHTML = `
+            <div class="bg-white rounded-2xl border border-slate-200/80 p-16 text-center text-slate-400 text-xs custom-shadow">
+               ✨ Bersih! Tidak ada antrean tagihan pembayaran pada kategori tab ini.
+            </div>`;
+          return;
+        }
+
+        dataTampil.forEach(item => {
+          const vendor = item.supplier_terpilih || 'Tidak Diketahui';
+          const nominalHarga = Number(item.harga_vendor) || 0;
+          const shortId = item.id ? item.id.substring(0, 6) : '0000';
+          const catatan = item.catatan_penerimaan || 'Unit barang dikonfirmasi aman dan lengkap oleh user.';
+
+          // Proteksi Nilai Rp 0
+          const labelHarga = nominalHarga > 0 
+            ? `<span class="text-emerald-600 font-extrabold text-sm">Rp ${nominalHarga.toLocaleString('id-ID')}</span>`
+            : `<span class="text-red-500 font-bold bg-red-50 border border-red-200 px-2 py-0.5 rounded">⚠️ Nominal Rp 0 (Eror Masukan Staf)</span>`;
+
+          let panelAksi = "";
+          if(kategoriAktif === 'audit') {
+            panelAksi = `
+              <div class="flex flex-wrap md:flex-nowrap gap-2 items-center">
+                <button onclick="unduhInvoicePDF('${item.id}', '${item.nama_barang}', '${vendor}', ${nominalHarga}, '${catatan}')" class="bg-blue-600 hover:bg-blue-700 text-white text-xs font-bold px-4 py-2.5 rounded-xl transition flex items-center gap-1.5 shadow-sm">
+                  📄 Unduh Bukti PDF
+                </button>
+                <button onclick="cairkanDanaPembayaran('${item.id}', ${nominalHarga})" ${nominalHarga <= 0 ? 'disabled class="bg-slate-200 text-slate-400 cursor-not-allowed text-xs font-bold px-5 py-2.5 rounded-xl"' : 'class="bg-emerald-600 hover:bg-emerald-700 text-white text-xs font-extrabold px-5 py-2.5 rounded-xl transition shadow-sm"'} >
+                  💰 Cairkan Dana Pelunasan
+                </button>
+              </div>`;
+          } else {
+            panelAksi = `
+              <div class="flex gap-2">
+                <button onclick="unduhInvoicePDF('${item.id}', '${item.nama_barang}', '${vendor}', ${nominalHarga}, '${catatan}')" class="bg-slate-100 hover:bg-slate-200 text-slate-600 text-xs font-bold px-4 py-2.5 rounded-xl transition">
+                  📄 Cetak Ulang PDF
+                </button>
+                <span class="text-emerald-700 font-bold text-xs bg-emerald-50 border border-emerald-200 px-4 py-2.5 rounded-xl flex items-center gap-1.5">🔒 Pembayaran Sukses / Paid</span>
+              </div>`;
+          }
+
+          container.innerHTML += `
+            <div class="bg-white border border-slate-200 rounded-2xl custom-shadow p-6 pl-8 relative overflow-hidden card-glow transition-all duration-300">
+              <div class="absolute top-0 left-0 w-2 h-full ${kategoriAktif === 'audit' ? 'bg-amber-500' : 'bg-emerald-500'}"></div>
+              
+              <div class="flex flex-col md:flex-row md:items-center justify-between gap-6">
+                <div class="flex-1">
+                  <div class="flex items-center gap-3 mb-2">
+                    <h4 class="text-base font-extrabold text-slate-800 capitalize tracking-tight">${item.nama_barang || 'Item Kosong'}</h4>
+                    <span class="text-[10px] font-mono bg-slate-100 border text-slate-500 px-2 py-0.5 rounded">ID: #PR-${shortId}</span>
+                  </div>
+                  
+                  <div class="grid grid-cols-1 md:grid-cols-3 gap-3 my-3 bg-slate-50/80 p-3 border border-slate-200/60 rounded-xl text-xs">
+                    <div>📦 <b>1. Kuantitas PR:</b> ${item.jumlah || 1} Unit</div>
+                    <div>🤝 <b>2. Supplier Terpilih:</b> <span class="text-blue-600 font-bold">${vendor}</span></div>
+                    <div>💵 <b>3. Nilai Invoice:</b> ${labelHarga}</div>
+                  </div>
+                  
+                  <div class="text-[11px] text-slate-500 italic bg-white border p-2 rounded-lg">
+                    📌 <b>Keterangan Terima Lapangan:</b> "${catatan}"
+                  </div>
+                </div>
+
+                <div class="self-end md:self-auto border-t md:border-t-0 pt-3 md:pt-0 w-full md:w-auto flex justify-end">
+                  ${panelAksi}
+                </div>
+              </div>
+            </div>`;
+        });
+
+      } catch (e) {
+        console.error(e);
+      }
     }
 
-    const htmlList = await Promise.all(dataKeuangan.map(async (pr) => {
-      const { data: po } = await sb.from('purchase_order').select('*').eq('pr_id', pr.id).maybeSingle();
-      const { data: inv = null } = await sb.from('invoices').select('*').eq('pr_id', pr.id).maybeSingle();
-
-      const namaBarang = pr.nama_barang || "Barang Pengadaan";
-      const qty = Number(pr.jumlah) || 1;
-
-      let totalHarga = 0;
-      if (po && po.total_harga && Number(po.total_harga) > 0) {
-        totalHarga = Number(po.total_harga);
-      } else {
-        totalHarga = (Number(pr.harga_estimasi) || 0) * qty;
-      }
-
-      const noPO = po ? po.no_po : `PO/ITK/${Math.floor(1000+Math.random()*9000)}`;
-      const noInv = inv ? inv.no_invoice : `INV/VND/${Math.floor(1000+Math.random()*9000)}`;
-      const vendorName = pr.vendor_pemenang || "Vendor Rekanan ITK";
-      const formatRupiah = (angka) => 'Rp ' + Number(angka).toLocaleString('id-ID');
-
-      return `
-        <div class="audit-box">
-          <div class="audit-header">
-            <div class="item-title">${namaBarang}</div>
-            <div><span class="badge-status">3-WAY MATCHING PENDING</span></div>
-          </div>
-          <div class="vendor-sub">Vendor Penerima Manfaat: <b>${vendorName}</b></div>
-          
-          <table>
-            <thead>
-              <tr>
-                <th>Aspek Dokumen Audit</th>
-                <th>Nomor Referensi Berkas</th>
-                <th>Volume / Deskripsi Fisik</th>
-                <th>Kesesuaian Data</th>
-              </tr>
-            </thead>
-            <tbody>
-              <tr>
-                <td><b>1. Berkas Permintaan (PR)</b></td>
-                <td>PR-Internal #${pr.id.substring(0,7)}</td>
-                <td>${qty} Unit Fisik</td>
-                <td><span class="badge-match">✓ Match (100%)</span></td>
-              </tr>
-              <tr>
-                <td><b>2. Berkas Kontrak Kerja (PO)</b></td>
-                <td>${noPO}</td>
-                <td>${qty} Unit &bull; ${formatRupiah(totalHarga)}</td>
-                <td><span class="badge-match">✓ Match (100%)</span></td>
-              </tr>
-              <tr>
-                <td><b>3. Konfirmasi Gudang Utama (SJ)</b></td>
-                <td>SJ Ref: SJ/001</td>
-                <td>${qty} Unit Diterima Lengkap</td>
-                <td><span class="badge-match">✓ Match (100%)</span></td>
-              </tr>
-              <tr>
-                <td><b>4. Berkas Tagihan (Invoice)</b></td>
-                <td>${noInv}</td>
-                <td>Nilai Tagih: <b>${formatRupiah(totalHarga)}</b></td>
-                <td><span class="badge-match">✓ Match (100%)</span></td>
-              </tr>
-            </tbody>
-          </table>
-
-          <div class="btn-actions">
-            <button class="btn btn-success" onclick="bayarLunas('${pr.id}')">💸 Validasi & Bayar Lunas Sekarang</button>
-            <button class="btn btn-download" onclick="unduhPdfAudit('${namaBarang.replace(/'/g, "\\'")}', '${noPO}', '${noInv}', '${qty}', ${totalHarga})">📄 Unduh Berkas Audit (.pdf)</button>
-          </div>
-        </div>
-      `;
-    }));
-
-    container.innerHTML = htmlList.join('');
-  }
-
-  function unduhPdfAudit(namaBarang, noPO, noInv, qty, total) {
-    const { jsPDF } = window.jspdf;
-    const doc = new jsPDF();
-    const formatRupiah = (angka) => 'Rp ' + Number(angka).toLocaleString('id-ID');
-
-    doc.setFont("times", "bold"); doc.setFontSize(16);
-    doc.text("INSTITUT TEKNOLOGI KALIMANTAN", 105, 20, { align: "center" });
-    doc.setFont("times", "normal"); doc.setFontSize(10);
-    doc.text("Sistem Integrasi Pengadaan Barang & Jasa Digital Kampus Terpadu", 105, 26, { align: "center" });
-    doc.line(15, 30, 195, 30); doc.line(15, 31, 195, 31);
-
-    doc.setFont("times", "bold"); doc.setFontSize(13);
-    doc.text("BERITA ACARA AUDIT & VERIFIKASI PEMBAYARAN", 105, 45, { align: "center" });
-
-    doc.setFont("times", "normal"); doc.setFontSize(11);
-    let intro = "Berdasarkan hasil pencocokan sistem otomatis finansial (3-Way Matching System), Tim Audit menyatakan dokumen pengadaan berikut telah dinyatakan valid dan sesuai:";
-    doc.text(doc.splitTextToSize(intro, 175), 15, 55);
-
-    let y = 70;
-    const barisData = [
-      ["Komponen Dokumen", "Detail Informasi Kontrak", "Status Validasi"],
-      ["Nama Barang / Item", namaBarang, "VALID"],
-      ["Nomor Kontrak (PO)", noPO, "MATCHED (100%)"],
-      ["Nomor Dokumen Invoice", noInv, "MATCHED (100%)"],
-      ["Volume Kuantitas", qty + " Unit Fisik", "SESUAI GUDANG"],
-      ["Total Nilai Pencairan", formatRupiah(total), "SIAP CAIR"]
-    ];
-
-    barisData.forEach((row, index) => {
-      if(index === 0) doc.setFont("times", "bold"); else doc.setFont("times", "normal");
-      doc.rect(15, y, 55, 10); doc.text(row[0], 17, y + 7);
-      doc.rect(70, y, 85, 10); doc.text(row[1], 72, y + 7);
-      doc.rect(155, y, 40, 10); doc.text(row[2], 157, y + 7);
-      y += 10;
-    });
-
-    doc.setFont("times", "normal");
-    let closing = "Demikian berita acara audit ini diterbitkan secara sah oleh sistem manajemen keuangan untuk dipergunakan sebagai landasan utama pencairan dana korporat.";
-    doc.text(doc.splitTextToSize(closing, 175), 15, y + 15);
-
-    let ttdY = y + 35;
-    doc.text("Balikpapan, " + new Date().toLocaleDateString('id-ID'), 140, ttdY);
-    doc.setFont("times", "bold"); doc.text("Kepala Bagian Keuangan ITK", 140, ttdY + 6);
-    doc.setFont("times", "normal"); doc.text("Otorisasi Digital Finansial", 140, ttdY + 32);
-    doc.line(140, ttdY + 33, 185, ttdY + 33);
-
-    doc.save(`Berita_Acara_Audit_${namaBarang.replace(/\s+/g, '_')}.pdf`);
-  }
-
-  async function bayarLunas(prId) {
-    if(confirm("Apakah Anda ingin memvalidasi pembayaran ini? Dana transaksi akan langsung dialokasikan ke rekening vendor terpilih.")) {
-      const { error } = await sb.from('purchase_request').update({ status: 'lunas' }).eq('id', prId);
-      if(error) {
-        alert("Eror update database: " + error.message);
-      } else {
-        alert("Sukses! Pembayaran Berhasil Terverifikasi Lunas.");
-        await muatEvaluasiKeuangan();
-      }
+    function gantiKategori(kat) {
+      kategoriAktif = kat;
+      document.getElementById('btn-tab-audit').className = kat === 'audit' ? "px-4 py-2 rounded-xl text-xs font-bold transition-all duration-200 bg-[#0f2847] text-white shadow" : "px-4 py-2 rounded-xl text-xs font-bold transition-all duration-200 text-slate-500 hover:bg-slate-100";
+      document.getElementById('btn-tab-lunas').className = kat === 'lunas' ? "px-4 py-2 rounded-xl text-xs font-bold transition-all duration-200 bg-[#0f2847] text-white shadow" : "px-4 py-2 rounded-xl text-xs font-bold transition-all duration-200 text-slate-500 hover:bg-slate-100";
+      loadDataKeuangan();
     }
-  }
 
-  window.onload = muatEvaluasiKeuangan;
-</script>
+    // FUNGSI UTAMA GENERATOR PDF OTOMATIS SECARA ELEKTRONIK
+    function unduhInvoicePDF(id, barang, vendor, harga, catatan) {
+      // Masukkan data variabel ke elemen template penyamaran
+      document.getElementById('pdf-id').innerText = `#PR-${id}`;
+      document.getElementById('pdf-barang').innerText = barang;
+      document.getElementById('pdf-vendor').innerText = vendor;
+      document.getElementById('pdf-catatan').innerText = catatan;
+      document.getElementById('pdf-harga').innerText = `Rp ${harga.toLocaleString('id-ID')}`;
+
+      // Ambil elemen template
+      const element = document.getElementById('elemenTemplatePDF');
+      element.classList.remove('hidden'); // Munculkan sebentar untuk dibaca library
+
+      // Konfigurasi Kertas PDF
+      const opsiKonfig = {
+        margin:       10,
+        filename:     `Invoice_Pelunasan_ITK_${id.substring(0,6)}.pdf`,
+        image:        { type: 'jpeg', quality: 0.98 },
+        html2canvas:  { scale: 2 },
+        jsPDF:        { unit: 'mm', format: 'a4', orientation: 'portrait' }
+      };
+
+      // Jalankan proses unduh otomatis, lalu sembunyikan kembali templatenya
+      html2pdf().set(opsiKonfig).from(element).save().then(() => {
+        element.classList.add('hidden');
+      });
+    }
+
+    // FUNGSI PROSES CAIRKAN DANA LANGSUNG KE SUPPLIER
+    async function cairkanDanaPembayaran(id, harga) {
+      if (harga <= 0) { 
+        alert("Pencairan Ditolak! Nominal tagihan supplier bernilai Rp 0."); 
+        return; 
+      }
+      if(!confirm("Konfirmasi Akhir: Apakah Anda ingin memproses transfer dana pembayaran langsung ke rekening supplier?")) return;
+
+      try {
+        const res = await fetch(`${URL_API}?id=eq.${id}`, {
+          method: "PATCH",
+          headers: HEADERS_APP,
+          body: JSON.stringify({ status: 'selesai' }) // Set status 'selesai' agar langsung menutup siklus log pengadaan
+        });
+
+        if(res.ok) {
+          alert("Pembayaran Berhasil! Dana ditransfer sukses ke pihak rekanan supplier.");
+          loadDataKeuangan();
+        } else {
+          alert("Gagal memperbarui pelunasan ke database.");
+        }
+      } catch(e) { console.error(e); }
+    }
+
+    window.onload = loadDataKeuangan;
+  </script>
 </body>
 </html>
