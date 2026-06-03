@@ -5,6 +5,7 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Portal Mitra Vendor — Eksternal Supplier ITK</title>
   <script src="https://cdn.tailwindcss.com"></script>
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
   <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght=400;500;600;700;800&display=swap" rel="stylesheet">
   <style>
     body { 
@@ -64,9 +65,12 @@
   </main>
 
   <script>
-    const URL_API = "https://bgtgeltkbanlnvymalum.supabase.co/rest/v1/purchase_request";
-    const KEY_TOKEN = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImJndGdlbHRrYmFubG52eW1hbHVtIiwicm9sZSI6ImFub24iLCJpYXQiOjE3Nzk1MTAwNDksImV4cCI6MjA5NTA4NjA0OX0.-JlapeQpug44SjkEKgb1wyoX2_ftdGGcAnTHJhdzvwE";
-    const HEADERS_APP = { "apikey": KEY_TOKEN, "Authorization": `Bearer ${KEY_TOKEN}`, "Content-Type": "application/json" };
+    // INISIALISASI UTAMA CLIENT SUPABASE RESMI LU
+    const { createClient } = supabase;
+    const sb = createClient(
+      'https://bgtgeltkbanlnvymalum.supabase.co',
+      'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImJndGdlbHRrYmFubG52eW1hbHVtIiwicm9sZSI6ImFub24iLCJpYXQiOjE3Nzk1MTAwNDksImV4cCI6MjA5NTA4NjA0OX0.-JlapeQpug44SjkEKgb1wyoX2_ftdGGcAnTHJhdzvwE'
+    );
 
     let currentTab = 'kontrak_aktif';
 
@@ -80,10 +84,12 @@
 
     async function AmbilDataEksternal() {
       try {
-        const res = await fetch(`${URL_API}?order=created_at.desc`, { method: "GET", headers: HEADERS_APP });
-        const data = await res.json();
+        // Ambil data resmi dari client Supabase lu
+        const { data, error } = await sb.from('purchase_request').select('*').order('created_at', { ascending: false });
+        
+        if (error) throw error;
 
-        // Murni memilah kategori tab berdasarkan status database
+        // Memilah kategori tab berdasarkan status database
         const kontrakAktif = data.filter(i => i.status !== 'lunas').length;
         const kontrakLunas = data.filter(i => i.status === 'lunas').length;
 
@@ -91,7 +97,7 @@
         document.getElementById('v-badge-lunas').innerText = kontrakLunas;
 
         TampilkanKartuVendor(data);
-      } catch (e) { console.error(e); }
+      } catch (e) { console.error("Eror Load Data: ", e); }
     }
 
     function setTabSupplier(tabBaru) {
@@ -127,7 +133,7 @@
         let hargaFix = Number(item.harga_vendor) || Number(item.harga) || Number(item.harga_supplier) || 0;
         if(hargaFix <= 0) hargaFix = sinkronisasiHargaBackup(itemFix) * (item.jumlah || 1);
 
-        // Membongkar data string No. SJ & Invoice dari kolom catatan_penerimaan Supabase
+        // Membongkar data nomor SJ dan invoice dari database
         let nomorSJSaved = null;
         let nomorInvSaved = "INV-OFFICIAL/ITK";
         
@@ -138,12 +144,12 @@
         }
 
         let borderWarna = "border-l-purple-500";
-        let labelStatus = "PO Aktif — Siapkan Pengiriman";
+        let labelStatus = "PO ... Siapkan Pengiriman";
         let statusBadge = "bg-purple-50 text-purple-700 border-purple-200";
         
         let tombolKontrol = `<button onclick="prosesPengirimanForm('${item.id}', '${itemFix}', ${hargaFix}, '${vendorFix}')" class="bg-purple-600 hover:bg-purple-700 text-white text-xs font-bold px-4 py-2.5 rounded-xl transition shadow-sm">🚀 Input SJ &amp; Tagih Invoice</button>`;
 
-        // Jika status di DB sudah dikirim/diterima/selesai, kunci tombol input agar tidak duplikat
+        // Deteksi status sinkronisasi perpindahan halaman audit
         if(item.status === 'dikirim' || nomorSJSaved || item.status === 'diterima' || item.status === 'selesai') {
           borderWarna = "border-l-pink-500";
           labelStatus = "SJ &amp; Invoice Terkirim (Proses Audit Kampus)";
@@ -159,7 +165,7 @@
           tombolKontrol = `<span class="text-emerald-700 font-extrabold text-xs bg-emerald-50 border border-emerald-200 px-4 py-2 rounded-xl">💵 INVOICE PAID (CAIR)</span>`;
         }
 
-        const shortId = item.id ? item.id.substring(0,6) : '0000';
+        const shortId = item.id ? String(item.id).substring(0,6) : '0000';
 
         container.innerHTML += `
           <div class="bg-white border border-slate-200 rounded-2xl custom-shadow flex flex-col md:flex-row md:items-center justify-between gap-6 transition-all duration-300 relative overflow-hidden p-6 pl-8 border-l-4 ${borderWarna}">
@@ -221,24 +227,26 @@
       }
 
       try {
-        // MENEMBAK UPDATE KE DATABASE GLOBAL SUPABASE
-        const res = await fetch(`${URL_API}?id=eq.${id}`, {
-          method: "PATCH",
-          headers: HEADERS_APP,
-          body: JSON.stringify({ 
-            status: 'dikirim', // Mengubah status menjadi dikirim agar memicu counter menu 5 naik jadi 1
+        // PERBAIKAN MUTLAK: Update data menggunakan SDK Supabase bawaan lu agar lolos CORS!
+        const { data, error } = await sb
+          .from('purchase_request')
+          .update({
+            status: 'dikirim', // Mengubah status menjadi dikirim agar counter Staf Pengadaan naik
             catatan_penerimaan: `[VENDOR] SJ: ${sjInput} | INV: ${invInput}`,
             harga_vendor: hargaKunci,
             supplier_terpilih: vendorKunci
           })
-        });
+          .eq('id', id);
 
-        if(res.ok) {
-          document.getElementById('formKirimEksternal').classList.add('hidden');
-          setTabSupplier('kontrak_aktif');
-          alert("Surat Jalan & Invoice berhasil dikirim ke Supabase! Periksa Menu Audit Staf Pengadaan.");
-        }
-      } catch(e) { console.error(e); }
+        if (error) throw error;
+
+        document.getElementById('formKirimEksternal').classList.add('hidden');
+        setTabSupplier('kontrak_aktif');
+        alert("Sukses! Surat Jalan & Invoice masuk database. Silakan cek menu 5 Audit SJ Staf Pengadaan.");
+      } catch(e) { 
+        console.error("Gagal update data: ", e);
+        alert("Gagal mengirim dokumen: " + e.message);
+      }
     }
 
     window.onload = () => setTabSupplier('kontrak_aktif');
