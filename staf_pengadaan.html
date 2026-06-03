@@ -134,7 +134,6 @@
 
     let currentFilter = 'menunggu';
 
-    // Fungsi Pembantu Update Aman agar JavaScript tidak macet jika element tidak ditemukan
     function safeUpdateText(id, text) {
       const el = document.getElementById(id);
       if (el) el.innerText = text;
@@ -145,16 +144,14 @@
         const res = await fetch(`${URL_API}?order=created_at.desc`, { method: "GET", headers: HEADERS_APP });
         const data = await res.json();
         
-        // Hitung jumlah data berdasarkan status secara fleksibel
+        // Logika Sinkronisasi Counter Utama (Mendeteksi status 'selesai' atau 'diterima')
         const count1 = data.filter(i => i.status === 'menunggu' || !i.status).length;
         const count2 = data.filter(i => i.status === 'diverifikasi').length;
         const count3 = data.filter(i => i.status === 'diproses').length;
         const count4 = data.filter(i => i.status === 'disetujui').length;
-        const count5 = data.filter(i => i.status === 'diterima' || i.status === 'dikirim').length;
-        // History selesai menangkap status 'selesai' dan status akhir pasca terima user agar pasti muncul
+        const count5 = data.filter(i => i.status === 'dikirim').length;
         const count6 = data.filter(i => i.status === 'selesai' || i.status === 'diterima').length;
 
-        // Sinkronisasi Counter Atas Utama
         safeUpdateText('stat-1', count1);
         safeUpdateText('stat-2', count2);
         safeUpdateText('stat-3', count3);
@@ -162,17 +159,17 @@
         safeUpdateText('stat-5', count5);
         safeUpdateText('stat-6', count6);
 
-        // Sinkronisasi Badge Menu Tab Kecil
+        // Sinkronisasi Badge Kecil pada Menu Tab
         safeUpdateText('badge-menunggu', count1);
         safeUpdateText('badge-diverifikasi', count2);
         safeUpdateText('badge-diproses', count3);
         safeUpdateText('badge-disetujui', count4);
-        safeUpdateText('badge-diterima', data.filter(i => i.status === 'diterima').length);
+        safeUpdateText('badge-diterima', count5);
         safeUpdateText('badge-selesai', count6);
 
         renderCards(data);
       } catch (e) { 
-        console.error("Gagal memuat data dari database:", e); 
+        console.error("Gagal memuat data:", e); 
       }
     }
 
@@ -204,6 +201,7 @@
       const filtered = allData.filter(item => {
         if (!item.status && currentFilter === 'menunggu') return true;
         if (currentFilter === 'selesai') return item.status === 'selesai' || item.status === 'diterima';
+        if (currentFilter === 'diterima') return item.status === 'dikirim';
         return item.status === currentFilter;
       });
 
@@ -226,8 +224,8 @@
         if(item.status === 'diverifikasi') { warnaSamping = "bg-cyan-500"; labelStatus = "Pencarian Vendor"; badgeWarna = "bg-cyan-50 text-cyan-700 border-cyan-200"; }
         if(item.status === 'diproses') { warnaSamping = "bg-indigo-500"; labelStatus = "Menunggu Approval Manajer"; badgeWarna = "bg-indigo-50 text-indigo-700 border-indigo-200"; }
         if(item.status === 'disetujui') { warnaSamping = "bg-purple-500"; labelStatus = "Disetujui! Siap Kirim Supplier"; badgeWarna = "bg-purple-50 text-purple-700 border-purple-200"; }
-        if(item.status === 'diterima') { warnaSamping = "bg-pink-500"; labelStatus = "Barang Sampai (Perlu Audit SJ)"; badgeWarna = "bg-pink-50 text-pink-700 border-pink-200"; }
-        if(item.status === 'selesai') { warnaSamping = "bg-emerald-500"; labelStatus = "Lunas & Selesai"; badgeWarna = "bg-emerald-50 text-emerald-700 border-emerald-200"; }
+        if(item.status === 'dikirim') { warnaSamping = "bg-pink-500"; labelStatus = "Barang Sedang Dikirim Vendor"; badgeWarna = "bg-pink-50 text-pink-700 border-pink-200"; }
+        if(item.status === 'diterima' || item.status === 'selesai') { warnaSamping = "bg-emerald-500"; labelStatus = "Lunas & Selesai"; badgeWarna = "bg-emerald-50 text-emerald-700 border-emerald-200"; }
 
         let aksiTombol = "";
         if(!item.status || item.status === 'menunggu') {
@@ -238,8 +236,8 @@
           aksiTombol = `<span class="text-indigo-700 font-bold text-xs bg-indigo-50 border border-indigo-200 px-4 py-2 rounded-xl flex items-center gap-1.5">⏳ Menunggu Meja Manajer</span>`;
         } else if(item.status === 'disetujui') {
           aksiTombol = `<button onclick="prosesStatus('${item.id}', 'dikirim')" class="bg-purple-600 hover:bg-purple-700 text-white text-xs font-bold px-5 py-2.5 rounded-xl transition shadow-sm">🚀 Serahkan ke Supplier (Kirim Barang)</button>`;
-        } else if(item.status === 'diterima') {
-          aksiTombol = `<button onclick="prosesStatus('${item.id}', 'selesai')" class="bg-pink-600 hover:bg-pink-700 text-white text-xs font-bold px-5 py-2.5 rounded-xl transition shadow-sm">🔍 Lolos Audit SJ & Selesai</button>`;
+        } else if(item.status === 'dikirim') {
+          aksiTombol = `<button onclick="prosesStatus('${item.id}', 'selesai')" class="bg-pink-600 hover:bg-pink-700 text-white text-xs font-bold px-5 py-2.5 rounded-xl transition shadow-sm">🔍 Konfirmasi Selesai</button>`;
         } else {
           aksiTombol = `<span class="text-emerald-700 font-bold text-xs bg-emerald-50 border border-emerald-200 px-4 py-2 rounded-xl flex items-center gap-1.5">🔒 Arsip History Aman</span>`;
         }
