@@ -3,60 +3,46 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Dashboard Keuangan — Verifikasi 3-Way Matching ITK</title>
+  <title>Dashboard Staf Keuangan — Sistem Procurement ITK</title>
   <script src="https://cdn.tailwindcss.com"></script>
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
   <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght=400;500;600;700;800&display=swap" rel="stylesheet">
-  <style> body { font-family: 'Plus Jakarta Sans', sans-serif; background: #f8fafc; } </style>
+  <style>
+    body { font-family: 'Plus Jakarta Sans', sans-serif; background: #f8fafc; }
+    @media print {
+      .no-print { display: none !important; }
+      .print-card { border: none !important; shadow: none !important; padding: 0 !important; }
+    }
+  </style>
 </head>
 <body class="text-slate-800 pb-24">
 
-  <header class="bg-[#0f172a] text-white px-10 h-[80px] flex items-center justify-between shadow-md">
+  <header class="bg-[#0f172a] text-white px-10 h-[80px] flex items-center justify-between shadow-md no-print">
     <div class="flex items-center gap-4">
-      <div class="bg-emerald-500 w-10 h-10 rounded-xl flex items-center justify-center text-xl font-bold">🎯</div>
+      <div class="bg-emerald-500 w-10 h-10 rounded-xl flex items-center justify-center text-xl shadow-md font-bold">💵</div>
       <div>
-        <h1 class="text-lg font-extrabold block leading-tight">ITK Finance Audit Core</h1>
-        <p class="text-[11px] text-emerald-400 font-medium">Bypass System — Verifikasi Real-Time Harga Pengadaan Kampus</p>
+        <h1 class="text-lg font-extrabold block leading-tight">ITK Finance Hub</h1>
+        <p class="text-[11px] text-emerald-400 font-medium tracking-wide">Panel Verifikasi Pembayaran & Pencairan Invoice Vendor</p>
       </div>
     </div>
-    <button onclick="location.href='index.html'" class="bg-white/5 hover:bg-red-500 px-4 py-2 rounded-xl text-xs font-bold transition">Keluar</button>
+    <button onclick="location.href='index.html'" class="bg-white/5 hover:bg-red-500 px-4 py-2 rounded-xl text-xs font-bold transition-all shadow-sm">Keluar</button>
   </header>
 
   <main class="max-w-7xl mx-auto px-8 mt-10">
-    <div class="bg-white p-3 rounded-2xl border border-slate-200 shadow-sm mb-8 flex gap-2">
-      <button onclick="setTabKeuangan('perlu_dibayar')" id="f-tab-perlu" class="px-5 py-2.5 rounded-xl text-xs font-bold transition flex items-center gap-2">⏳ Antrean Pembayaran / Audit <span class="bg-amber-100 text-amber-700 px-2 py-0.5 rounded-md text-[10px]" id="f-badge-perlu">0</span></button>
-      <button onclick="setTabKeuangan('telah_lunas')" id="f-tab-lunas" class="px-5 py-2.5 rounded-xl text-xs font-bold transition flex items-center gap-2">✅ Rekam Transaksi Lunas <span class="bg-emerald-100 text-emerald-700 px-2 py-0.5 rounded-md text-[10px]" id="f-badge-lunas">0</span></button>
+    <div class="bg-white p-3 rounded-2xl border border-slate-200 shadow-sm mb-8 flex gap-2 no-print">
+      <button onclick="setTabKeuangan('perlu_dibayar')" id="f-tab-perlu" class="px-5 py-2.5 rounded-xl text-xs font-bold transition-all flex items-center gap-2">
+        ⏳ Perlu Diproses Bayar
+        <span class="bg-amber-100 text-amber-700 px-2 py-0.5 rounded-md text-[10px]" id="f-badge-perlu">0</span>
+      </button>
+      <button onclick="setTabKeuangan('telah_lunas')" id="f-tab-lunas" class="px-5 py-2.5 rounded-xl text-xs font-bold transition-all flex items-center gap-2">
+        ✅ Riwayat Transaksi Lunas (Paid)
+        <span class="bg-emerald-100 text-emerald-700 px-2 py-0.5 rounded-md text-[10px]" id="f-badge-lunas">0</span>
+      </button>
     </div>
 
-    <div class="space-y-4 mb-12">
-      <h3 class="text-xs font-extrabold uppercase tracking-wider text-slate-400 px-2">Manifest Pembayaran Kendali Keuangan</h3>
+    <div class="space-y-4">
+      <h3 class="text-xs font-extrabold uppercase tracking-wider text-slate-400 px-2 no-print">Daftar Manifest Dokumen Penagihan</h3>
       <div class="flex flex-col gap-4" id="containerKeuangan"></div>
-    </div>
-
-    <div class="bg-slate-900 text-slate-200 p-6 rounded-2xl border border-slate-700 shadow-xl mt-12 font-mono">
-      <div class="flex items-center justify-between border-b border-slate-700 pb-3 mb-4">
-        <h3 class="text-sm font-bold text-amber-400 flex items-center gap-2">🛠️ PENGASUH DATA DATA (Isi Asli Baris Database Supabase)</h3>
-        <span class="text-[10px] bg-slate-800 text-slate-400 px-2 py-1 rounded">Total Baris: <span id="debug-total-row">0</span></span>
-      </div>
-      <p class="text-xs text-slate-400 mb-4">*Jika tabel di bawah ini kosong melompong, berarti data di tabel `purchase_request` memang tidak terambil atau nama tabelnya berbeda.</p>
-      
-      <div class="overflow-x-auto text-[11px]">
-        <table class="w-full border-collapse text-left">
-          <thead>
-            <tr class="border-b border-slate-700 text-slate-400 bg-slate-950">
-              <th class="p-2">ID PR</th>
-              <th class="p-2">Nama Barang</th>
-              <th class="p-2">Status Asli</th>
-              <th class="p-2">Kolom 'harga'</th>
-              <th class="p-2">Kolom 'harga_supplier'</th>
-              <th class="p-2">Catatan Penerimaan</th>
-            </tr>
-          </thead>
-          <tbody id="debugTableBody" class="divide-y divide-slate-800">
-            <tr><td colspan="6" class="p-4 text-center text-slate-500">Sedang memuat data mentah...</td></tr>
-          </tbody>
-        </table>
-      </div>
     </div>
   </main>
 
@@ -68,54 +54,22 @@
     );
 
     let currentTabKeuangan = 'perlu_dibayar';
-    let globalData = []; // Menyimpan data mentah global
 
     async function AmbilDataKeuangan() {
       try {
         const { data, error } = await sb.from('purchase_request').select('*').order('created_at', { ascending: false });
         if (error) throw error;
 
-        globalData = data || [];
-        
-        // Render tabel debug mentah di bawah page
-        RenderDebuggerTable(globalData);
-
-        // Amankan penapisan status dengan lowercase
-        const perluBayar = globalData.filter(i => !i.status || String(i.status).toLowerCase() !== 'lunas').length;
-        const telahLunas = globalData.filter(i => i.status && String(i.status).toLowerCase() === 'lunas').length;
+        // Filter data berdasarkan kriteria keuangan
+        // Perlu dibayar: status sudah 'dikirim' (oleh supplier) atau 'diterima'/'selesai' tapi belum 'lunas'
+        const perluBayar = data.filter(i => (i.status === 'dikirim' || i.status === 'diterima' || i.status === 'selesai') && i.status !== 'lunas').length;
+        const telahLunas = data.filter(i => i.status === 'lunas').length;
 
         document.getElementById('f-badge-perlu').innerText = perluBayar;
         document.getElementById('f-badge-lunas').innerText = telahLunas;
 
-        TampilkanDaftarKeuangan(globalData);
-      } catch (e) { 
-        console.error(e);
-        document.getElementById('debugTableBody').innerHTML = `<tr><td colspan="6" class="p-4 text-center text-red-400">Gagal load database: ${e.message}</td></tr>`;
-      }
-    }
-
-    function RenderDebuggerTable(data) {
-      document.getElementById('debug-total-row').innerText = data.length;
-      const tbody = document.getElementById('debugTableBody');
-      tbody.innerHTML = "";
-      
-      if(data.length === 0) {
-        tbody.innerHTML = `<tr><td colspan="6" class="p-4 text-center text-slate-500">Tabel kosong / data tidak ada di database Supabase!</td></tr>`;
-        return;
-      }
-
-      data.forEach(row => {
-        tbody.innerHTML += `
-          <tr class="hover:bg-slate-800/50">
-            <td class="p-2 font-bold text-blue-400">${String(row.id).substring(0,6)}...</td>
-            <td class="p-2 text-white">${row.nama_barang || row.item_name || '-'}</td>
-            <td class="p-2"><span class="bg-amber-950 text-amber-400 border border-amber-800 px-1.5 py-0.5 rounded">${row.status || 'NULL'}</span></td>
-            <td class="p-2 text-emerald-400">${row.harga || 'NULL'}</td>
-            <td class="p-2 text-emerald-400">${row.harga_supplier || 'NULL'}</td>
-            <td class="p-2 text-slate-400 text-[10px] max-w-[200px] truncate">${row.catatan_penerimaan || '-'}</td>
-          </tr>
-        `;
-      });
+        TampilkanDaftarKeuangan(data);
+      } catch (e) { console.error(e); }
     }
 
     function setTabKeuangan(tabBaru) {
@@ -128,7 +82,7 @@
       } else {
         document.getElementById('f-tab-lunas').className = "px-5 py-2.5 rounded-xl text-xs font-bold bg-emerald-600 text-white shadow-sm";
       }
-      TampilkanDaftarKeuangan(globalData);
+      AmbilDataKeuangan();
     }
 
     function TampilkanDaftarKeuangan(allData) {
@@ -136,25 +90,25 @@
       container.innerHTML = "";
 
       const filtered = allData.filter(item => {
-        const cekStatus = item.status ? String(item.status).toLowerCase() : '';
-        return currentTabKeuangan === 'perlu_dibayar' ? cekStatus !== 'lunas' : cekStatus === 'lunas';
+        if (currentTabKeuangan === 'perlu_dibayar') {
+          return (item.status === 'dikirim' || item.status === 'diterima' || item.status === 'selesai') && item.status !== 'lunas';
+        } else {
+          return item.status === 'lunas';
+        }
       });
 
       if(filtered.length === 0) {
-        container.innerHTML = `<div class="bg-white rounded-2xl p-12 text-center text-slate-400 text-xs shadow-sm">✨ Belum ada data transaksi di kategori utama. Sila cek tabel hitam debugger di bawah untuk melihat isi database.</div>`;
+        container.innerHTML = `<div class="bg-white rounded-2xl p-12 text-center text-slate-400 text-xs shadow-sm">✨ Belum ada record transaksi tagihan pada kategori ini.</div>`;
         return;
       }
 
       filtered.forEach(item => {
-        const itemFix = item.nama_barang || item.item_name || 'Material Logistik';
+        const itemFix = item.nama_barang || 'Material Logistik';
         const vendorFix = item.supplier_terpilih || item.supplier || "PT. Mitra Rekanan ITK";
-        
-        const hargaFix = Number(item.harga_supplier) || Number(item.harga) || Number(item.total_harga) || 0;
-        const shortId = item.id ? String(item.id).substring(0,6) : '0000';
-        const statusSistemAsli = item.status || 'BARU';
+        const hargaFix = Number(item.harga) || Number(item.harga_supplier) || 250000;
 
-        let nomorSJ = "Menunggu Supplier...";
-        let nomorInv = "Menunggu Supplier...";
+        let nomorSJ = "SJ/PRO-ITK/2026";
+        let nomorInv = "INV-OFFICIAL/ITK";
         if (item.catatan_penerimaan && item.catatan_penerimaan.includes("SJ:")) {
           const part = item.catatan_penerimaan.split(" | ");
           nomorSJ = part[0].replace("[VENDOR] SJ: ", "");
@@ -162,80 +116,88 @@
         }
 
         let aksiTombol = "";
+
         if (currentTabKeuangan === 'perlu_dibayar') {
           aksiTombol = `
-            <button onclick="GenerateInvoice3WayPDF('${itemFix.replace(/'/g, "\\'")}', '${vendorFix.replace(/'/g, "\\'")}', '${nomorInv}', '${nomorSJ}', ${hargaFix}, ${item.jumlah || 1}, '${shortId}', 'UNPAID')" class="bg-purple-700 hover:bg-purple-800 text-white text-xs font-bold px-4 py-2.5 rounded-xl transition shadow-sm">
-              📄 Lihat PDF Invoice (3-Way Audit)
-            </button>
-            <button onclick="ProsesBayarLunas('${item.id}')" class="bg-emerald-600 hover:bg-emerald-700 text-white text-xs font-bold px-4 py-2.5 rounded-xl transition shadow-sm">
-              💰 Transfer &amp; Lunaskan
-            </button>`;
+            <button onclick="CetakInvoicePDF('${itemFix}', '${vendorFix}', '${nomorInv}', ${hargaFix}, '${item.jumlah || 1}')" class="bg-slate-800 hover:bg-slate-900 text-white text-xs font-bold px-4 py-2.5 rounded-xl transition shadow-sm flex items-center gap-1.5 no-print">📄 Lihat/Cetak Invoice</button>
+            <button onclick="ProsesBayarLunas('${item.id}')" class="bg-emerald-600 hover:bg-emerald-700 text-white text-xs font-bold px-4 py-2.5 rounded-xl transition shadow-sm flex items-center gap-1.5 no-print">💰 Eksekusi Bayar & Lunas</button>
+          `;
         } else {
           aksiTombol = `
-            <button onclick="GenerateInvoice3WayPDF('${itemFix.replace(/'/g, "\\'")}', '${vendorFix.replace(/'/g, "\\'")}', '${nomorInv}', '${nomorSJ}', ${hargaFix}, ${item.jumlah || 1}, '${shortId}', 'PAID', '${item.link_bukti_lunas || 'TRF-BANK/ITK'}')" class="bg-emerald-600 hover:bg-emerald-700 text-white text-xs font-bold px-4 py-2.5 rounded-xl transition shadow-sm">
-              🖨️ Cetak PDF Invoice (PAID)
-            </button>`;
+            <button onclick="CetakBuktiLunasPDF('${itemFix}', '${vendorFix}', '${nomorInv}', ${hargaFix}, '${item.link_bukti_lunas || 'TRF-BANK/ITK/' + item.id.substring(0,6)}')" class="bg-purple-600 hover:bg-purple-700 text-white text-xs font-bold px-4 py-2.5 rounded-xl transition shadow-sm flex items-center gap-1.5 no-print">🖨️ Unduh Bukti Lunas (PDF)</button>
+          `;
         }
 
         container.innerHTML += `
-          <div class="bg-white border border-slate-200 rounded-2xl p-6 shadow-sm border-l-4 ${currentTabKeuangan === 'perlu_dibayar' ? 'border-l-amber-500':'border-l-emerald-500'}">
-            <div class="flex flex-col md:flex-row md:items-center justify-between gap-6">
-              <div class="flex-1">
-                <div class="bg-slate-50 p-3 rounded-xl border border-slate-200 text-[10px] font-mono text-slate-400 mb-2 uppercase tracking-wider font-bold">
-                  🗂️ LOG AUDIT: [PO: #PO-${shortId}] → [SJ: ${nomorSJ}] → [Invoice: ${nomorInv}] | <span class="text-purple-600">Status Pengadaan: ${statusSistemAsli}</span>
-                </div>
-                <h4 class="text-base font-extrabold text-slate-800 capitalize mb-1">${itemFix}</h4>
-                <div class="grid grid-cols-2 md:grid-cols-3 gap-2 text-xs font-semibold text-slate-500">
-                  <div>Vendor/Supplier: <span class="text-slate-800 font-bold">${vendorFix}</span></div>
-                  <div>Nilai Pengadaan (Real-Time): <span class="text-emerald-600 font-black">Rp ${hargaFix.toLocaleString('id-ID')}</span></div>
-                  <div>Volume Kebutuhan: <span class="text-purple-700">${item.jumlah || 1} Pcs</span></div>
-                </div>
+          <div class="bg-white border border-slate-200 rounded-2xl p-6 flex flex-col md:flex-row md:items-center justify-between gap-6 shadow-sm print-card">
+            <div class="flex-1">
+              <div class="flex items-center gap-3 mb-2">
+                <h4 class="text-base font-extrabold text-slate-800">${itemFix}</h4>
+                <span class="text-[10px] font-bold uppercase px-2 py-0.5 rounded-md ${currentTabKeuangan === 'perlu_dibayar' ? 'bg-amber-50 text-amber-700 border border-amber-200' : 'bg-emerald-50 text-emerald-700 border border-emerald-200'}">${item.status}</span>
               </div>
-              <div class="flex items-center gap-2 justify-end">${aksiTombol}</div>
+              <div class="grid grid-cols-2 md:grid-cols-4 gap-2 text-xs font-medium text-slate-500">
+                <div>Vendor: <span class="text-slate-800 font-bold">${vendorFix}</span></div>
+                <div>No. Invoice: <span class="text-purple-700 font-mono font-bold">${nomorInv}</span></div>
+                <div>No. Surat Jalan: <span class="text-slate-700 font-mono">${nomorSJ}</span></div>
+                <div>Total Tagihan: <span class="text-emerald-600 font-black">Rp ${hargaFix.toLocaleString('id-ID')}</span></div>
+              </div>
             </div>
-          </div>`;
+            <div class="flex items-center gap-2 justify-end">${aksiTombol}</div>
+          </div>
+        `;
       });
     }
 
-    function GenerateInvoice3WayPDF(barang, vendor, inv, sj, total, qty, poId, statusBayar, refBank = "") {
+    function CetakInvoicePDF(barang, vendor, inv, total, qty) {
       const printWindow = window.open('', '_blank');
       printWindow.document.write(`
         <html>
-        <head>
-          <title>ITK Official Invoice — 3-Way Matching Document</title>
-          <script src="https://cdn.tailwindcss.com"><\/script>
-        </head>
-        <body class="p-12 text-slate-800 bg-white">
-          <div class="border-2 border-slate-800 p-8 rounded-xl relative">
-            <div class="absolute top-6 right-6 border-4 \${statusBayar === 'PAID' ? 'border-emerald-600 text-emerald-600' : 'border-amber-500 text-amber-500'} px-6 py-2 rounded-lg font-black text-xl tracking-widest uppercase rotate-12">
-              \${statusBayar}
+        <head><title>Invoice — ${inv}</title><script src="https://cdn.tailwindcss.com"><\/script></head>
+        <body class="p-10 text-slate-800">
+          <div class="border-b-2 border-slate-300 pb-5 mb-5 flex justify-between items-center">
+            <div><h1 class="text-2xl font-black text-purple-900">${vendor}</h1><p class="text-xs text-slate-500">Official Partner ITK</p></div>
+            <div class="text-right"><h2 class="text-xl font-bold text-slate-400">INVOICE PENAGIHAN</h2><p class="text-xs font-mono">${inv}</p></div>
+          </div>
+          <div class="mb-8 text-xs">
+            <p><strong>Ditujukan Kepada:</strong> Institut Teknologi Kalimantan (ITK)</p>
+            <p><strong>Dokumen Pengadaan:</strong> Pembelian Suku Cadang/Logistik Berjalan</p>
+          </div>
+          <table class="w-full text-left text-xs mb-8 border-collapse">
+            <thead><tr class="bg-slate-100"><th class="p-2 border">Deskripsi Barang</th><th class="p-2 border">Kuantitas</th><th class="p-2 border">Total Harga (Termasuk Pajak)</th></tr></thead>
+            <tbody><tr><td class="p-2 border font-bold capitalize">${barang}</td><td class="p-2 border">${qty} Unit/Pcs</td><td class="p-2 border font-black text-emerald-600">Rp ${total.toLocaleString('id-ID')}</td></tr></tbody>
+          </table>
+          <div class="text-right text-xs"><p class="text-slate-400">Status Dokumen:</p><p class="text-amber-600 font-bold uppercase tracking-wider">MENUNGGU PENCAIRAN/DIBAYAR</p></div>
+          <script>window.onload = function() { window.print(); }<\/script>
+        </body>
+        </html>
+      `);
+      printWindow.document.close();
+    }
+
+    function CetakBuktiLunasPDF(barang, vendor, inv, total, refBank) {
+      const printWindow = window.open('', '_blank');
+      printWindow.document.write(`
+        <html>
+        <head><title>Kwitansi Bukti Pelunasan ITK</title><script src="https://cdn.tailwindcss.com"><\/script></head>
+        <body class="p-10 text-slate-800">
+          <div class="border-4 border-double border-emerald-500 p-8 rounded-xl">
+            <div class="text-center border-b border-slate-200 pb-4 mb-4">
+              <h1 class="text-2xl font-black text-emerald-700">📌 BUKTI PELUNASAN BENDAHARA ITK</h1>
+              <p class="text-xs text-slate-400">Surat Tanda Terima Pembayaran Sah Secara Elektronik</p>
             </div>
-            <div class="border-b-4 border-slate-800 pb-6 mb-6 flex justify-between items-center">
-              <div>
-                <h1 class="text-3xl font-black text-slate-900">\${vendor}</h1>
-                <p class="text-xs text-slate-500 font-semibold mt-1">Official Mitra Logistik Kampus ITK</p>
-              </div>
-              <div class="text-right">
-                <h2 class="text-xl font-bold text-slate-400">FAKTUR / INVOICE PENAGIHAN</h2>
-                <p class="text-xs font-mono font-bold mt-1 text-purple-700">No. Ref: \${inv}</p>
+            <div class="space-y-3 text-xs">
+              <div><strong>Nomor Referensi Bank:</strong> <span class="font-mono text-emerald-700 font-bold">${refBank}</span></div>
+              <div><strong>Telah Dibayarkan Kepada:</strong> ${vendor}</div>
+              <div><strong>Untuk Pembayaran:</strong> Penagihan Invoice Resmi (${inv}) — Pengadaan ${barang}</div>
+              <div class="bg-emerald-50 p-4 rounded-lg border border-emerald-200 text-center">
+                <p class="text-slate-500 text-[10px] uppercase font-bold tracking-wider">JUMLAH DICAIRKAN</p>
+                <p class="text-2xl font-black text-emerald-600">Rp ${total.toLocaleString('id-ID')}</p>
               </div>
             </div>
-            <table class="w-full text-left text-xs mb-6 border border-slate-300">
-              <thead>
-                <tr class="bg-slate-800 text-white">
-                  <th class="p-3 border">Deskripsi Komponen Pengadaan</th>
-                  <th class="p-3 border text-center">Volume</th>
-                  <th class="p-3 border text-right">Total Nilai Tagihan (Real-Time)</th>
-                </tr>
-              </thead>
-              <tbody>
-                <tr class="font-semibold text-slate-700">
-                  <td class="p-3 border capitalize font-bold text-slate-900">\${barang}</td>
-                  <td class="p-3 border text-center">\${qty} Pcs</td>
-                  <td class="p-3 border text-right text-emerald-600 font-black text-sm">Rp \${total.toLocaleString('id-ID')}</td>
-                </tr>
-              </tbody>
-            </table>
+            <div class="mt-8 flex justify-between items-end text-[10px] text-slate-400">
+              <div>*Dokumen ini sah dikeluarkan oleh Sistem Keuangan Procurement ITK dan tidak memerlukan tanda tangan basah.</div>
+              <div class="text-center text-slate-800 font-bold"><p>LUNAS / PAID</p><p class="text-emerald-600">✓ SUCCESS</p></div>
+            </div>
           </div>
           <script>window.onload = function() { window.print(); }<\/script>
         </body>
@@ -245,22 +207,27 @@
     }
 
     async function ProsesBayarLunas(id) {
-      const refBankInput = prompt("Konfirmasi Transfer Sukses! Masukkan Nomor Referensi Bank Keuangan ITK:", "TRF-BANK/ITK/" + Math.floor(100000 + Math.random() * 900000));
+      const refBankInput = prompt("Masukkan Nomor Referensi Transaksi/Transfer Bank:", "TRF-BANK/ITK/" + Math.floor(100000 + Math.random() * 900000));
       if (!refBankInput) return;
 
       try {
-        const { error } = await sb.from('purchase_request').update({
-          status: 'lunas', 
-          link_bukti_lunas: refBankInput
-        }).eq('id', id);
+        const { error } = await sb
+          .from('purchase_request')
+          .update({
+            status: 'lunas',
+            link_bukti_lunas: refBankInput
+          })
+          .eq('id', id);
 
         if (error) throw error;
-        alert("Sukses! Status Berubah Menjadi Lunas.");
-        AmbilDataKeuangan();
-      } catch (e) { alert("Gagal memperbarui status: " + e.message); }
+        alert("Sukses! Pembayaran Berhasil Dieksekusi, Status Berubah Menjadi Lunas.");
+        setTabKeuangan('perlu_dibayar');
+      } catch (e) {
+        alert("Gagal update pembayaran: " + e.message);
+      }
     }
 
-    window.onload = () => AmbilDataKeuangan();
+    window.onload = () => setTabKeuangan('perlu_dibayar');
   </script>
 </body>
 </html>
