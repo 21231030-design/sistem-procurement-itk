@@ -144,13 +144,15 @@
         const res = await fetch(`${URL_API}?order=created_at.desc`, { method: "GET", headers: HEADERS_APP });
         const data = await res.json();
         
-        // Logika Sinkronisasi Counter Utama (Mendeteksi status 'selesai' atau 'diterima')
+        // Logika Klasifikasi Filter Pengadaan Aktif 1-5
         const count1 = data.filter(i => i.status === 'menunggu' || !i.status).length;
         const count2 = data.filter(i => i.status === 'diverifikasi').length;
         const count3 = data.filter(i => i.status === 'diproses').length;
         const count4 = data.filter(i => i.status === 'disetujui').length;
         const count5 = data.filter(i => i.status === 'dikirim').length;
-        const count6 = data.filter(i => i.status === 'selesai' || i.status === 'diterima').length;
+        
+        // JALUR PENGAMAN SAKTI: Semua data selain status aktif 1-5 otomatis digolongkan sebagai HISTORY SELESAI
+        const count6 = data.filter(i => i.status !== 'menunggu' && i.status && i.status !== 'diverifikasi' && i.status !== 'diproses' && i.status !== 'disetujui' && i.status !== 'dikirim').length;
 
         safeUpdateText('stat-1', count1);
         safeUpdateText('stat-2', count2);
@@ -159,7 +161,6 @@
         safeUpdateText('stat-5', count5);
         safeUpdateText('stat-6', count6);
 
-        // Sinkronisasi Badge Kecil pada Menu Tab
         safeUpdateText('badge-menunggu', count1);
         safeUpdateText('badge-diverifikasi', count2);
         safeUpdateText('badge-diproses', count3);
@@ -200,7 +201,10 @@
 
       const filtered = allData.filter(item => {
         if (!item.status && currentFilter === 'menunggu') return true;
-        if (currentFilter === 'selesai') return item.status === 'selesai' || item.status === 'diterima';
+        // Tampilkan data sisa di tab selesai
+        if (currentFilter === 'selesai') {
+          return item.status !== 'menunggu' && item.status && item.status !== 'diverifikasi' && item.status !== 'diproses' && item.status !== 'disetujui' && item.status !== 'dikirim';
+        }
         if (currentFilter === 'diterima') return item.status === 'dikirim';
         return item.status === currentFilter;
       });
@@ -225,7 +229,13 @@
         if(item.status === 'diproses') { warnaSamping = "bg-indigo-500"; labelStatus = "Menunggu Approval Manajer"; badgeWarna = "bg-indigo-50 text-indigo-700 border-indigo-200"; }
         if(item.status === 'disetujui') { warnaSamping = "bg-purple-500"; labelStatus = "Disetujui! Siap Kirim Supplier"; badgeWarna = "bg-purple-50 text-purple-700 border-purple-200"; }
         if(item.status === 'dikirim') { warnaSamping = "bg-pink-500"; labelStatus = "Barang Sedang Dikirim Vendor"; badgeWarna = "bg-pink-50 text-pink-700 border-pink-200"; }
-        if(item.status === 'diterima' || item.status === 'selesai') { warnaSamping = "bg-emerald-500"; labelStatus = "Lunas & Selesai"; badgeWarna = "bg-emerald-50 text-emerald-700 border-emerald-200"; }
+        
+        // Status di luar 1-5 dianggap selesai lunas
+        if(item.status !== 'menunggu' && item.status !== 'diverifikasi' && item.status !== 'diproses' && item.status !== 'disetujui' && item.status !== 'dikirim') {
+          warnaSamping = "bg-emerald-500"; 
+          labelStatus = "Lunas & Arsip Selesai"; 
+          badgeWarna = "bg-emerald-50 text-emerald-700 border-emerald-200";
+        }
 
         let aksiTombol = "";
         if(!item.status || item.status === 'menunggu') {
