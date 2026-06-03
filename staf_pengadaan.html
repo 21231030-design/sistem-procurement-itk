@@ -3,83 +3,77 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Sistem Procurement ITK — Staf Pengadaan</title>
+  <title>Sistem Pengadaan ITK — Staf Pengadaan</title>
   <script src="https://cdn.tailwindcss.com"></script>
   <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700&display=swap" rel="stylesheet">
   <style>
-    body { font-family: 'Plus Jakarta Sans', sans-serif; background-color: #f8fafc; }
+    body { font-family: 'Plus Jakarta Sans', sans-serif; background-color: #f1f5f9; }
   </style>
 </head>
 <body class="text-slate-800 pb-12">
 
-  <header class="bg-[#0f2847] text-white px-8 h-[70px] flex items-center justify-between shadow-lg">
+  <header class="bg-[#0f2847] text-white px-8 h-[75px] flex items-center justify-between shadow-md">
     <div class="flex items-center gap-3">
-      <span class="bg-blue-600 px-3 py-1 rounded-md font-bold text-xs tracking-wider">PRO</span>
-      <span class="text-lg font-bold">Sistem Procurement ITK</span>
+      <div class="bg-amber-500 p-2 rounded-lg text-white font-bold text-lg shadow-inner">📦</div>
+      <div>
+        <span class="text-lg font-bold block leading-none">Sistem Pengadaan ITK</span>
+        <span class="text-xs text-slate-400 font-medium">Verifikasi Kelayakan Logistik & Rekanan Vendor</span>
+      </div>
     </div>
     <div class="flex items-center gap-4">
-      <span class="text-sm text-slate-300 font-medium">Aktor: Staf Pengadaan</span>
       <button onclick="location.href='index.html'" class="bg-white/10 hover:bg-white/20 border border-white/20 px-4 py-2 rounded-lg text-xs font-semibold transition">Keluar</button>
     </div>
   </header>
 
   <div class="max-w-7xl mx-auto px-6 mt-8">
     
-    <div class="bg-white rounded-xl p-6 mb-8 border border-slate-200 shadow-sm">
-      <div class="text-base font-bold text-[#0f2847] mb-4 flex items-center gap-2">
-        <span class="w-1 h-4 bg-blue-600 rounded-full"></span>
-        Buat Permintaan Barang Baru (PR Input)
+    <div class="grid grid-cols-1 md:grid-cols-5 gap-4 mb-8">
+      <div class="bg-white p-5 rounded-xl border border-slate-200 shadow-sm text-center">
+        <div class="text-3xl font-extrabold text-amber-600 mb-1" id="stat-1">0</div>
+        <div class="text-xs font-bold text-slate-500">1. Perlu Dicek</div>
       </div>
-      <div class="grid grid-cols-1 md:grid-template md:grid-cols-4 gap-4 items-end">
-        <div class="flex flex-col gap-1.5">
-          <label class="text-xs font-semibold text-slate-600">Nama Komponen / Item Barang</label>
-          <input type="text" id="nama_barang" placeholder="Contoh: Cisco Switch Catalyst 2960" class="h-11 px-4 border border-slate-300 rounded-lg text-sm outline-none focus:border-blue-500 bg-white">
-        </div>
-        <div class="flex flex-col gap-1.5">
-          <label class="text-xs font-semibold text-slate-600">Kuantitas (Qty)</label>
-          <input type="number" id="jumlah" value="1" min="1" class="h-11 px-4 border border-slate-300 rounded-lg text-sm outline-none focus:border-blue-500 bg-white">
-        </div>
-        <div class="flex flex-col gap-1.5">
-          <label class="text-xs font-semibold text-slate-600">Estimasi Anggaran Kampus (Satuan)</label>
-          <input type="number" id="harga" placeholder="Rp 0" class="h-11 px-4 border border-slate-300 rounded-lg text-sm outline-none focus:border-blue-500 bg-white">
-        </div>
-        <button onclick="tambahPR()" class="bg-[#0f2847] hover:bg-[#1e3d64] text-white h-11 px-6 rounded-lg text-sm font-bold transition shadow-sm">+ Ajukan PR</button>
+      <div class="bg-white p-5 rounded-xl border border-slate-200 shadow-sm text-center">
+        <div class="text-3xl font-extrabold text-teal-600 mb-1" id="stat-2">0</div>
+        <div class="text-xs font-bold text-slate-500">2. Cari Vendor</div>
+      </div>
+      <div class="bg-white p-5 rounded-xl border border-slate-200 shadow-sm text-center">
+        <div class="text-3xl font-extrabold text-indigo-600 mb-1" id="stat-3">0</div>
+        <div class="text-xs font-bold text-slate-500">3. Evaluasi & Kirim</div>
+      </div>
+      <div class="bg-white p-5 rounded-xl border border-slate-200 shadow-sm text-center">
+        <div class="text-3xl font-extrabold text-orange-600 mb-1" id="stat-4">0</div>
+        <div class="text-xs font-bold text-slate-500">4. Audit SJ</div>
+      </div>
+      <div class="bg-white p-5 rounded-xl border border-slate-200 shadow-sm text-center">
+        <div class="text-3xl font-extrabold text-emerald-600 mb-1" id="stat-5">0</div>
+        <div class="text-xs font-bold text-slate-500">5. Selesai Lunas</div>
       </div>
     </div>
 
-    <div id="dynamicActionPanel" class="bg-white rounded-xl p-6 mb-8 border border-amber-200 shadow-md bg-amber-50/30" style="display: none;">
-      <div class="text-base font-bold text-[#0f2847] mb-4 flex items-center gap-2" id="actionPanelTitle">
-        Form Penanganan Alur Pengadaan
+    <div class="flex flex-wrap items-center justify-between gap-3 bg-white p-3 rounded-xl border border-slate-200 shadow-sm mb-8">
+      <div class="flex flex-wrap gap-2">
+        <button onclick="setFilter('pending')" class="px-4 py-2 rounded-lg text-xs font-bold transition flex items-center gap-2 bg-slate-100 text-slate-700" id="tab-pending">1. Cek PR <span class="bg-red-500 text-white px-1.5 py-0.5 rounded-full text-[10px]" id="badge-pending">0</span></button>
+        <button onclick="setFilter('pr_terverifikasi')" class="px-4 py-2 rounded-lg text-xs font-bold transition flex items-center gap-2" id="tab-verif">2. Cari Vendor <span class="bg-red-500 text-white px-1.5 py-0.5 rounded-full text-[10px]" id="badge-verif">0</span></button>
+        <button onclick="setFilter('input_quotation')" class="px-4 py-2 rounded-lg text-xs font-bold transition flex items-center gap-2" id="tab-eval">3. Evaluasi & Kirim <span class="bg-red-500 text-white px-1.5 py-0.5 rounded-full text-[10px]" id="badge-eval">0</span></button>
+        <button onclick="setFilter('dikirim_ke_manajer')" class="px-4 py-2 rounded-lg text-xs font-bold transition flex items-center gap-2" id="tab-audit">4. Menunggu Approval</button>
       </div>
-      <div id="actionFormContent"></div>
+      <button onclick="bersihkanSemuaHistory()" class="bg-[#0f2847] hover:bg-slate-800 text-white text-xs font-bold px-4 py-2 rounded-lg transition shadow-sm">Semua Arsip (Fitur Hapus)</button>
+    </div>
+
+    <div id="panelFormSakti" class="bg-amber-50 border border-amber-200 p-6 rounded-xl mb-8 shadow-sm hidden">
+      <h3 class="text-sm font-bold text-slate-800 mb-3" id="judulPanelSakti">Form Penguncian Harga</h3>
+      <div id="kontenPanelSakti"></div>
     </div>
 
     <div class="bg-white rounded-xl p-6 border border-slate-200 shadow-sm">
-      <div class="text-base font-bold text-[#0f2847] mb-4 flex items-center gap-2">
-        <span class="w-1 h-4 bg-blue-600 rounded-full"></span>
-        Alur Berkas Berjenjang (Single Source Price System)
+      <div class="text-sm font-bold text-slate-700 mb-4 flex items-center gap-2">
+        <span class="w-1.5 h-4 bg-blue-600 rounded-full"></span>
+        Master Log & Bersihkan History Pengadaan
       </div>
-      <div class="overflow-x-auto">
-        <table class="w-full text-left border-collapse">
-          <thead>
-            <tr class="bg-slate-50 border-b-2 border-slate-200">
-              <th class="p-4 text-xs font-bold text-slate-500 uppercase">ID PR</th>
-              <th class="p-4 text-xs font-bold text-slate-500 uppercase">Item Barang</th>
-              <th class="p-4 text-xs font-bold text-slate-500 uppercase">Qty</th>
-              <th class="p-4 text-xs font-bold text-slate-500 uppercase">Anggaran Awal</th>
-              <th class="p-4 text-xs font-bold text-slate-500 uppercase">Supplier Terpilih</th>
-              <th class="p-4 text-xs font-bold text-slate-500 uppercase">Harga Real Supplier</th>
-              <th class="p-4 text-xs font-bold text-slate-500 uppercase">Status Alur</th>
-              <th class="p-4 text-xs font-bold text-slate-500 uppercase">Aksi Penanganan</th>
-            </tr>
-          </thead>
-          <tbody id="tabelPR">
-            <tr>
-              <td colspan="8" class="text-center text-slate-400 p-8 text-sm">Sinkronisasi data sistem procurement...</td>
-            </tr>
-          </tbody>
-        </table>
-      </div>
+      <p class="text-xs text-red-500 mb-6 font-medium">Silakan klik tombol hapus jika ada data uji coba (Sapu, Sabun, dll) yang ingin dibersihkan.</p>
+      
+      <div class="flex flex-col gap-4" id="kontenCardsPR">
+        </div>
     </div>
 
   </div>
@@ -89,148 +83,175 @@
     const KEY_TOKEN = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImJndGdlbHRrYmFubG52eW1hbHVtIiwicm9sZSI6ImFub24iLCJpYXQiOjE3Nzk1MTAwNDksImV4cCI6MjA5NTA4NjA0OX0.-JlapeQpug44SjkEKgb1wyoX2_ftdGGcAnTHJhdzvwE";
     const HEADERS_APP = { "apikey": KEY_TOKEN, "Authorization": `Bearer ${KEY_TOKEN}`, "Content-Type": "application/json" };
 
-    async function dapatkanDataPR() {
+    let currentFilter = 'pending';
+
+    async function loadDataSistem() {
       try {
         const res = await fetch(`${URL_API}?order=created_at.desc`, { method: "GET", headers: HEADERS_APP });
         const data = await res.json();
-        const tbody = document.getElementById('tabelPR');
-        tbody.innerHTML = "";
+        
+        // Update Counter Ringkasan Atas
+        document.getElementById('stat-1').innerText = data.filter(i => i.status === 'pending').length;
+        document.getElementById('stat-2').innerText = data.filter(i => i.status === 'pr_terverifikasi').length;
+        document.getElementById('stat-3').innerText = data.filter(i => i.status === 'input_quotation').length;
+        document.getElementById('stat-4').innerText = data.filter(i => i.status === 'dikirim_ke_manajer').length;
+        document.getElementById('stat-5').innerText = data.filter(i => i.status === 'po_terbit').length;
 
-        if(!data || data.length === 0) {
-          tbody.innerHTML = `<tr><td colspan="8" class="text-center p-8 text-slate-400 text-sm">Belum ada antrean pengadaan saat ini.</td></tr>`;
-          return;
+        // Update Badge Tab
+        document.getElementById('badge-pending').innerText = data.filter(i => i.status === 'pending').length;
+        document.getElementById('badge-verif').innerText = data.filter(i => i.status === 'pr_terverifikasi').length;
+        document.getElementById('badge-eval').innerText = data.filter(i => i.status === 'input_quotation').length;
+
+        renderCards(data);
+      } catch (e) { console.error(e); }
+    }
+
+    function setFilter(statusFilter) {
+      currentFilter = statusFilter;
+      // Reset style tab active
+      ['tab-pending', 'tab-verif', 'tab-eval', 'tab-audit'].forEach(id => {
+        document.getElementById(id).className = "px-4 py-2 rounded-lg text-xs font-bold transition flex items-center gap-2 text-slate-600 hover:bg-slate-50";
+      });
+      
+      if(statusFilter === 'pending') document.getElementById('tab-pending').className = "px-4 py-2 rounded-lg text-xs font-bold transition flex items-center gap-2 bg-slate-100 text-slate-700";
+      if(statusFilter === 'pr_terverifikasi') document.getElementById('tab-verif').className = "px-4 py-2 rounded-lg text-xs font-bold transition flex items-center gap-2 bg-slate-100 text-slate-700";
+      if(statusFilter === 'input_quotation') document.getElementById('tab-eval').className = "px-4 py-2 rounded-lg text-xs font-bold transition flex items-center gap-2 bg-slate-100 text-slate-700";
+      if(statusFilter === 'dikirim_ke_manajer') document.getElementById('tab-audit').className = "px-4 py-2 rounded-lg text-xs font-bold transition flex items-center gap-2 bg-slate-100 text-slate-700";
+
+      loadDataSistem();
+    }
+
+    function renderCards(allData) {
+      const container = document.getElementById('kontenCardsPR');
+      container.innerHTML = "";
+
+      const filtered = allData.filter(item => {
+        if (!item.status && currentFilter === 'pending') return true; // Atasi status NULL masuk ke pending
+        return item.status === currentFilter;
+      });
+
+      if(filtered.length === 0) {
+        container.innerHTML = `<div class="text-center p-8 text-slate-400 text-xs">Tidak ada log berkas pada antrean tab ini.</div>`;
+        return;
+      }
+
+      filtered.forEach(item => {
+        const vendor = item.supplier_terpilih || '—';
+        const hargaReal = Number(item.harga_vendor) || 0;
+        
+        let aksiTombol = "";
+        if(!item.status || item.status === 'pending') {
+          aksiTombol = `<button onclick="prosesStatus('${item.id}', 'pr_terverifikasi')" class="bg-blue-600 hover:bg-blue-700 text-white text-xs font-bold px-4 py-2 rounded-lg transition shadow-sm">✓ Verifikasi PR</button>`;
+        } else if(item.status === 'pr_terverifikasi') {
+          aksiTombol = `<button onclick="bukaFormKunci('${item.id}', '${item.nama_barang}')" class="bg-teal-600 hover:bg-teal-700 text-white text-xs font-bold px-4 py-2 rounded-lg transition shadow-sm">📄 Input Penawaran Vendor</button>`;
+        } else if(item.status === 'input_quotation') {
+          aksiTombol = `<button onclick="bukaFormKirimManajer('${item.id}', '${item.nama_barang}', '${vendor}', ${hargaReal})" class="bg-indigo-600 hover:bg-indigo-700 text-white text-xs font-bold px-4 py-2 rounded-lg transition shadow-sm">🚀 Kirim ke Manajer (Kunci Nilai)</button>`;
+        } else {
+          aksiTombol = `<span class="text-emerald-600 font-bold text-xs bg-emerald-50 border border-emerald-200 px-3 py-1.5 rounded-lg flex items-center gap-1">🔒 Berkas & Harga Terkunci</span>`;
         }
 
-        data.forEach(item => {
-          const qty = Number(item.jumlah) || 0;
-          const hargaEst = Number(item.harga_estimasi) || 0;
-          const hargaFix = Number(item.harga_vendor) || 0;
-          const status = item.status || 'pending';
-          const vendor = item.supplier_terpilih || '—';
-
-          let badgeClass = "text-xs font-bold uppercase px-2.5 py-1 rounded-md inline-block";
-          let statusLabel = "";
-
-          if(status === 'pending') { badgeClass += " bg-red-100 text-red-700"; statusLabel = "1. Verifikasi PR"; }
-          else if(status === 'pr_terverifikasi') { badgeClass += " bg-amber-100 text-amber-700"; statusLabel = "2. Pilih Supplier"; }
-          else if(status === 'input_quotation') { badgeClass += " bg-sky-100 text-sky-700"; statusLabel = "3. Review Pengadaan"; }
-          else if(status === 'dikirim_ke_manajer') { badgeClass += " bg-purple-100 text-purple-700"; statusLabel = "4. Menunggu Approval"; }
-          else if(status === 'po_terbit') { badgeClass += " bg-green-100 text-green-700"; statusLabel = "5. PO & Invoice Valid"; }
-
-          let aksiBtn = "";
-          if (status === 'pending') {
-            aksiBtn = `<button class="bg-blue-600 hover:bg-blue-700 text-white text-xs font-bold px-3 py-1.5 rounded transition shadow-sm" onclick="ubahKeStatus('${item.id}', 'pr_terverifikasi')">✓ Verifikasi PR</button>`;
-          } else if (status === 'pr_terverifikasi') {
-            aksiBtn = `<button class="bg-amber-600 hover:bg-amber-700 text-white text-xs font-bold px-3 py-1.5 rounded transition shadow-sm" onclick="bukaFormQuotation('${item.id}', '${item.nama_barang}')">📄 Input Penawaran</button>`;
-          } else if (status === 'input_quotation') {
-            aksiBtn = `<button class="bg-purple-600 hover:bg-purple-700 text-white text-xs font-bold px-3 py-1.5 rounded transition shadow-sm" onclick="bukaFormEvaluasi('${item.id}', '${item.nama_barang}', '${vendor}', ${hargaFix})">📊 Kirim ke Manajer</button>`;
-          } else {
-            aksiBtn = `<span class="text-emerald-600 font-bold text-xs flex items-center gap-1">🔒 Harga Terkunci</span>`;
-          }
-
-          tbody.innerHTML += `
-            <tr class="border-b border-slate-200 hover:bg-slate-50/50 transition">
-              <td class="p-4 font-monospace text-xs text-slate-400">#PR-${item.id.substring(0,5)}</td>
-              <td class="p-4 font-semibold text-slate-700">${item.nama_barang || '—'}</td>
-              <td class="p-4 text-sm text-slate-600">${qty} Unit</td>
-              <td class="p-4 text-sm text-slate-600">Rp ${hargaEst.toLocaleString('id-ID')}</td>
-              <td class="p-4 text-sm text-blue-600 font-semibold">${vendor}</td>
-              <td class="p-4 text-sm font-bold text-slate-900">${hargaFix > 0 ? 'Rp ' + hargaFix.toLocaleString('id-ID') : '—'}</td>
-              <td class="p-4"><span class="${badgeClass}">${statusLabel}</span></td>
-              <td class="p-4">${aksiBtn}</td>
-            </tr>
-          `;
-        });
-      } catch (e) {
-        console.error(e);
-      }
+        container.innerHTML += `
+          <div class="bg-white border border-slate-200 rounded-xl p-5 shadow-sm flex flex-col md:flex-row md:items-center justify-between gap-4 hover:border-slate-300 transition">
+            <div class="flex-1">
+              <h4 class="text-base font-bold text-slate-800 capitalize mb-1">${item.nama_barang || 'Item Tanpa Nama'}</h4>
+              <div class="flex flex-wrap gap-x-6 gap-y-1 text-xs text-slate-500 font-medium">
+                <div>Jumlah: <span class="text-slate-700 font-bold">${item.jumlah || 1} Unit</span></div>
+                <div>Vendor Terpilih: <span class="text-blue-600 font-bold">${vendor}</span></div>
+                <div>Harga Deal: <span class="text-slate-900 font-bold">${hargaReal > 0 ? 'Rp ' + hargaReal.toLocaleString('id-ID') : '—'}</span></div>
+                <div>Status Sistem: <span class="text-indigo-600 font-bold capitalize">${item.status || 'pending'}</span></div>
+              </div>
+            </div>
+            <div class="flex items-center gap-3 self-end md:self-auto">
+              ${aksiTombol}
+              <button onclick="hapusBaris('${item.id}')" class="bg-red-500 hover:bg-red-600 text-white text-xs font-bold px-4 py-2 rounded-lg transition shadow-sm">Paksa Hapus Bersih</button>
+            </div>
+          </div>
+        `;
+      });
     }
 
-    function bukaFormQuotation(id, namaBarang) {
-      const panel = document.getElementById('dynamicActionPanel');
-      const title = document.getElementById('actionPanelTitle');
-      const content = document.getElementById('actionFormContent');
-      
-      panel.style.display = 'block';
-      title.innerText = `Langkah 3: Input Negosiasi Harga Masuk - ${namaBarang}`;
-      content.innerHTML = `
+    function bukaFormKunci(id, namaBarang) {
+      const pnl = document.getElementById('panelFormSakti');
+      pnl.classList.remove('hidden');
+      document.getElementById('judulPanelSakti').innerText = `Langkah 2: Pilih Vendor & Input Harga Real — ${namaBarang}`;
+      document.getElementById('kontenPanelSakti').innerHTML = `
         <div class="grid grid-cols-1 md:grid-cols-3 gap-4 items-end">
-          <div class="flex flex-col gap-1.5">
-            <label class="text-xs font-semibold text-slate-600">Nama Supplier / Vendor Terpilih</label>
-            <input type="text" id="input_vendor" placeholder="Contoh: PT. Borneo Tekno Utama" class="h-11 px-4 border border-slate-300 rounded-lg text-sm outline-none bg-white">
+          <div class="flex flex-col gap-1">
+            <label class="text-xs font-bold text-slate-600">Nama Supplier / Rekanan Vendor</label>
+            <input type="text" id="v_nama" placeholder="Contoh: PT. Borneo Jaya" class="h-10 px-3 border border-slate-300 rounded-lg text-xs outline-none bg-white">
           </div>
-          <div class="flex flex-col gap-1.5">
-            <label class="text-xs font-semibold text-slate-600">Harga Real Deal Hasil Negosiasi (Satuan)</label>
-            <input type="number" id="input_harga_vendor" placeholder="Rp 0" class="h-11 px-4 border border-slate-300 rounded-lg text-sm outline-none bg-white">
+          <div class="flex flex-col gap-1">
+            <label class="text-xs font-bold text-slate-600">Harga Kesepakatan Real (Satuan)</label>
+            <input type="number" id="v_harga" placeholder="Rp 0" class="h-10 px-3 border border-slate-300 rounded-lg text-xs outline-none bg-white">
           </div>
-          <button class="bg-amber-600 hover:bg-amber-700 text-white h-11 px-6 rounded-lg text-sm font-bold transition shadow-sm" onclick="simpanQuotation('${id}')">Simpan Ke Database</button>
+          <div class="flex gap-2">
+            <button onclick="simpanKunciHarga('${id}')" class="bg-teal-600 text-white text-xs font-bold h-10 px-4 rounded-lg flex-1">Simpan ke DB</button>
+            <button onclick="document.getElementById('panelFormSakti').classList.add('hidden')" class="bg-slate-300 text-slate-700 text-xs font-bold h-10 px-3 rounded-lg">Batal</button>
+          </div>
         </div>
       `;
     }
 
-    async function simpanQuotation(id) {
-      const vendor = document.getElementById('input_vendor').value.trim();
-      const harga = parseFloat(document.getElementById('input_harga_vendor').value) || 0;
-
-      if(!vendor || harga <= 0) { alert("Isi nama vendor dan nominal harga deal!"); return; }
-
-      try {
-        await fetch(`${URL_API}?id=eq.${id}`, { 
-          method: "PATCH", 
-          headers: HEADERS_APP, 
-          body: JSON.stringify({ supplier_terpilih: vendor, harga_vendor: harga, status: 'input_quotation' }) 
-        });
-        document.getElementById('dynamicActionPanel').style.display = 'none';
-        dapatkanDataPR();
-      } catch(e) { console.error(e); }
-    }
-
-    function bukaFormEvaluasi(id, namaBarang, vendor, hargaFix) {
-      const panel = document.getElementById('dynamicActionPanel');
-      const title = document.getElementById('actionPanelTitle');
-      const content = document.getElementById('actionFormContent');
-      
-      panel.style.display = 'block';
-      title.innerText = `Langkah 4: Validasi & Teruskan Dokumen ke Manajer`;
-      content.innerHTML = `
-        <div class="bg-emerald-50 border border-emerald-200 rounded-lg p-4 text-emerald-800 text-sm font-medium mb-4">
-          ℹ️ <strong>Sistem Validasi Harga Terkunci:</strong> Item <strong>${namaBarang}</strong> menggunakan penawaran harga resmi dari <strong>${vendor}</strong> senilai <strong>Rp ${hargaFix.toLocaleString('id-ID')} / unit</strong>. Nominal ini dikirim utuh ke Manajer & Keuangan.
-        </div>
-        <div class="flex justify-end gap-3">
-          <button class="bg-slate-200 hover:bg-slate-300 text-slate-700 px-4 py-2 rounded-lg text-sm font-semibold transition" onclick="document.getElementById('dynamicActionPanel').style.display='none'">Batal</button>
-          <button class="bg-purple-600 hover:bg-purple-700 text-white px-5 py-2 rounded-lg text-sm font-bold transition shadow-sm" onclick="ubahKeStatus('${id}', 'dikirim_ke_manajer')">🚀 Teruskan ke Manajer (Kunci Nilai)</button>
-        </div>
-      `;
-    }
-
-    async function ubahKeStatus(id, status_baru) {
-      try {
-        await fetch(`${URL_API}?id=eq.${id}`, { method: "PATCH", headers: HEADERS_APP, body: JSON.stringify({ status: status_baru }) });
-        document.getElementById('dynamicActionPanel').style.display = 'none';
-        dapatkanDataPR();
-      } catch (e) { alert("Koneksi Supabase error."); }
-    }
-
-    async function tambahPR() {
-      const nama = document.getElementById('nama_barang').value.trim();
-      const qty = parseInt(document.getElementById('jumlah').value) || 1;
-      const harga = parseFloat(document.getElementById('harga').value) || 0;
-
-      if(!nama || harga <= 0) { alert("Isi nama komponen dan harga estimasi!"); return; }
+    async function simpanKunciHarga(id) {
+      const vendor = document.getElementById('v_nama').value.trim();
+      const harga = parseFloat(document.getElementById('v_harga').value) || 0;
+      if(!vendor || harga <= 0) { alert("Data vendor dan harga deal tidak boleh kosong!"); return; }
 
       try {
-        await fetch(URL_API, {
-          method: "POST",
+        await fetch(`${URL_API}?id=eq.${id}`, {
+          method: "PATCH",
           headers: HEADERS_APP,
-          body: JSON.stringify({ nama_barang: nama, jumlah: qty, harga_estimasi: harga, status: 'pending', supplier_terpilih: '—', harga_vendor: 0 })
+          body: JSON.stringify({ supplier_terpilih: vendor, harga_vendor: harga, status: 'input_quotation' })
         });
-        document.getElementById('nama_barang').value = "";
-        document.getElementById('harga').value = "";
-        dapatkanDataPR();
+        document.getElementById('panelFormSakti').classList.add('hidden');
+        setFilter('input_quotation');
       } catch(e) { console.error(e); }
     }
 
-    window.onload = dapatkanDataPR;
+    function bukaFormKirimManajer(id, namaBarang, vendor, harga) {
+      const pnl = document.getElementById('panelFormSakti');
+      pnl.classList.remove('hidden');
+      document.getElementById('judulPanelSakti').innerText = `Langkah 3: Amankan Dokumen & Teruskan`;
+      document.getElementById('kontenPanelSakti').innerHTML = `
+        <div class="text-xs text-slate-700 font-medium mb-3">
+          Sistem mengunci nominal <strong>Rp ${harga.toLocaleString('id-ID')}</strong> dari <strong>${vendor}</strong> untuk pengadaan item <strong>${namaBarang}</strong>. Sekali dikirim, data tidak bisa diubah kembali oleh staf.
+        </div>
+        <div class="flex gap-2 justify-end">
+          <button onclick="document.getElementById('panelFormSakti').classList.add('hidden')" class="bg-slate-300 text-slate-700 text-xs font-bold px-4 py-2 rounded-lg">Batal</button>
+          <button onclick="prosesStatus('${id}', 'dikirim_ke_manajer')" class="bg-indigo-600 text-white text-xs font-bold px-4 py-2 rounded-lg shadow-sm">🚀 Kirim Berkas Ke Meja Manajer</button>
+        </div>
+      `;
+    }
+
+    async function prosesStatus(id, statusBaru) {
+      try {
+        await fetch(`${URL_API}?id=eq.${id}`, {
+          method: "PATCH",
+          headers: HEADERS_APP,
+          body: JSON.stringify({ status: statusBaru })
+        });
+        document.getElementById('panelFormSakti').classList.add('hidden');
+        setFilter(statusBaru);
+      } catch(e) { console.error(e); }
+    }
+
+    async function hapusBaris(id) {
+      if(!confirm("Apakah Anda yakin ingin menghapus bersih data pengadaan ini dari log database?")) return;
+      try {
+        await fetch(`${URL_API}?id=eq.${id}`, { method: "DELETE", headers: HEADERS_APP });
+        loadDataSistem();
+      } catch(e) { console.error(e); }
+    }
+
+    async function bersihkanSemuaHistory() {
+      if(!confirm("PERINGATAN! Fitur ini akan mengosongkan semua arsip riwayat pengadaan di tabel Anda. Lanjutkan?")) return;
+      try {
+        await fetch(`${URL_API}?id=neq.0`, { method: "DELETE", headers: HEADERS_APP });
+        loadDataSistem();
+      } catch(e) { console.error(e); }
+    }
+
+    window.onload = () => setFilter('pending');
   </script>
 </body>
 </html>
