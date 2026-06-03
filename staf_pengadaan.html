@@ -5,7 +5,7 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Sistem Procurement ITK — Dashboard Staf Pengadaan</title>
   <script src="https://cdn.tailwindcss.com"></script>
-  <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght=400;500;600;700;800&display=swap" rel="stylesheet">
   <style>
     body { 
       font-family: 'Plus Jakarta Sans', sans-serif; 
@@ -134,40 +134,54 @@
 
     let currentFilter = 'menunggu';
 
+    // Fungsi Pembantu Update Aman agar JavaScript tidak macet jika element tidak ditemukan
+    function safeUpdateText(id, text) {
+      const el = document.getElementById(id);
+      if (el) el.innerText = text;
+    }
+
     async function loadDataSistem() {
       try {
         const res = await fetch(`${URL_API}?order=created_at.desc`, { method: "GET", headers: HEADERS_APP });
         const data = await res.json();
         
-        // Sinkronisasi Counter Atas dengan Status User
-        document.getElementById('stat-1').innerText = data.filter(i => i.status === 'menunggu' || !i.status).length;
-        document.getElementById('stat-2').innerText = data.filter(i => i.status === 'diverifikasi').length;
-        document.getElementById('stat-3').innerText = data.filter(i => i.status === 'diproses').length;
-        document.getElementById('stat-4').innerText = data.filter(i => i.status === 'disetujui').length;
-        document.getElementById('stat-5').innerText = data.filter(i => i.status === 'diterima' || i.status === 'dikirim').length;
-        document.getElementById('stat-6').innerText = data.filter(i => i.status === 'selesai' || i.status === 'diterima').length;
+        // Hitung jumlah data berdasarkan status secara fleksibel
+        const count1 = data.filter(i => i.status === 'menunggu' || !i.status).length;
+        const count2 = data.filter(i => i.status === 'diverifikasi').length;
+        const count3 = data.filter(i => i.status === 'diproses').length;
+        const count4 = data.filter(i => i.status === 'disetujui').length;
+        const count5 = data.filter(i => i.status === 'diterima' || i.status === 'dikirim').length;
+        // History selesai menangkap status 'selesai' dan status akhir pasca terima user agar pasti muncul
+        const count6 = data.filter(i => i.status === 'selesai' || i.status === 'diterima').length;
 
-        // Badge menu tab
-        document.getElementById('badge-menunggu').innerText = data.filter(i => i.status === 'menunggu' || !i.status).length;
-        document.getElementById('badge-diverifikasi').innerText = data.filter(i => i.status === 'diverifikasi').length;
-        document.getElementById('badge-diproses').innerText = data.filter(i => i.status === 'diproses').length;
-        document.getElementById('badge-disetujui').innerText = data.filter(i => i.status === 'disetujui').length;
-        document.getElementById('badge-diterima').innerText = data.filter(i => i.status === 'diterima').length;
-        
-        // PENGAMAN: Memastikan element badge-selesai aman dimanipulasi
-        const elBadgeSelesai = document.getElementById('badge-selesai');
-        if (elBadgeSelesai) {
-          elBadgeSelesai.innerText = data.filter(i => i.status === 'selesai' || i.status === 'diterima').length;
-        }
+        // Sinkronisasi Counter Atas Utama
+        safeUpdateText('stat-1', count1);
+        safeUpdateText('stat-2', count2);
+        safeUpdateText('stat-3', count3);
+        safeUpdateText('stat-4', count4);
+        safeUpdateText('stat-5', count5);
+        safeUpdateText('stat-6', count6);
+
+        // Sinkronisasi Badge Menu Tab Kecil
+        safeUpdateText('badge-menunggu', count1);
+        safeUpdateText('badge-diverifikasi', count2);
+        safeUpdateText('badge-diproses', count3);
+        safeUpdateText('badge-disetujui', count4);
+        safeUpdateText('badge-diterima', data.filter(i => i.status === 'diterima').length);
+        safeUpdateText('badge-selesai', count6);
 
         renderCards(data);
-      } catch (e) { console.error(e); }
+      } catch (e) { 
+        console.error("Gagal memuat data dari database:", e); 
+      }
     }
 
     function setFilter(statusFilter) {
       currentFilter = statusFilter;
       
-      ['tab-menunggu', 'tab-diverifikasi', 'tab-diproses', 'tab-disetujui', 'tab-diterima', 'tab-selesai'].forEach(id => {
+      const semuaTabId = ['tab-menunggu', 'tab-diverifikasi', 'tab-diproses', 'tab-disetujui', 'tab-diterima', 'tab-selesai'];
+      
+      semuaTabId.forEach(id => {
         const el = document.getElementById(id);
         if (el) {
           el.className = "px-4 py-2.5 rounded-xl text-xs font-bold transition-all duration-200 flex items-center gap-2 text-slate-500 hover:bg-slate-100 hover:text-slate-800";
@@ -184,6 +198,7 @@
 
     function renderCards(allData) {
       const container = document.getElementById('kontenCardsPR');
+      if (!container) return;
       container.innerHTML = "";
 
       const filtered = allData.filter(item => {
@@ -230,6 +245,7 @@
         }
 
         const catatanUser = item.catatan_penerimaan ? `<div class="mt-2 text-[11px] bg-slate-50 border p-2 rounded-lg text-slate-600">📝 <b>Catatan Penerimaan User:</b> ${item.catatan_penerimaan}</div>` : '';
+        const shortId = item.id ? item.id.substring(0,6) : '0000';
 
         container.innerHTML += `
           <div class="bg-white border border-slate-200 rounded-2xl custom-shadow flex flex-col md:flex-row md:items-center justify-between gap-6 card-glow transition-all duration-300 relative overflow-hidden p-6 pl-8">
@@ -244,7 +260,7 @@
                 <div>Kuantitas: <span class="text-slate-800 font-bold">${item.jumlah || 1} Unit</span></div>
                 <div>Vendor: <span class="text-blue-600 font-bold">${vendor}</span></div>
                 <div>Harga Deal: <span class="text-slate-900 font-extrabold">${hargaReal > 0 ? 'Rp ' + hargaReal.toLocaleString('id-ID') : '—'}</span></div>
-                <div class="text-[10px] font-mono text-slate-400">ID: #PR-${item.id.substring(0,6)}</div>
+                <div class="text-[10px] font-mono text-slate-400">ID: #PR-${shortId}</div>
               </div>
               ${catatanUser}
             </div>
@@ -260,6 +276,7 @@
 
     function bukaFormKunci(id, namaBarang) {
       const pnl = document.getElementById('panelFormSakti');
+      if (!pnl) return;
       pnl.classList.remove('hidden');
       document.getElementById('judulPanelSakti').innerText = `Langkah 2: Sinkronisasi Harga Rekanan — ${namaBarang}`;
       document.getElementById('kontenPanelSakti').innerHTML = `
