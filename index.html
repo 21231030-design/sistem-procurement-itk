@@ -90,21 +90,21 @@
       pesan.textContent = 'Memproses login...';
       pesan.className = 'text-blue-500 text-sm text-center mt-4';
 
-      // Ambil base URL secara dinamis agar COCOK di localhost maupun link Vercel baru lu
-      const currentUrl = window.location.href;
-      let baseUrl = currentUrl.substring(0, currentUrl.lastIndexOf('/') + 1);
-      if (!baseUrl.startsWith('http')) baseUrl = "./";
-
-      // Jalankan fungsi autentikasi Supabase terlebih dahulu agar session token tersimpan valid
+      // 1. JALANKAN AUTENTIKASI SUPABASE DI PALING ATAS (WAJIB BIAR COCOK UNTUK SEMUA AKTOR)
       const { data, error } = await sb.auth.signInWithPassword({ email: email, password: pass });
 
       if (error) {
         pesan.textContent = 'Login gagal! Periksa email & password lu.';
         pesan.className = 'text-red-500 text-sm text-center mt-4';
-        return;
+        return; // Setop jika password salah
       }
 
-      // ROUTER FILTER SAKTI (Memastikan pembagian aktor murni tanpa ada kebocoran email)
+      // Ambil base URL secara dinamis agar cocok di localhost maupun link Vercel
+      const currentUrl = window.location.href;
+      let baseUrl = currentUrl.substring(0, currentUrl.lastIndexOf('/') + 1);
+      if (!baseUrl.startsWith('http')) baseUrl = "./";
+
+      // 2. SETELAH BERHASIL LOGIN, BARU DI-ROUTING KE HALAMAN MASING-MASING AKTOR
       if (email === "staf.pengadaan@itk.ac.id") {
         location.href = baseUrl + "staf_pengadaan.html";
       } else if (email === "manajer@itk.ac.id") {
@@ -112,10 +112,9 @@
       } else if (email === "staf.keuangan@itk.ac.id") {
         location.href = baseUrl + "staf_keuangan.html";
       } else if (email === "supplier@itk.ac.id" || email === "supplier@example.com") {
-        // PERBAIKAN UTAMA: Email testing supplier@example.com sekarang dijamin masuk ke portal supplier!
         location.href = baseUrl + "supplier.html";
       } else {
-        // Semua sisa email user/karyawan regular dilempar ke sini
+        // Sisanya adalah user internal / pembuat PR biasa
         location.href = baseUrl + "user.html";
       }
     }
