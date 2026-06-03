@@ -28,9 +28,35 @@
       <button onclick="setTabKeuangan('telah_lunas')" id="f-tab-lunas" class="px-5 py-2.5 rounded-xl text-xs font-bold transition flex items-center gap-2">✅ Rekam Transaksi Lunas <span class="bg-emerald-100 text-emerald-700 px-2 py-0.5 rounded-md text-[10px]" id="f-badge-lunas">0</span></button>
     </div>
 
-    <div class="space-y-4">
+    <div class="space-y-4 mb-12">
       <h3 class="text-xs font-extrabold uppercase tracking-wider text-slate-400 px-2">Manifest Pembayaran Kendali Keuangan</h3>
       <div class="flex flex-col gap-4" id="containerKeuangan"></div>
+    </div>
+
+    <div class="bg-slate-900 text-slate-200 p-6 rounded-2xl border border-slate-700 shadow-xl mt-12 font-mono">
+      <div class="flex items-center justify-between border-b border-slate-700 pb-3 mb-4">
+        <h3 class="text-sm font-bold text-amber-400 flex items-center gap-2">🛠️ PENGASUH DATA DATA (Isi Asli Baris Database Supabase)</h3>
+        <span class="text-[10px] bg-slate-800 text-slate-400 px-2 py-1 rounded">Total Baris: <span id="debug-total-row">0</span></span>
+      </div>
+      <p class="text-xs text-slate-400 mb-4">*Jika tabel di bawah ini kosong melompong, berarti data di tabel `purchase_request` memang tidak terambil atau nama tabelnya berbeda.</p>
+      
+      <div class="overflow-x-auto text-[11px]">
+        <table class="w-full border-collapse text-left">
+          <thead>
+            <tr class="border-b border-slate-700 text-slate-400 bg-slate-950">
+              <th class="p-2">ID PR</th>
+              <th class="p-2">Nama Barang</th>
+              <th class="p-2">Status Asli</th>
+              <th class="p-2">Kolom 'harga'</th>
+              <th class="p-2">Kolom 'harga_supplier'</th>
+              <th class="p-2">Catatan Penerimaan</th>
+            </tr>
+          </thead>
+          <tbody id="debugTableBody" class="divide-y divide-slate-800">
+            <tr><td colspan="6" class="p-4 text-center text-slate-500">Sedang memuat data mentah...</td></tr>
+          </tbody>
+        </table>
+      </div>
     </div>
   </main>
 
@@ -42,25 +68,54 @@
     );
 
     let currentTabKeuangan = 'perlu_dibayar';
+    let globalData = []; // Menyimpan data mentah global
 
     async function AmbilDataKeuangan() {
       try {
-        // Ambil tanpa filter status apa pun dari Supabase supaya GA BAKAL MASUK KONDISI 0 KOSONG
         const { data, error } = await sb.from('purchase_request').select('*').order('created_at', { ascending: false });
         if (error) throw error;
 
-        // Amankan pengecekan status (kita kecilkan hurufnya/lowercase untuk menghindari bug typo kapital)
-        const perluBayar = data.filter(i => !i.status || String(i.status).toLowerCase() !== 'lunas').length;
-        const telahLunas = data.filter(i => i.status && String(i.status).toLowerCase() === 'lunas').length;
+        globalData = data || [];
+        
+        // Render tabel debug mentah di bawah page
+        RenderDebuggerTable(globalData);
+
+        // Amankan penapisan status dengan lowercase
+        const perluBayar = globalData.filter(i => !i.status || String(i.status).toLowerCase() !== 'lunas').length;
+        const telahLunas = globalData.filter(i => i.status && String(i.status).toLowerCase() === 'lunas').length;
 
         document.getElementById('f-badge-perlu').innerText = perluBayar;
         document.getElementById('f-badge-lunas').innerText = telahLunas;
 
-        TampilkanDaftarKeuangan(data);
+        TampilkanDaftarKeuangan(globalData);
       } catch (e) { 
         console.error(e);
-        alert("Koneksi Supabase Bermasalah: " + e.message);
+        document.getElementById('debugTableBody').innerHTML = `<tr><td colspan="6" class="p-4 text-center text-red-400">Gagal load database: ${e.message}</td></tr>`;
       }
+    }
+
+    function RenderDebuggerTable(data) {
+      document.getElementById('debug-total-row').innerText = data.length;
+      const tbody = document.getElementById('debugTableBody');
+      tbody.innerHTML = "";
+      
+      if(data.length === 0) {
+        tbody.innerHTML = `<tr><td colspan="6" class="p-4 text-center text-slate-500">Tabel kosong / data tidak ada di database Supabase!</td></tr>`;
+        return;
+      }
+
+      data.forEach(row => {
+        tbody.innerHTML += `
+          <tr class="hover:bg-slate-800/50">
+            <td class="p-2 font-bold text-blue-400">${String(row.id).substring(0,6)}...</td>
+            <td class="p-2 text-white">${row.nama_barang || row.item_name || '-'}</td>
+            <td class="p-2"><span class="bg-amber-950 text-amber-400 border border-amber-800 px-1.5 py-0.5 rounded">${row.status || 'NULL'}</span></td>
+            <td class="p-2 text-emerald-400">${row.harga || 'NULL'}</td>
+            <td class="p-2 text-emerald-400">${row.harga_supplier || 'NULL'}</td>
+            <td class="p-2 text-slate-400 text-[10px] max-w-[200px] truncate">${row.catatan_penerimaan || '-'}</td>
+          </tr>
+        `;
+      });
     }
 
     function setTabKeuangan(tabBaru) {
@@ -73,21 +128,20 @@
       } else {
         document.getElementById('f-tab-lunas').className = "px-5 py-2.5 rounded-xl text-xs font-bold bg-emerald-600 text-white shadow-sm";
       }
-      AmbilDataKeuangan();
+      TampilkanDaftarKeuangan(globalData);
     }
 
     function TampilkanDaftarKeuangan(allData) {
       const container = document.getElementById('containerKeuangan');
       container.innerHTML = "";
 
-      // Jalankan filter super aman di frontend
       const filtered = allData.filter(item => {
         const cekStatus = item.status ? String(item.status).toLowerCase() : '';
         return currentTabKeuangan === 'perlu_dibayar' ? cekStatus !== 'lunas' : cekStatus === 'lunas';
       });
 
       if(filtered.length === 0) {
-        container.innerHTML = `<div class="bg-white rounded-2xl p-12 text-center text-slate-400 text-xs shadow-sm">✨ Belum ada data transaksi di kategori ini.</div>`;
+        container.innerHTML = `<div class="bg-white rounded-2xl p-12 text-center text-slate-400 text-xs shadow-sm">✨ Belum ada data transaksi di kategori utama. Sila cek tabel hitam debugger di bawah untuk melihat isi database.</div>`;
         return;
       }
 
@@ -95,12 +149,10 @@
         const itemFix = item.nama_barang || item.item_name || 'Material Logistik';
         const vendorFix = item.supplier_terpilih || item.supplier || "PT. Mitra Rekanan ITK";
         
-        // PENGUNCIAN NOMINAL REAL-TIME MULTI-FIELD (Membaca kolom mana pun yang dipakai Pengadaan tanpa merusak nilainya)
         const hargaFix = Number(item.harga_supplier) || Number(item.harga) || Number(item.total_harga) || 0;
         const shortId = item.id ? String(item.id).substring(0,6) : '0000';
         const statusSistemAsli = item.status || 'BARU';
 
-        // Deteksi input berkas dari supplier
         let nomorSJ = "Menunggu Supplier...";
         let nomorInv = "Menunggu Supplier...";
         if (item.catatan_penerimaan && item.catatan_penerimaan.includes("SJ:")) {
@@ -168,14 +220,6 @@
                 <p class="text-xs font-mono font-bold mt-1 text-purple-700">No. Ref: \${inv}</p>
               </div>
             </div>
-            <div class="bg-slate-100 p-4 rounded-xl border border-slate-300 mb-6">
-              <div class="text-[10px] font-bold uppercase tracking-wider text-slate-400 mb-2">📋 Instrumen Hasil 3-Way Matching Audit</div>
-              <div class="grid grid-cols-3 gap-4 text-xs font-bold text-slate-700">
-                <div class="bg-white p-2 rounded border border-slate-200">1. Kode PO: <span class="text-blue-600">#PO-\${poId}</span></div>
-                <div class="bg-white p-2 rounded border border-slate-200">2. No. Surat Jalan: <span class="text-purple-600">\${sj}</span></div>
-                <div class="bg-white p-2 rounded border border-slate-200">3. No. Invoice: <span class="text-amber-600">\${inv}</span></div>
-              </div>
-            </div>
             <table class="w-full text-left text-xs mb-6 border border-slate-300">
               <thead>
                 <tr class="bg-slate-800 text-white">
@@ -192,11 +236,6 @@
                 </tr>
               </tbody>
             </table>
-            \${statusBayar === 'PAID' ? \`
-            <div class="mt-6 p-4 bg-emerald-50 border border-emerald-300 rounded-xl text-center text-xs font-bold text-emerald-800">
-              💰 DANA TELAH SAH DICAIRKAN KE REKENING SUPPLIER VIA TRANSFER BANK <br>
-              <span class="font-mono text-xs text-slate-600">No. Referensi Keuangan ITK: \${refBank}</span>
-            </div>\` : ''}
           </div>
           <script>window.onload = function() { window.print(); }<\/script>
         </body>
@@ -216,12 +255,12 @@
         }).eq('id', id);
 
         if (error) throw error;
-        alert("Sukses! 3-Way Matching Selesai, Transaksi Resmi Dinyatakan Lunas.");
-        setTabKeuangan('perlu_dibayar');
+        alert("Sukses! Status Berubah Menjadi Lunas.");
+        AmbilDataKeuangan();
       } catch (e) { alert("Gagal memperbarui status: " + e.message); }
     }
 
-    window.onload = () => setTabKeuangan('perlu_dibayar');
+    window.onload = () => AmbilDataKeuangan();
   </script>
 </body>
 </html>
