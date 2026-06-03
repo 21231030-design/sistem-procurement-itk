@@ -59,7 +59,7 @@
       <div class="bg-white p-6 rounded-2xl border border-slate-200/80 custom-shadow text-center relative overflow-hidden">
         <div class="absolute top-0 left-0 w-full h-1 bg-purple-500"></div>
         <div class="text-3xl font-black text-purple-600 mb-1 tracking-tight" id="stat-4">0</div>
-        <div class="text-[11px] font-bold text-slate-400 uppercase tracking-wider">4. Approval Manajer</div>
+        <div class="text-[11px] font-bold text-slate-400 uppercase tracking-wider">4. Audit SJ</div>
       </div>
       <div class="bg-white p-6 rounded-2xl border border-slate-200/80 custom-shadow text-center relative overflow-hidden">
         <div class="absolute top-0 left-0 w-full h-1 bg-emerald-500"></div>
@@ -82,8 +82,12 @@
           ⚖️ 3. Evaluasi & Kirim
           <span class="bg-slate-200 text-slate-700 px-2 py-0.5 rounded-md text-[10px] font-extrabold" id="badge-eval">0</span>
         </button>
-        <button onclick="setFilter('dikirim_ke_manajer')" id="tab-audit" class="px-5 py-2.5 rounded-xl text-xs font-bold transition-all duration-200 flex items-center gap-2">
-          ⏳ 4. Menunggu Approval
+        <button onclick="setFilter('audit_sj')" id="tab-audit" class="px-5 py-2.5 rounded-xl text-xs font-bold transition-all duration-200 flex items-center gap-2">
+          🔍 4. Audit Surat Jalan
+          <span class="bg-slate-200 text-slate-700 px-2 py-0.5 rounded-md text-[10px] font-extrabold" id="badge-audit">0</span>
+        </button>
+        <button onclick="setFilter('dikirim_ke_manajer')" id="tab-wait" class="px-5 py-2.5 rounded-xl text-xs font-bold transition-all duration-200 flex items-center gap-2">
+          ⏳ Menunggu Approval
         </button>
       </div>
       <button onclick="bersihkanSemuaHistory()" class="bg-red-50 hover:bg-red-100 text-red-600 border border-red-200/60 text-xs font-bold px-5 py-2.5 rounded-xl transition-all duration-200">
@@ -129,17 +133,18 @@
         const res = await fetch(`${URL_API}?order=created_at.desc`, { method: "GET", headers: HEADERS_APP });
         const data = await res.json();
         
-        // Perhitungan counter angka secara realtime
+        // Counter data realtime di atas
         document.getElementById('stat-1').innerText = data.filter(i => i.status === 'pending' || !i.status).length;
         document.getElementById('stat-2').innerText = data.filter(i => i.status === 'pr_terverifikasi').length;
         document.getElementById('stat-3').innerText = data.filter(i => i.status === 'input_quotation').length;
-        document.getElementById('stat-4').innerText = data.filter(i => i.status === 'dikirim_ke_manajer').length;
-        document.getElementById('stat-5').innerText = data.filter(i => i.status === 'po_terbit').length;
+        document.getElementById('stat-4').innerText = data.filter(i => i.status === 'audit_sj').length;
+        document.getElementById('stat-5').innerText = data.filter(i => i.status === 'po_terbit' || i.status === 'selesai' || i.status === 'selesai_lunas').length;
 
-        // Perhitungan badge angka pada tab menu
+        // Badge menu tab
         document.getElementById('badge-pending').innerText = data.filter(i => i.status === 'pending' || !i.status).length;
         document.getElementById('badge-verif').innerText = data.filter(i => i.status === 'pr_terverifikasi').length;
         document.getElementById('badge-eval').innerText = data.filter(i => i.status === 'input_quotation').length;
+        document.getElementById('badge-audit').innerText = data.filter(i => i.status === 'audit_sj').length;
 
         renderCards(data);
       } catch (e) { console.error(e); }
@@ -147,14 +152,15 @@
 
     function setFilter(statusFilter) {
       currentFilter = statusFilter;
-      ['tab-pending', 'tab-verif', 'tab-eval', 'tab-audit'].forEach(id => {
+      ['tab-pending', 'tab-verif', 'tab-eval', 'tab-audit', 'tab-wait'].forEach(id => {
         document.getElementById(id).className = "px-5 py-2.5 rounded-xl text-xs font-bold transition-all duration-200 flex items-center gap-2 text-slate-500 hover:bg-slate-100 hover:text-slate-800";
       });
       
       if(statusFilter === 'pending') document.getElementById('tab-pending').className = "px-5 py-2.5 rounded-xl text-xs font-bold transition-all duration-200 flex items-center gap-2 bg-[#0f2847] text-white shadow-sm";
       if(statusFilter === 'pr_terverifikasi') document.getElementById('tab-verif').className = "px-5 py-2.5 rounded-xl text-xs font-bold transition-all duration-200 flex items-center gap-2 bg-[#0f2847] text-white shadow-sm";
       if(statusFilter === 'input_quotation') document.getElementById('tab-eval').className = "px-5 py-2.5 rounded-xl text-xs font-bold transition-all duration-200 flex items-center gap-2 bg-[#0f2847] text-white shadow-sm";
-      if(statusFilter === 'dikirim_ke_manajer') document.getElementById('tab-audit').className = "px-5 py-2.5 rounded-xl text-xs font-bold transition-all duration-200 flex items-center gap-2 bg-[#0f2847] text-white shadow-sm";
+      if(statusFilter === 'audit_sj') document.getElementById('tab-audit').className = "px-5 py-2.5 rounded-xl text-xs font-bold transition-all duration-200 flex items-center gap-2 bg-[#0f2847] text-white shadow-sm";
+      if(statusFilter === 'dikirim_ke_manajer') document.getElementById('tab-wait').className = "px-5 py-2.5 rounded-xl text-xs font-bold transition-all duration-200 flex items-center gap-2 bg-[#0f2847] text-white shadow-sm";
 
       loadDataSistem();
     }
@@ -164,7 +170,7 @@
       container.innerHTML = "";
 
       const filtered = allData.filter(item => {
-        if (!item.status && currentFilter === 'pending') return true; // Amankan null masuk pending
+        if (!item.status && currentFilter === 'pending') return true;
         return item.status === currentFilter;
       });
 
@@ -186,7 +192,9 @@
         
         if(item.status === 'pr_terverifikasi') { warnaSamping = "bg-cyan-500"; labelStatus = "Pencarian Vendor"; badgeWarna = "bg-cyan-50 text-cyan-700 border-cyan-200"; }
         if(item.status === 'input_quotation') { warnaSamping = "bg-indigo-500"; labelStatus = "Evaluasi Komparasi"; badgeWarna = "bg-indigo-50 text-indigo-700 border-indigo-200"; }
-        if(item.status === 'dikirim_ke_manajer') { warnaSamping = "bg-purple-500"; labelStatus = "Menunggu Approval"; badgeWarna = "bg-purple-50 text-purple-700 border-purple-200"; }
+        if(item.status === 'audit_sj') { warnaSamping = "bg-purple-500"; labelStatus = "Pengecekan Logistik/SJ"; badgeWarna = "bg-purple-50 text-purple-700 border-purple-200"; }
+        if(item.status === 'dikirim_ke_manajer') { warnaSamping = "bg-slate-400"; labelStatus = "Review Manajer"; badgeWarna = "bg-slate-100 text-slate-700 border-slate-300"; }
+        if(item.status === 'po_terbit' || item.status === 'selesai' || item.status === 'selesai_lunas') { warnaSamping = "bg-emerald-500"; labelStatus = "Lunas / Selesai"; badgeWarna = "bg-emerald-50 text-emerald-700 border-emerald-200"; }
 
         let aksiTombol = "";
         if(!item.status || item.status === 'pending') {
@@ -195,8 +203,13 @@
           aksiTombol = `<button onclick="bukaFormKunci('${item.id}', '${item.nama_barang}')" class="bg-cyan-600 hover:bg-cyan-700 text-white text-xs font-bold px-5 py-2.5 rounded-xl transition shadow-sm">📄 Hubungkan Vendor & Harga</button>`;
         } else if(item.status === 'input_quotation') {
           aksiTombol = `<button onclick="bukaFormKirimManajer('${item.id}', '${item.nama_barang}', '${vendor}', ${hargaReal})" class="bg-indigo-600 hover:bg-indigo-700 text-white text-xs font-bold px-5 py-2.5 rounded-xl transition shadow-sm">🚀 Kirim ke Manajer (Kunci)</button>`;
+        } else if(item.status === 'audit_sj') {
+          // TOMBOL INTERAKTIF AUDIT SURAT JALAN MENUJU KEUANGAN (SIAP BAYAR)
+          aksiTombol = `<button onclick="prosesStatus('${item.id}', 'po_terbit')" class="bg-purple-600 hover:bg-purple-700 text-white text-xs font-bold px-5 py-2.5 rounded-xl transition shadow-sm">🔍 Lolos Audit SJ (Kirim ke Keuangan)</button>`;
+        } else if(item.status === 'dikirim_ke_manajer') {
+          aksiTombol = `<span class="text-slate-500 font-bold text-xs bg-slate-50 border border-slate-200 px-4 py-2 rounded-xl flex items-center gap-1.5">⏳ Menunggu Meja Manajer</span>`;
         } else {
-          aksiTombol = `<span class="text-emerald-700 font-bold text-xs bg-emerald-50 border border-emerald-200 px-4 py-2 rounded-xl flex items-center gap-1.5">🔒 Nilai Aman Terkunci</span>`;
+          aksiTombol = `<span class="text-emerald-700 font-bold text-xs bg-emerald-50 border border-emerald-200 px-4 py-2 rounded-xl flex items-center gap-1.5">🔒 Lunas & Selesai</span>`;
         }
 
         container.innerHTML += `
@@ -294,7 +307,7 @@
       } catch(e) { console.error(e); }
     }
 
-    // FITUR HAPUS PER BARIS BARANG (MENYESUAIKAN KRITERIA)
+    // FITUR UTAMA HAPUS PER BARIS BARANG DATA SAMPAH
     async function hapusBaris(id) {
       if(!confirm("Apakah Anda yakin ingin menghapus bersih baris data pengadaan ini dari server database?")) return;
       try {
@@ -303,14 +316,14 @@
           headers: HEADERS_APP 
         });
         if(res.ok) {
-          loadDataSistem(); // Sinkronisasi ulang tampilan setelah sukses terhapus
+          loadDataSistem();
         }
       } catch(e) { console.error(e); }
     }
 
-    // FITUR KOSONGKAN RIWAYAT TOTAL (SABON/SAPU)
+    // FITUR UTAMA KOSONGKAN SELURUH ISI TABEL SUPABASE
     async function bersihkanSemuaHistory() {
-      if(!confirm("PERINGATAN SEAAKTI! Seluruh data history procurement di tabel Supabase akan di-wipe out (dihapus permanen). Lanjutkan?")) return;
+      if(!confirm("PERINGATAN! Seluruh data riwayat procurement di tabel Supabase Anda akan dihapus total secara permanen. Tetap jalankan?")) return;
       try {
         const res = await fetch(`${URL_API}?id=neq.00000000-0000-0000-0000-000000000000`, { 
           method: "DELETE", 
