@@ -121,8 +121,7 @@
         </h3>
       </div>
       
-      <div class="flex flex-col gap-4" id="kontenCardsPR">
-        </div>
+      <div class="flex flex-col gap-4" id="kontenCardsPR"></div>
     </div>
 
   </main>
@@ -144,14 +143,13 @@
         const res = await fetch(`${URL_API}?order=created_at.desc`, { method: "GET", headers: HEADERS_APP });
         const data = await res.json();
         
-        // Logika Klasifikasi Filter Pengadaan Aktif 1-5
         const count1 = data.filter(i => i.status === 'menunggu' || !i.status).length;
         const count2 = data.filter(i => i.status === 'diverifikasi').length;
         const count3 = data.filter(i => i.status === 'diproses').length;
         const count4 = data.filter(i => i.status === 'disetujui').length;
         const count5 = data.filter(i => i.status === 'dikirim').length;
         
-        // JALUR PENGAMAN SAKTI: Semua data selain status aktif 1-5 otomatis digolongkan sebagai HISTORY SELESAI
+        // Klasifikasi history selesai lunas
         const count6 = data.filter(i => i.status !== 'menunggu' && i.status && i.status !== 'diverifikasi' && i.status !== 'diproses' && i.status !== 'disetujui' && i.status !== 'dikirim').length;
 
         safeUpdateText('stat-1', count1);
@@ -201,7 +199,6 @@
 
       const filtered = allData.filter(item => {
         if (!item.status && currentFilter === 'menunggu') return true;
-        // Tampilkan data sisa di tab selesai
         if (currentFilter === 'selesai') {
           return item.status !== 'menunggu' && item.status && item.status !== 'diverifikasi' && item.status !== 'diproses' && item.status !== 'disetujui' && item.status !== 'dikirim';
         }
@@ -212,15 +209,26 @@
       if(filtered.length === 0) {
         container.innerHTML = `
           <div class="bg-white rounded-2xl border border-slate-200/80 p-12 text-center text-slate-400 text-xs custom-shadow">
-             ✨ Tidak ada antrean berkas pengadaan pada kategori tab ini.
+              ✨ Tidak ada antrean berkas pengadaan pada kategori tab ini.
           </div>`;
         return;
       }
 
       filtered.forEach(item => {
-        const vendor = item.supplier_terpilih || '—';
-        const hargaReal = Number(item.harga_vendor) || 0;
+        // BACKUP MULTI-KOLOM SUPPLIER (SUPPLIER_TERPILIH ATAU SUPPLIER BAWAAN)
+        const vendor = item.supplier_terpilih || item.supplier || '—';
         
+        // PEMERIKSAAN BERLAPIS NOMINAL HARGA AGAR TIDAK MUNCUL 0
+        let hargaReal = Number(item.harga_vendor) || Number(item.harga) || Number(item.harga_supplier) || 0;
+        
+        // Simpan ke memori lokal jika di database sempat terbaca agar aman
+        if (hargaReal > 0) {
+          localStorage.setItem(`pengadaan_harga_${item.id}`, hargaReal);
+        } else {
+          const hgBackup = localStorage.getItem(`pengadaan_harga_${item.id}`);
+          if (hgBackup) hargaReal = Number(hgBackup);
+        }
+
         let warnaSamping = "bg-amber-500";
         let labelStatus = "Perlu Dicek Staf";
         let badgeWarna = "bg-amber-50 text-amber-700 border-amber-200";
@@ -230,7 +238,6 @@
         if(item.status === 'disetujui') { warnaSamping = "bg-purple-500"; labelStatus = "Disetujui! Siap Kirim Supplier"; badgeWarna = "bg-purple-50 text-purple-700 border-purple-200"; }
         if(item.status === 'dikirim') { warnaSamping = "bg-pink-500"; labelStatus = "Barang Sedang Dikirim Vendor"; badgeWarna = "bg-pink-50 text-pink-700 border-pink-200"; }
         
-        // Status di luar 1-5 dianggap selesai lunas
         if(item.status !== 'menunggu' && item.status !== 'diverifikasi' && item.status !== 'diproses' && item.status !== 'disetujui' && item.status !== 'dikirim') {
           warnaSamping = "bg-emerald-500"; 
           labelStatus = "Lunas & Arsip Selesai"; 
@@ -310,11 +317,18 @@
       const harga = parseFloat(document.getElementById('v_harga').value) || 0;
       if(!vendor || harga <= 0) { alert("Data vendor dan harga tidak valid!"); return; }
 
+      // Kunci juga di memori lokal pengadaan sebelum kirim API
+      localStorage.setItem(`pengadaan_harga_${id}`, harga);
+
       try {
         const res = await fetch(`${URL_API}?id=eq.${id}`, {
           method: "PATCH",
           headers: HEADERS_APP,
-          body: JSON.stringify({ supplier_terpilih: vendor, harga_vendor: harga, status: 'diproses' })
+          body: JSON.stringify({ 
+            supplier_terpilih: vendor, 
+            harga_vendor: harga, 
+            status: 'diproses' 
+          })
         });
         if(res.ok) {
           document.getElementById('panelFormSakti').classList.add('hidden');
@@ -323,17 +337,36 @@
       } catch(e) { console.error(e); }
     }
 
+    // FUNGSI SAKTI YANG SUDAH DIPERBAIKI (IKUT MEMPERTAHANKAN DATA LAMA SAAT MERUBAH STATUS)
     async function prosesStatus(id, statusBaru) {
       try {
+        // 1. Tarik data baris aktif dari Supabase biar tahu isi aslinya
+        const dapatkanData = await fetch(`${URL_API}?id=eq.${id}`, { method: "GET", headers: HEADERS_APP });
+        const barisAktif = await dapatkanData.json();
+        
+        let payload = { status: statusBaru };
+        
+        // 2. Amankan data harga & nama supplier lama agar tidak terhapus / ter-override kosong
+        if (barisAktif && barisAktif.length > 0) {
+          const hgLama = Number(barisAktif[0].harga_vendor) || Number(barisAktif[0].harga) || Number(localStorage.getItem(`pengadaan_harga_${id}`)) || 0;
+          payload.harga_vendor = hgLama;
+          payload.harga = hgLama;
+          payload.supplier_terpilih = barisAktif[0].supplier_terpilih || barisAktif[0].supplier || '';
+        }
+
+        // 3. Eksekusi PATCH dengan isi komplit
         const res = await fetch(`${URL_API}?id=eq.${id}`, {
           method: "PATCH",
           headers: HEADERS_APP,
-          body: JSON.stringify({ status: statusBaru })
+          body: JSON.stringify(payload)
         });
+        
         if(res.ok) {
           setFilter(statusBaru);
         }
-      } catch(e) { console.error(e); }
+      } catch(e) { 
+        console.error(e); 
+      }
     }
 
     async function hapusBaris(id) {
