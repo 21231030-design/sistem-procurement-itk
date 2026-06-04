@@ -2,55 +2,55 @@ from http.server import BaseHTTPRequestHandler
 import json
 
 # ==========================================
-# FUNGSI PYTHON 1: FITUR INTELIJEN AUDIT PAJAK & DISKON LOGISTIK
+# FUNGSI PYTHON 1: VALIDATOR & FORMATTER HARGA REAL-TIME (ANTI ANGKA 0)
 # ==========================================
-def hitung_diskon_dan_pajak(harga_satuan, jumlah_barang):
+def validasi_dan_format_harga(harga_vendor, jumlah_barang):
     """
-    Fungsi untuk menghitung total bersih pengadaan dengan aturan bisnis:
-    - Jika total belanja > Rp 5.000.000, dapat diskon 5%
-    - Dikenakan Pajak PPN Kampus sebesar 11%
+    Fungsi Python untuk memastikan harga yang masuk dari staf pengadaan
+    bersifat valid (di atas 0) dan menghitung total harga riil secara aman di server.
     """
-    total_kotor = harga_satuan * jumlah_barang
+    harga = float(harga_vendor) if harga_vendor else 0
+    qty = int(jumlah_barang) if jumlah_barang else 1
     
-    # Logika Diskon
-    diskon = 0
-    if total_kotor > 5000000:
-        diskon = total_kotor * 0.05
+    # Proteksi sistem jika data kosong atau bernilai 0
+    if harga <= 0:
+        status_validasi = "INVALID: Harga masih kosong atau Rp 0!"
+        total_riil = 0
+    else:
+        status_validasi = "VALID: Harga terverifikasi real-time."
+        total_riil = harga * qty
         
-    total_setelah_diskon = total_kotor - diskon
-    ppn = total_setelah_diskon * 0.11
-    total_bersih = total_setelah_diskon + ppn
-    
     return {
-        "total_kotor": total_kotor,
-        "potongan_diskon": diskon,
-        "pajak_ppn": ppn,
-        "total_bersih_final": total_bersih
+        "status_sistem": status_validasi,
+        "harga_satuan": harga,
+        "kuantitas": qty,
+        "total_harga_riil": total_riil,
+        "format_rupiah": f"Rp {total_riil:,.0f}".replace(",", ".")
     }
 
 # ==========================================
-# FUNGSI PYTHON 2: VALIDATOR SISTEM 3-WAY MATCHING (KEUANGAN)
+# FUNGSI PYTHON 2: AUDITOR INTEGRITAS DOKUMEN (3-WAY MATCHING KELEMBAGAAN)
 # ==========================================
-def verifikasi_3way_matching(no_po, no_sj, no_inv):
+def audit_dokumen_logistik(no_po, no_sj, no_inv):
     """
-    Fungsi untuk memvalidasi keaslian dokumen keuangan.
-    Memastikan format nomor PO, Surat Jalan, dan Invoice sinkron & valid.
+    Fungsi Python untuk mengaudit kecocokan nomor instrumen pengadaan di Keuangan.
+    Memastikan berkas PO, Surat Jalan, dan Invoice tidak ada yang kosong.
     """
-    # Validasi sederhana format string dokumen
-    po_valid = "#PR-" in no_po or "#PO-" in no_po
-    sj_valid = "SJ" in no_sj
-    inv_valid = "INV" in no_inv
+    # Mengecek apakah semua dokumen fisik logistik sudah lengkap diinput
+    po_ada = bool(no_po and no_po != "0000")
+    sj_ada = bool(no_sj and no_sj != "SJ-REF" and no_sj != "")
+    inv_ada = bool(no_inv and no_inv != "INV-REF" and no_inv != "")
     
-    status_matching = po_valid and sj_valid and inv_valid
+    sistem_matching = po_ada and sj_ada and inv_ada
     
-    if status_matching:
-        pesan = "STATUS: MATCHING LUNAS. Berkas sah untuk dicairkan oleh Bank."
+    if sistem_matching:
+        catatan_audit = "AUDIT SUKSES: Dokumen lengkap (3-Way Matching Terpenuhi). Dana siap dicairkan."
     else:
-        pesan = "STATUS: DISKREPANSI DATA. Dokumen tidak sinkron atau palsu!"
+        catatan_audit = "AUDIT BERKAS GAGAL: Dokumen pengadaan belum lengkap atau masih menggunakan template default!"
         
     return {
-        "is_matched": status_matching,
-        "catatan_audit": pesan
+        "apakah_matching": sistem_matching,
+        "kesimpulan_audit": catatan_audit
     }
 
 # ==========================================
@@ -58,7 +58,6 @@ def verifikasi_3way_matching(no_po, no_sj, no_inv):
 # ==========================================
 class handler(BaseHTTPRequestHandler):
     def do_POST(self):
-        # Membaca body request dari JavaScript Frontend
         content_length = int(self.headers['Content-Length'])
         post_data = self.rfile.read(content_length)
         request_body = json.loads(post_data.decode('utf-8'))
@@ -66,23 +65,22 @@ class handler(BaseHTTPRequestHandler):
         path = self.path
         response_data = {}
         
-        # Routing ke Fungsi Python 1
+        # Jalur komunikasi ke Fungsi Python 1
         if "/api/audit/kalkulator" in path:
-            harga = float(request_body.get("harga", 0))
-            jumlah = int(request_body.get("jumlah", 1))
-            response_data = hitung_diskon_dan_pajak(harga, jumlah)
+            harga = request_body.get("harga", 0)
+            jumlah = request_body.get("jumlah", 1)
+            response_data = validasi_dan_format_harga(harga, jumlah)
             
-        # Routing ke Fungsi Python 2
+        # Jalur komunikasi ke Fungsi Python 2
         elif "/api/audit/verify" in path:
             po = request_body.get("po", "")
             sj = request_body.get("sj", "")
             inv = request_body.get("inv", "")
-            response_data = verifikasi_3way_matching(po, sj, inv)
+            response_data = audit_dokumen_logistik(po, sj, inv)
             
         else:
             response_data = {"error": "Endpoint tidak ditemukan"}
 
-        # Mengirim respon balik ke browser
         self.send_response(200)
         self.send_header('Content-type', 'application/json')
         self.send_header('Access-Control-Allow-Origin', '*')
@@ -94,7 +92,6 @@ class handler(BaseHTTPRequestHandler):
         return
 
     def do_OPTIONS(self):
-        # Handler untuk mengizinkan CORS Browser
         self.send_response(200)
         self.send_header('Access-Control-Allow-Origin', '*')
         self.send_header('Access-Control-Allow-Methods', 'POST, OPTIONS')
