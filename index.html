@@ -1,9 +1,11 @@
 <!DOCTYPE html>
 <html lang="id">
 <head>
+  <meta name="google-site-verification" content="CHuW5lzUfp-u5d3rSkct0U0287rq2UVg8BkGxudQ8Qc" />
+  
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Login/Register - Sistem Procurement ITK</title>
+  <title>Login - Sistem Procurement ITK</title>
   <script src="https://cdn.tailwindcss.com"></script>
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 </head>
@@ -27,14 +29,10 @@
         class="w-full border border-gray-300 rounded-lg px-4 py-2 focus:outline-none focus:ring-2 focus:ring-blue-400">
     </div>
 
-    <div class="flex gap-2">
+    <div class="flex">
       <button onclick="login()"
-        class="flex-1 bg-blue-600 hover:bg-blue-700 text-white font-semibold py-3 rounded-lg transition">
+        class="w-full bg-blue-600 hover:bg-blue-700 text-white font-semibold py-3 rounded-lg transition text-center">
         Login
-      </button>
-      <button onclick="register()"
-        class="flex-1 bg-green-600 hover:bg-green-700 text-white font-semibold py-3 rounded-lg transition">
-        Register
       </button>
     </div>
 
@@ -47,34 +45,6 @@
       'https://bgtgeltkbanlnvymalum.supabase.co',
       'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImJndGdlbHRrYmFubG52eW1hbHVtIiwicm9sZSI6ImFub24iLCJpYXQiOjE3Nzk1MTAwNDksImV4cCI6MjA5NTA4NjA0OX0.-JlapeQpug44SjkEKgb1wyoX2_ftdGGcAnTHJhdzvwE'
     )
-
-    async function register() {
-      const email = document.getElementById('email').value.trim()
-      const pass = document.getElementById('password').value
-      const pesan = document.getElementById('pesan')
-
-      if (!email || !pass) {
-        pesan.textContent = 'Email dan password wajib diisi!'
-        pesan.className = 'text-red-500 text-sm text-center mt-4'
-        return
-      }
-
-      pesan.textContent = 'Memproses registrasi...'
-      pesan.className = 'text-blue-500 text-sm text-center mt-4'
-
-      const { data, error } = await sb.auth.signUp({
-        email: email,
-        password: pass
-      })
-
-      if (error) {
-        pesan.textContent = 'Register gagal! ' + error.message
-        pesan.className = 'text-red-500 text-sm text-center mt-4'
-      } else {
-        pesan.textContent = 'Register berhasil! Silakan login.'
-        pesan.className = 'text-green-500 text-sm text-center mt-4'
-      }
-    }
 
     async function login() {
       const email = document.getElementById('email').value.trim();
@@ -90,19 +60,16 @@
       pesan.textContent = 'Memproses login...';
       pesan.className = 'text-blue-500 text-sm text-center mt-4';
 
-      // Ambil Base URL secara dinamis agar aman di localhost maupun Vercel
       const currentUrl = window.location.href;
       let baseUrl = currentUrl.substring(0, currentUrl.lastIndexOf('/') + 1);
       if (!baseUrl.startsWith('http')) baseUrl = "./";
 
-      // PROTEKSI UTAMA: Lakukan percobaan login tanpa membiarkan sistem crash jika response 400
       try {
         await sb.auth.signInWithPassword({ email: email, password: pass });
       } catch (err) {
         console.log("Supabase memberikan bypass response 400, jalankan router.");
       }
 
-      // GARDA TERDEPAN ROUTING: COCOKKAN EMAIL & LANGSUNG LEMPAR KE HALAMAN AKTOR MASING-MASING!
       if (email === "staf.pengadaan@itk.ac.id") {
         location.href = baseUrl + "staf_pengadaan.html";
       } else if (email === "manajer@itk.ac.id") {
@@ -114,7 +81,6 @@
       } else if (email === "user@itk.ac.id") {
         location.href = baseUrl + "user.html";
       } else {
-        // Fallback jika ada email testing baru lainnya agar tidak tersesat
         location.href = baseUrl + "user.html";
       }
     }
